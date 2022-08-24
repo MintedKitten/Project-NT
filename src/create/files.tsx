@@ -1,6 +1,6 @@
 import { fetcher } from "../frontend";
 
-export async function uploadInProject(pid: string, formData: FormData) {
-  const data = await fetcher("/files/", { _id: pid, frData: formData });
+export async function uploadInProject(formData: FormData) {
+  const data = await fetcher("/files/", formData);
   //   return { fmid: idstring };
 }

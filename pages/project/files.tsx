@@ -61,7 +61,8 @@ const ProjectFilesPage: NextPage<
           const elm = file[index];
           formData.append("file", elm);
         }
-        const isUploaded = await uploadInProject(pid, formData);
+        formData.append("pid", pid);
+        const isUploaded = await uploadInProject(formData);
         // await addFiletoProjFiles(pid, fmid);
         // router.reload();
       },
@@ -228,7 +229,7 @@ const ProjectFilesPage: NextPage<
                       >
                         <a
                           download={filename}
-                          href={`${dir}`}
+                          href={`/files/${_id?.toHexString()}`}
                           // onClick={(e) => {
                           //   e.preventDefault();
                           //   downloadFile(file);

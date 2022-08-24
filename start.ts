@@ -33,13 +33,6 @@ function sha256(msg: string) {
   return hashHex;
 }
 
-function hashPassword(username: string, password: string) {
-  const hashed = sha256(
-    username + password + seedrandom(username + password + secret)()
-  );
-  return hashed;
-}
-
 const secret = "AwesomeSauce";
 // Server config from env and server request handler
 const port = parseInt(`${process.env.PORT}`, 10) || 3000;
@@ -51,50 +44,6 @@ const expressMongoString =
   "mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority";
 const DBname = dev ? "devProcurement" : "Procurement";
 const FilesMetaColl = "FilesMetadata";
-const userColl = "User";
-
-const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "Username" },
-        password: { label: "Password", type: "password" },
-      },
-      authorize: async (credentials, req) => {
-        if (credentials) {
-          const username = credentials.username;
-          const password = credentials.password;
-          const user = await getUser(
-            username,
-            hashPassword(username, password)
-          );
-          if (user) {
-            return { id: user._id, name: user.name, admin: user.admin };
-          }
-        }
-        return null;
-      },
-    }),
-  ],
-  callbacks: {
-    jwt: ({ token, user }) => {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    session: ({ session, token }) => {
-      if (token) {
-        session.id = token.id;
-      }
-      return session;
-    },
-  },
-  secret: `${secret}`,
-  jwt: { secret: `${secret}` },
-  pages: { signIn: "/auth/login" },
-};
 
 // ExpressJS DB Functions
 // Statically create the client, so there's only 1 client per connection
@@ -106,20 +55,6 @@ async function getMongoclient(): Promise<MongoClient> {
 
 async function closeMongoclient(): Promise<void> {
   (await client).close();
-}
-
-async function getUser(username: string, password: string) {
-  const query = { username: username, password: password };
-  const conn = await getMongoclient();
-  const user = conn
-    .db(DBname)
-    .collection(userColl)
-    .findOne(query)
-    .then((value) => {
-      return value;
-    });
-  conn.close();
-  return user;
 }
 
 // When Nodejs server shut down, close MongoDBClient
@@ -186,15 +121,8 @@ app
   .then(() => {
     const fileserver = express();
 
-    // Authenticate connection
     fileserver
-      .use("/files/", async (req, res, next) => {
-        console.log("auth");
-        const session = unstable_getServerSession(req, res, authOptions);
-        if (!session) {
-          return res.status(401).end("Unauthorised");
-        }
-      }) // Download a file
+      // Download a file
       .get("/files/:fmid", async (req, res, next) => {
         try {
           const result = await getFileName(new ObjectId(req.params.fmid));
@@ -222,18 +150,16 @@ app
       .post("/files/", async (req, res, next) => {
         const getDataFromBody = new Promise<{ fields: Fields; files: Files }>(
           (resolve, reject) => {
-            const form = new formidable.IncomingForm();
+            const form = formidable({ multiples: true });
             form.parse(req, (err, fields, files) => {
               if (err) {
                 reject(err);
               }
-              console.log(fields, files);
+              console.log(files);
               resolve({ fields, files });
             });
           }
         );
-        console.log(1);
-        return res.status(200).end();
         if (!existsSync(dirfilepath)) {
           mkdirSync(dirfilepath);
         }
