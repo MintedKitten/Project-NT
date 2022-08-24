@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 const HomePage: NextPage = () => {
   const session = useSession();
   const router = useRouter();
-  const { status } = session;
+  const { status, data } = session;
 
   if (status === "unauthenticated") {
     router.push("/api/auth/signin");

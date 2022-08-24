@@ -20,7 +20,6 @@ const nxcHandler = () => {
   })
     .use(async (req, res, next) => {
       const session = await unstable_getServerSession(req, res, authOptions);
-      console.log("api auth: " + session);
       if (!session) {
         return res.status(401).end();
       }

@@ -8,6 +8,7 @@ import theme from "../src/theme";
 import createEmotionCache from "../src/createEmotionCache";
 import { SessionProvider } from "next-auth/react";
 import NextNProgress from "nextjs-progressbar";
+import { ConfirmDialogProvider } from "react-mui-confirm";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -28,7 +29,10 @@ export default function MyApp(props: MyAppProps) {
         <CssBaseline />
         <SessionProvider>
           <NextNProgress />
-          <Component {...pageProps} />
+          {/* @ts-ignore */}
+          <ConfirmDialogProvider>
+            <Component {...pageProps} />
+          </ConfirmDialogProvider>
         </SessionProvider>
       </ThemeProvider>
     </CacheProvider>

@@ -1,12 +1,14 @@
 import { retDatasignup } from "../pages/api/auth/signup";
 import { retDataregcheck } from "../pages/api/auth/regcheck";
 
-async function fetcher(apiurl: string, body: object) {
+export async function fetcher(apiurl: string, body: object) {
   return await fetch(apiurl, {
     method: "POST",
     body: JSON.stringify(body),
   })
     .then((res) => {
+      if (res.status === 401) {
+      }
       return res.json();
     })
     .then((json: { data: any }) => {

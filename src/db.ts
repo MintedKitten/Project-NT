@@ -1,6 +1,8 @@
 import { ObjectId } from "bson";
 import { createHash } from "crypto";
 import { MongoClient } from "mongodb";
+import { Big } from "big.js";
+import { stageNames, StagesProgress } from "./local";
 
 /**
  * SHA256 Hashing
@@ -58,6 +60,7 @@ export async function authFindOne(conn: MongoClient, query: Partial<userInt>) {
     });
   return result;
 }
+
 export async function authInsertOne(conn: MongoClient, query: userInt) {
   const result = await (await getAuthColl(conn))
     .insertOne(query)
@@ -77,8 +80,8 @@ export interface projectsInt {
   รายการโครงการจัดซื้อจัดจ้าง: string;
   ประเภทโครงการ: number;
   จำนวนหน่วย: itemObjectInt;
-  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": number;
-  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": number;
+  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
+  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
   ประเภทงบประมาณ: string;
   ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: number;
   วันเริ่มสัญญา_buddhist: Date;
@@ -86,6 +89,106 @@ export interface projectsInt {
   "วันเริ่ม MA_buddhist": Date;
   "วันหมดอายุ MA_buddhist": Date;
   หมายเหตุ: string;
-  createdby?: ObjectId;
+  createdby: ObjectId;
   lastupdate?: Date;
+}
+
+async function getProjectColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<projectsInt>(`${process.env.projectsCollection}`);
+  return coll;
+}
+
+export async function projectFindOne(
+  conn: MongoClient,
+  query: Partial<projectsInt>
+) {
+  const result = await (await getProjectColl(conn))
+    .findOne(query)
+    .then((value) => {
+      return value;
+    });
+  return result;
+}
+
+export async function projectFindAll(
+  conn: MongoClient,
+  query: Partial<projectsInt>,
+  options = {}
+) {
+  const result = await (await getProjectColl(conn))
+    .find(query, options)
+    .toArray();
+  return result;
+}
+
+export async function projectInsertOne(conn: MongoClient, query: projectsInt) {
+  const result = await (await getProjectColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.insertedId;
+    });
+  await initProject(
+    conn,
+    result,
+    query["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]
+  );
+  return result;
+}
+
+interface stagesInt {
+  _id?: ObjectId;
+  projId: ObjectId;
+  name: string;
+  status: StagesProgress;
+  order: number;
+}
+
+async function getStagesColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<stagesInt>(`${process.env.stagesCollection}`);
+  return coll;
+}
+
+export async function stagesInsertOne(conn: MongoClient, query: stagesInt) {
+  const result = await (await getStagesColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function stagesFindAll(
+  conn: MongoClient,
+  query: Partial<stagesInt>,
+  options = {}
+) {
+  const result = await (await getStagesColl(conn))
+    .find(query, options)
+    .toArray();
+  return result;
+}
+
+const threshold = 100000000;
+
+export async function initProject(
+  conn: MongoClient,
+  pid: ObjectId,
+  budget: Big
+) {
+  const type = budget.cmp(threshold) ? 0 : 1;
+  const stname = stageNames[type];
+  for (let index = 0; index < stname.length; index++) {
+    const element = stname[index];
+    const newstage: stagesInt = {
+      projId: pid,
+      order: index,
+      status: StagesProgress.Not_Done,
+      name: element,
+    };
+    await stagesInsertOne(conn, newstage);
+  }
 }

@@ -62,7 +62,6 @@ const SearchProjectsPage = () => {
       type: data.get("typeselect"),
       year: data.get("yearselect"),
     };
-    console.log(searchData);
     router.push(
       {
         pathname: "/search/projects",

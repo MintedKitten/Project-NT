@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
             hashPassword(username, password)
           );
           if (user) {
-            return { id: user._id, name: "ABCDEF" };
+            return { id: user._id, name: user.name, admin: user.admin };
           }
         }
         return null;

@@ -1,4 +1,4 @@
-import { nxcHandler } from "../../src/defaultHandler";
+import { nxcHandler } from "../../../src/defaultHandler";
 
 const handler = nxcHandler().all(async (req, res) => {
   try {
