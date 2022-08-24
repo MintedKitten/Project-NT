@@ -1,9 +1,10 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import { Backdrop, CircularProgress } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
-const HomePage: NextPage = () => {
+const RedirectPage: NextPage = () => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -13,7 +14,13 @@ const HomePage: NextPage = () => {
   }
 
   if (status === "authenticated") {
-    router.push({ pathname: "/search/projects" }, "/search/projects");
+    router.push(
+      {
+        pathname: "/project/projects",
+        query: { pid: sessionStorage.getItem("projectId") },
+      },
+      "/project/projects"
+    );
   }
   return (
     <>
@@ -27,4 +34,4 @@ const HomePage: NextPage = () => {
   );
 };
 
-export default HomePage;
+export default RedirectPage;

@@ -1,15 +1,15 @@
 import Big from "big.js";
 import { ObjectId } from "bson";
-import { getMongoClient, projectInsertOne, projectsInt } from "../../../src/db";
+import { getMongoClient, projectsInt, projectUpdateOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 import { thDate } from "../../../src/local";
 
-export type retDatacreateproject = { pid: ObjectId };
+export type retDataeditproject = { isUpdated: boolean };
 
 const handler = nxcHandler().all(async (req, res) => {
   try {
     const body = JSON.parse(req.body);
-    const query: projectsInt = {
+    const upsert: projectsInt = {
       รายการโครงการจัดซื้อจัดจ้าง: body["รายการโครงการจัดซื้อจัดจ้าง"],
       ประเภทโครงการ: body["ประเภทโครงการ"],
       จำนวนหน่วย: body["จำนวนหน่วย"],
@@ -30,10 +30,11 @@ const handler = nxcHandler().all(async (req, res) => {
       createdby: new ObjectId(body["createdby"]),
       lastupdate: thDate(new Date()),
     };
+    const query = { _id: new ObjectId(body["_id"]) };
     const conn = await getMongoClient();
-    const result = await projectInsertOne(conn, query);
+    const result = await projectUpdateOne(conn, query, upsert);
     conn.close();
-    return res.status(200).json({ data: { pid: result } });
+    return res.status(200).json({ data: { isUpdated: result } });
   } catch (err) {
     return res.status(400).end();
   }

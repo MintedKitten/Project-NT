@@ -3,7 +3,7 @@ import { Backdrop, CircularProgress } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
-const HomePage: NextPage = () => {
+const ProjectStagesPage: NextPage = () => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -12,9 +12,9 @@ const HomePage: NextPage = () => {
     router.push("/api/auth/signin");
   }
 
-  if (status === "authenticated") {
-    router.push({ pathname: "/search/projects" }, "/search/projects");
-  }
+//   if (status === "authenticated") {
+//     router.push({ pathname: "/search/projects" }, "/search/projects");
+//   }
   return (
     <>
       <Backdrop
@@ -27,4 +27,4 @@ const HomePage: NextPage = () => {
   );
 };
 
-export default HomePage;
+export default ProjectStagesPage;

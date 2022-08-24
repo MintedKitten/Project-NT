@@ -20,7 +20,7 @@ import {
   ProjectDetailsInput,
   ProjectDetailsInputType,
 } from "../../src/models/ProjectDetailsInput";
-import { InputEn } from "../../src/local";
+import { InputEn, thDate } from "../../src/local";
 import {
   convertRawCSVToData,
   createNewProject,
@@ -33,20 +33,31 @@ import {
   valYear,
 } from "../../src/create/projects";
 import { parse as parsecsv } from "papaparse";
-import { projectsInt } from "../../src/db";
+import { getMongoClient, projectFindOne, projectsInt } from "../../src/db";
 import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
+import {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
+import Big from "big.js";
+import ProjectNavbar from "../../src/components/ProjectNavbar";
+import { updateProject } from "../../src/edit/projects";
 
-const CreateProjectsPage = () => {
+const CreateProjectsPage: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ pid, preresult }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
 
   const [success, setSuccess] = useState(false);
 
-  const [tableData, setTableData] =
-    useState<projectsTableInt>(projectsDefaultValue);
+  const [tableData, setTableData] = useState<projectsTableInt>(
+    convtoTable(preresult)
+  );
 
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
 
@@ -223,7 +234,7 @@ const CreateProjectsPage = () => {
         onClick={() => {
           openConfirmDialog({
             title:
-              "Are you sure you want to create a new project with these details?",
+              "Are you sure you want to update the project with these details?",
             onConfirm: async () => {
               if (data) {
                 const query: projectsInt = {
@@ -248,17 +259,19 @@ const CreateProjectsPage = () => {
                   createdby: new ObjectId("" + data.id),
                   lastupdate: new Date(),
                 };
-                const pid = await createNewProject(query);
-                setSuccess(true);
-                setTimeout(() => {
-                  router.push(
-                    {
-                      pathname: "/project/projects",
-                      query: { pid: pid.toHexString() },
-                    },
-                    "/project/projects"
-                  );
-                }, 100);
+                const isUpdated = await updateProject(pid, query);
+                if (isUpdated) {
+                  setSuccess(true);
+                  setTimeout(() => {
+                    router.push(
+                      {
+                        pathname: "/project/projects",
+                        query: { pid: pid },
+                      },
+                      "/project/projects"
+                    );
+                  }, 100);
+                }
               }
             },
             cancelButtonProps: {
@@ -267,11 +280,11 @@ const CreateProjectsPage = () => {
             confirmButtonProps: {
               color: "primary",
             },
-            confirmButtonText: "Create",
+            confirmButtonText: "Update",
           });
         }}
       >
-        Add New Project
+        Update Project
       </Button>
     );
   };
@@ -298,22 +311,6 @@ const CreateProjectsPage = () => {
     reader.readAsText(file);
   };
 
-  const FillFromCSVButtonElement = () => {
-    return (
-      <Button variant="contained" component="label">
-        From CSV file
-        <input
-          type="file"
-          hidden
-          accept=".csv, text/csv"
-          onChange={(e) => {
-            handleFileUpload(e);
-          }}
-        />
-      </Button>
-    );
-  };
-
   if (status === "unauthenticated") {
     router.push("/api/auth/signin");
   }
@@ -322,7 +319,7 @@ const CreateProjectsPage = () => {
     return (
       <>
         <Head>
-          <title>Add New Project</title>
+          <title>Update Project</title>
         </Head>
         <PageAppbar>
           <PageNavbar
@@ -331,8 +328,18 @@ const CreateProjectsPage = () => {
               { Header: "Search Equipments", Link: "/search/equipments" },
               { Header: "Add New Project", Link: "/create/projects" },
             ]}
-            currentTab={"Add New Project"}
+            currentTab={"Project"}
             session={data}
+          />
+          <ProjectNavbar
+            navlink={[
+              { Header: "Details", Link: "/project/projects" },
+              { Header: "Files", Link: "/project/files" },
+              { Header: "Equipments", Link: "/project/equipments" },
+              { Header: "Stages", Link: "/project/stages" },
+            ]}
+            currentTab={"Details Edit"}
+            pid={pid}
           />
         </PageAppbar>
         <PageContainer>
@@ -340,12 +347,10 @@ const CreateProjectsPage = () => {
             sx={{ display: success ? "flex" : "none", alignItems: "center" }}
           >
             <Alert severity="success">
-              Add new project successfully Redirecting to project...
+              Update project successfully Redirecting to project...
             </Alert>
           </Box>
           <Box sx={{ display: "flex" }}>
-            <FillFromCSVButtonElement />
-            <Space size={"2px"} direction="column" />
             <TitleButtonElement />
           </Box>
           <Box
@@ -395,3 +400,84 @@ const CreateProjectsPage = () => {
 };
 
 export default CreateProjectsPage;
+
+export const getServerSideProps: GetServerSideProps<{
+  pid: string;
+  preresult: ReturnType<typeof convtoSerializable>;
+}> = async (context) => {
+  const webquery = context.query as { [key: string]: any };
+  if (!webquery["pid"]) {
+    return {
+      redirect: {
+        destination: "/project/",
+        permanent: false,
+      },
+    };
+  }
+  const conn = await getMongoClient();
+  const presult = await projectFindOne(conn, {
+    _id: new ObjectId(webquery["pid"] as string),
+  });
+  if (!presult) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  } else {
+    const conv = convtoSerializable(presult);
+    return { props: { pid: webquery.pid as string, preresult: conv } };
+  }
+};
+
+function convtoSerializable(data: projectsInt) {
+  const {
+    _id,
+    createdby,
+    lastupdate,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
+    วันเริ่มสัญญา_buddhist: startCdt,
+    "วันเริ่ม MA_buddhist": startMAdt,
+    "วันหมดอายุ MA_buddhist": endMAdt,
+    ...r
+  } = data;
+  return {
+    _id: (_id as ObjectId).toHexString(),
+    createdby: createdby.toHexString(),
+    lastupdate: lastupdate.toString(),
+    วันเริ่มสัญญา_buddhist: startCdt.toString(),
+    "วันเริ่ม MA_buddhist": startMAdt.toString(),
+    "วันหมดอายุ MA_buddhist": endMAdt.toString(),
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budget.toString(),
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT.toString(),
+    ...r,
+  };
+}
+
+function convtoTable(
+  data: ReturnType<typeof convtoSerializable>
+): projectsTableInt {
+  const {
+    _id: s_id,
+    createdby: screatedby,
+    lastupdate: slastupdate,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudgetWT,
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
+    วันเริ่มสัญญา_buddhist: sstartCdt,
+    "วันเริ่ม MA_buddhist": sstartMAdt,
+    "วันหมดอายุ MA_buddhist": sendMAdt,
+    ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: purchasedt,
+    ...r
+  } = data;
+  return {
+    "วันเริ่มสัญญา (พ.ศ.)": thDate(sstartCdt),
+    "วันเริ่ม MA (พ.ศ.)": thDate(sstartMAdt),
+    "วันหมดอายุ MA (พ.ศ.)": thDate(sendMAdt),
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudget),
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudgetWT),
+    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": thDate(purchasedt),
+    ...r,
+  };
+}

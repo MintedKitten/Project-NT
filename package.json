@@ -15,6 +15,7 @@
     "lint:real": "next lint"
   },
   "dependencies": {
+    "@date-io/core": "^2.15.0",
     "@date-io/dayjs": "^2.15.0",
     "@emotion/cache": "latest",
     "@emotion/react": "latest",

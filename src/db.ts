@@ -1,6 +1,6 @@
 import { ObjectId } from "bson";
 import { createHash } from "crypto";
-import { MongoClient } from "mongodb";
+import { MongoClient, WithId } from "mongodb";
 import { Big } from "big.js";
 import { stageNames, StagesProgress } from "./local";
 
@@ -90,13 +90,31 @@ export interface projectsInt {
   "วันหมดอายุ MA_buddhist": Date;
   หมายเหตุ: string;
   createdby: ObjectId;
-  lastupdate?: Date;
+  lastupdate: Date;
+}
+
+interface projectsInsertInt {
+  _id?: ObjectId;
+  รายการโครงการจัดซื้อจัดจ้าง: string;
+  ประเภทโครงการ: number;
+  จำนวนหน่วย: itemObjectInt;
+  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
+  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
+  ประเภทงบประมาณ: string;
+  ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: number;
+  วันเริ่มสัญญา_buddhist: Date;
+  "MA (ระยะเวลารับประกัน)": itemObjectInt;
+  "วันเริ่ม MA_buddhist": Date;
+  "วันหมดอายุ MA_buddhist": Date;
+  หมายเหตุ: string;
+  createdby: ObjectId;
+  lastupdate: Date;
 }
 
 async function getProjectColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<projectsInt>(`${process.env.projectsCollection}`);
+    .collection<projectsInsertInt>(`${process.env.projectsCollection}`);
   return coll;
 }
 
@@ -104,12 +122,18 @@ export async function projectFindOne(
   conn: MongoClient,
   query: Partial<projectsInt>
 ) {
+  const wquery = convPartialProj(query);
   const result = await (await getProjectColl(conn))
-    .findOne(query)
+    .findOne(wquery)
     .then((value) => {
       return value;
     });
-  return result;
+  if (result) {
+    const qresult = convPartialProjBack(result);
+    return qresult;
+  } else {
+    return null;
+  }
 }
 
 export async function projectFindAll(
@@ -117,15 +141,68 @@ export async function projectFindAll(
   query: Partial<projectsInt>,
   options = {}
 ) {
+  const wquery = convPartialProj(query);
   const result = await (await getProjectColl(conn))
-    .find(query, options)
+    .find(wquery, options)
     .toArray();
-  return result;
+  const qresult = result.map((res) => {
+    return convPartialProjBack(res);
+  });
+  return qresult;
+}
+
+function convPartialProjBack(query: Partial<projectsInsertInt>) {
+  const {
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudgetWT,
+    ...r
+  } = query;
+  let wquery: Partial<projectsInt> = { ...r };
+  if (sbudget) {
+    wquery["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = Big(sbudget);
+  }
+  if (sbudgetWT) {
+    wquery["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = Big(sbudgetWT);
+  }
+  return wquery as WithId<projectsInt>;
+}
+
+function convPartialProj(
+  query: Partial<projectsInt>
+): Partial<projectsInsertInt> {
+  const {
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
+    ...r
+  } = query;
+  let wquery: Partial<projectsInsertInt> = { ...r };
+  if (budget) {
+    wquery["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budget.toString();
+  }
+  if (budgetWT) {
+    wquery["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budgetWT.toString();
+  }
+  return wquery;
+}
+
+function convProj(query: projectsInt): projectsInsertInt {
+  const {
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
+    ...r
+  } = query;
+  const wquery: projectsInsertInt = {
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budget.toString(),
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT.toString(),
+    ...r,
+  };
+  return wquery;
 }
 
 export async function projectInsertOne(conn: MongoClient, query: projectsInt) {
+  const wquery = convProj(query);
   const result = await (await getProjectColl(conn))
-    .insertOne(query)
+    .insertOne(wquery)
     .then((value) => {
       return value.insertedId;
     });
@@ -134,6 +211,29 @@ export async function projectInsertOne(conn: MongoClient, query: projectsInt) {
     result,
     query["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]
   );
+  return result;
+}
+
+export async function projectUpdateOne(
+  conn: MongoClient,
+  query: { _id: ObjectId },
+  upsert: projectsInt
+) {
+  const wupsert = convPartialProj(upsert);
+  const result = await (await getProjectColl(conn))
+    .updateOne(query, { $set: wupsert })
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function projectDistinct(
+  conn: MongoClient,
+  field: keyof projectsInt,
+  query: Partial<projectsInt>
+) {
+  const result = await (await getProjectColl(conn)).distinct(field, query);
   return result;
 }
 

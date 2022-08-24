@@ -23,14 +23,28 @@ import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import Space from "../../src/components/Space";
-import { searchProjectsTableInt, typeArray } from "../../src/search/projects";
+import { typeArray } from "../../src/search/projects";
+import {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
+import {
+  getMongoClient,
+  projectDistinct,
+  projectFindAll,
+  projectsInt,
+} from "../../src/db";
+import { ObjectId } from "bson";
 
-const SearchProjectsPage = () => {
+const SearchProjectsPage: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ result, filterSelectionYear }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -41,16 +55,12 @@ const SearchProjectsPage = () => {
     return r === 0 ? 0.5 : 1;
   };
 
-  const [filterSelectionYear, setFilterSelectionYear] = useState<number[]>([]);
-
   const [filteryear, setFilteryear] = useState(
     parseInt(router.query.year ? "" + router.query.year : "0")
   );
   const [filtertype, setFiltertype] = useState(
     parseInt(router.query.type ? "" + router.query.type : "0")
   );
-
-  const [result, setResult] = useState<searchProjectsTableInt[]>([]);
 
   const handleSearchSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -73,7 +83,6 @@ const SearchProjectsPage = () => {
       },
       "/search/projects"
     );
-    // setResult()
   };
 
   const handleYearChange = (event: SelectChangeEvent) => {
@@ -100,15 +109,6 @@ const SearchProjectsPage = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
-  const queryData = useCallback(async () => {
-    setResult([]);
-    setFilterSelectionYear([]);
-  }, []);
-
-  useEffect(() => {
-    queryData();
-  }, [queryData]);
 
   if (status === "unauthenticated") {
     router.push("/api/auth/signin");
@@ -146,7 +146,6 @@ const SearchProjectsPage = () => {
               margin="dense"
               fullWidth
               id="projectname"
-              //   label="Project Name"
               name="projectname"
             />
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -234,19 +233,17 @@ const SearchProjectsPage = () => {
                     return (
                       <TableRow hover key={index}>
                         <TableCell scope="row" sx={{ cursor: "pointer" }}>
-                          <Link
-                            href={{ pathname: "/project/" + name }}
-                            passHref
-                          >
+                          <Link href={{ pathname: "/project/" + id }} passHref>
                             <a
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(event) => {
                                 event.preventDefault();
-                                window.open(
-                                  "/project/" + id.toHexString(),
-                                  "_blank"
-                                );
+                                window.open("/project/" + id, "_blank");
+                              }}
+                              style={{
+                                font: "inherit",
+                                color: "rgba(0, 0, 0, 0.87)",
                               }}
                             >
                               <Typography
@@ -300,3 +297,53 @@ const SearchProjectsPage = () => {
 };
 
 export default SearchProjectsPage;
+
+export const getServerSideProps: GetServerSideProps<{
+  result: ReturnType<typeof convtoTable>[];
+  filterSelectionYear: number[];
+}> = async (context) => {
+  const webquery = context.query as { [key: string]: any };
+  if ("name" in webquery && webquery["name"]) {
+    webquery["name"] = new RegExp(".*" + webquery["name"] + ".*");
+  }
+  const query: { [key: string]: any } = {};
+  if (webquery["name"]) {
+    query["รายการโครงการจัดซื้อจัดจ้าง"] = webquery["name"];
+  }
+  if (webquery["type"] && webquery["type"] !== "0") {
+    query["ประเภทโครงการ"] = parseInt(webquery["type"]);
+  }
+  if (webquery["year"] && webquery["year"] !== "0") {
+    query["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"] = parseInt(webquery["year"]);
+  }
+  const conn = await getMongoClient();
+  const presult = await projectFindAll(conn, query, {
+    รายการโครงการจัดซื้อจัดจ้าง: 1,
+    ประเภทโครงการ: 1,
+    ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+  });
+  const pyear = await projectDistinct(
+    conn,
+    "ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist",
+    {}
+  );
+  conn.close();
+  const convresult = presult.map((res) => {
+    return convtoTable(res);
+  });
+  return {
+    props: {
+      result: convresult,
+      filterSelectionYear: pyear as number[],
+    },
+  };
+};
+
+function convtoTable(data: projectsInt) {
+  return {
+    id: (data._id as ObjectId).toHexString(),
+    name: data.รายการโครงการจัดซื้อจัดจ้าง,
+    type: data.ประเภทโครงการ,
+    year: data.ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist,
+  };
+}

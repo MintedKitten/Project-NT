@@ -52,3 +52,20 @@ const stageType2 = [
 ];
 
 export const stageNames = [stageType1, stageType2];
+
+export function thDate(date: string | Date | number) {
+  if (typeof date === "number") {
+    return new Date(date, 0, 1);
+  }
+  const dt = new Date(date);
+  const thdate = new Date(
+    dt.getFullYear(),
+    dt.getMonth(),
+    dt.getDate(),
+    dt.getHours(),
+    dt.getMinutes(),
+    dt.getSeconds(),
+    dt.getMilliseconds()
+  );
+  return thdate;
+}
