@@ -1,4 +1,5 @@
-import next, { NextApiRequest } from "next";
+import "dotenv/config";
+import next from "next";
 import express from "express";
 
 import * as jsonwebtoken from "jsonwebtoken";
@@ -8,16 +9,17 @@ import formidable, { Fields, File, Files } from "formidable";
 import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
 
-// import { NextApiRequestExtended } from "./src/defaultHandler";
-// import { userprofiletokenInt } from "./src/auth";
 import { fileMetadataInt } from "./src/db";
+import { NextAuthOptions, unstable_getServerSession } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import seedrandom from "seedrandom";
 
 /**
  * SHA256 Hashing
  * @param msg the string to be hashed
  * @returns hashed string
  */
-async function sha256(msg: string): Promise<string> {
+function sha256(msg: string) {
   // encode as UTF-8
   const msgBuffer = new TextEncoder().encode(msg);
   // hash the message
@@ -31,6 +33,13 @@ async function sha256(msg: string): Promise<string> {
   return hashHex;
 }
 
+function hashPassword(username: string, password: string) {
+  const hashed = sha256(
+    username + password + seedrandom(username + password + secret)()
+  );
+  return hashed;
+}
+
 const secret = "AwesomeSauce";
 // Server config from env and server request handler
 const port = parseInt(`${process.env.PORT}`, 10) || 3000;
@@ -42,6 +51,50 @@ const expressMongoString =
   "mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority";
 const DBname = dev ? "devProcurement" : "Procurement";
 const FilesMetaColl = "FilesMetadata";
+const userColl = "User";
+
+const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        username: { label: "Username", type: "text", placeholder: "Username" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (credentials, req) => {
+        if (credentials) {
+          const username = credentials.username;
+          const password = credentials.password;
+          const user = await getUser(
+            username,
+            hashPassword(username, password)
+          );
+          if (user) {
+            return { id: user._id, name: user.name, admin: user.admin };
+          }
+        }
+        return null;
+      },
+    }),
+  ],
+  callbacks: {
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    session: ({ session, token }) => {
+      if (token) {
+        session.id = token.id;
+      }
+      return session;
+    },
+  },
+  secret: `${secret}`,
+  jwt: { secret: `${secret}` },
+  pages: { signIn: "/auth/login" },
+};
 
 // ExpressJS DB Functions
 // Statically create the client, so there's only 1 client per connection
@@ -53,6 +106,20 @@ async function getMongoclient(): Promise<MongoClient> {
 
 async function closeMongoclient(): Promise<void> {
   (await client).close();
+}
+
+async function getUser(username: string, password: string) {
+  const query = { username: username, password: password };
+  const conn = await getMongoclient();
+  const user = conn
+    .db(DBname)
+    .collection(userColl)
+    .findOne(query)
+    .then((value) => {
+      return value;
+    });
+  conn.close();
+  return user;
 }
 
 // When Nodejs server shut down, close MongoDBClient
@@ -122,28 +189,10 @@ app
     // Authenticate connection
     fileserver
       .use("/files/", async (req, res, next) => {
-        // req.userId = null;
-        // req.profile = null;
-        // req.sub = null;
-        // req.iat = null;
-        const { authorization } = req.headers;
-        if (!authorization) {
+        console.log("auth");
+        const session = unstable_getServerSession(req, res, authOptions);
+        if (!session) {
           return res.status(401).end("Unauthorised");
-        } else {
-          // jsonwebtoken.verify(
-          //   `${authorization}`,
-          //   `${secret}`,
-          //   // @ts-ignore got the wrong overload
-          //   (error, decoded: userprofiletokenInt) => {
-          //     if (!error && decoded) {
-          //       req.userId = decoded.userId;
-          //       req.profile = decoded.profile;
-          //       req.sub = decoded.sub;
-          //       req.iat = decoded.iat;
-          //     }
-          //   }
-          // );
-          next();
         }
       }) // Download a file
       .get("/files/:fmid", async (req, res, next) => {
@@ -178,10 +227,13 @@ app
               if (err) {
                 reject(err);
               }
+              console.log(fields, files);
               resolve({ fields, files });
             });
           }
         );
+        console.log(1);
+        return res.status(200).end();
         if (!existsSync(dirfilepath)) {
           mkdirSync(dirfilepath);
         }

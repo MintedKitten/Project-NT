@@ -418,6 +418,7 @@ export const getServerSideProps: GetServerSideProps<{
   const presult = await projectFindOne(conn, {
     _id: new ObjectId(webquery["pid"] as string),
   });
+  conn.close();
   if (!presult) {
     return {
       redirect: {
