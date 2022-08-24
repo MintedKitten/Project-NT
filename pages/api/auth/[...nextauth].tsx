@@ -1,7 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthenticateFromCredentials } from "../../../src/db";
-import { sha256 } from "../../../src/local";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       authorize: async (credentials, req) => {
         if (credentials) {
           const username = credentials.username;
-          const password = await sha256(credentials.password);
+          const password = credentials.password;
           const user = await AuthenticateFromCredentials({
             username: username,
             password: password,

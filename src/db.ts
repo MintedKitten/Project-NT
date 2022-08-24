@@ -22,4 +22,26 @@ export async function getMongoClient() {
   return conn;
 }
 
-export async function 
+async function getAuthColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<userInt>(`${process.env.authCollection}`);
+  return coll;
+}
+
+export async function authFindOne(conn: MongoClient, query: Partial<userInt>) {
+  const result = await (await getAuthColl(conn))
+    .findOne(query)
+    .then((value) => {
+      return value;
+    });
+  return result;
+}
+export async function authInsertOne(conn: MongoClient, query: userInt) {
+  const result = await (await getAuthColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.insertedId;
+    });
+  return result;
+}
