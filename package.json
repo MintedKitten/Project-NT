@@ -31,9 +31,11 @@
     "next": "latest",
     "next-auth": "^4.10.3",
     "next-connect": "^0.13.0",
+    "nextjs-progressbar": "^0.0.14",
     "papaparse": "^5.3.2",
     "react": "latest",
     "react-dom": "latest",
+    "seedrandom": "^3.0.5",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
@@ -43,6 +45,7 @@
     "@types/node": "latest",
     "@types/papaparse": "^5.3.3",
     "@types/react": "latest",
+    "@types/seedrandom": "^3.0.2",
     "babel-plugin-import": "^1.13.5",
     "eslint": "latest",
     "eslint-config-next": "latest",

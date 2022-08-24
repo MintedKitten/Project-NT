@@ -8,18 +8,23 @@ export interface NextApiRequestExtended
   extends NextApiRequest,
     userprofiletokenInt {}
 
-export const nxcHandler = nextConnect<NextApiRequest, NextApiResponse>({
-  onError: (err, req, res, next) => {
-    console.log(err);
-    res.status(500).end("Error, Something went wrong");
-  },
-  onNoMatch: (req, res) => {
-    res.status(404).end("Page is not found");
-  },
-}).use(async (req, res, next) => {
-  const session = await unstable_getServerSession(req, res, authOptions);
-  if (!session) {
-    return res.status(401).redirect("/api/auth/signin");
-  }
-  next();
-});
+const nxcHandler = () => {
+  return nextConnect<NextApiRequest, NextApiResponse>({
+    onError: (err, req, res, next) => {
+      console.log(err);
+      res.status(500).end("Error, Something went wrong");
+    },
+    onNoMatch: (req, res) => {
+      res.status(404).end("Page is not found");
+    },
+  })
+    .use(async (req, res, next) => {
+      const session = await unstable_getServerSession(req, res, authOptions);
+      console.log("api auth: " + session);
+      if (!session) {
+        return res.status(401).end();
+      }
+      next();
+    });
+};
+export { nxcHandler };

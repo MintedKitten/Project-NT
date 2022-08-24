@@ -12,17 +12,42 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { callAuthSignup, callRegcheck } from "../frontend";
+import { Alert } from "@mui/material";
+import { useRouter } from "next/router";
 
 export default function SignUp() {
+  const router = useRouter();
   const [error, setError] = React.useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
+    const user = {
+      username: data.get("username"),
       password: data.get("password"),
-    });
+      name: data.get("name"),
+    };
+    if (!user.username || !user.password) {
+      setError("Username and Password cannot be empty!");
+    } else {
+      const usercheck = await callRegcheck("" + user.username);
+      if (usercheck) {
+        setError("This username has already been taken!");
+      } else {
+        const signupComplete = await callAuthSignup(
+          "" + user.username,
+          "" + user.password,
+          "" + user.name
+        );
+        if (signupComplete) {
+          setError("");
+          router.push("/");
+        } else {
+          setError("Signup failed. Please, try again.");
+        }
+      }
+    }
   };
 
   return (
@@ -38,18 +63,29 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
+        <Box sx={{ display: error === "" ? "none" : "flex" }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                error={error !== ""}
-                helperText={error !== "" ? error : ""}
+                id="name"
+                label="Name"
+                name="name"
+                autoComplete="name"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                id="username"
+                label="Username"
+                name="username"
+                autoComplete="username"
               />
             </Grid>
             <Grid item xs={12}>
@@ -74,7 +110,7 @@ export default function SignUp() {
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/api/auth/signin" variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>

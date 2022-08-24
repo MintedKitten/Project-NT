@@ -1,6 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { AuthenticateFromCredentials } from "../../../src/db";
+import { getUser, hashPassword } from "../../../src/auth";
+import { sha256 } from "../../../src/db";
+// import { AuthenticateFromCredentials } from "../../../src/db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,12 +16,12 @@ export const authOptions: NextAuthOptions = {
         if (credentials) {
           const username = credentials.username;
           const password = credentials.password;
-          const user = await AuthenticateFromCredentials({
-            username: username,
-            password: password,
-          });
+          const user = await getUser(
+            username,
+            hashPassword(username, password)
+          );
           if (user) {
-            return { id: 12345, name: "ABCDEF" };
+            return { id: user._id, name: "ABCDEF" };
           }
         }
         return null;

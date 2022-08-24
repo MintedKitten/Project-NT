@@ -1,34 +1,29 @@
 import type { NextPage } from "next";
-import { Container, Box, Typography, Link } from "@mui/material";
+import { Backdrop, CircularProgress } from "@mui/material";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const HomePage: NextPage = () => {
+  const session = useSession();
+  const router = useRouter();
+  const { status } = session;
+
+  if (status === "unauthenticated") {
+    router.push("/api/auth/signin");
+  }
+
+  if (status === "authenticated") {
+    router.push("/search/projects");
+  }
   return (
-    <Container maxWidth="xl">
-      <Box
-        sx={{
-          my: 4,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+    <>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={status === "loading"}
       >
-        <Typography
-          variant="h1"
-          noWrap
-          sx={{
-            fontFamily: "Roboto",
-            color: "inherit",
-            fontWeight: 700,
-            fontSize: "2rem",
-            borderRadius: 1,
-            paddingLeft: 2,
-          }}
-        >
-          Hello! Welcome to HomePage
-        </Typography>
-      </Box>
-    </Container>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
   );
 };
 
