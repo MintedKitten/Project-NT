@@ -6,6 +6,7 @@ import {
   Grid,
   Box,
   Button,
+  Alert,
 } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
 import { useSession } from "next-auth/react";
@@ -35,12 +36,14 @@ import { parse as parsecsv } from "papaparse";
 import { projectsInt } from "../../src/db";
 import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
+import Space from "../../src/components/Space";
 
 const CreateProjectsPage = () => {
   const session = useSession();
   const router = useRouter();
-
   const { status, data } = session;
+
+  const [success, setSuccess] = useState(false);
 
   const [tableData, setTableData] =
     useState<projectsTableInt>(projectsDefaultValue);
@@ -245,19 +248,29 @@ const CreateProjectsPage = () => {
                   createdby: new ObjectId("" + data.id),
                 };
                 const pid = await createNewProject(query);
-                console.log(pid.toHexString());
+                setSuccess(true);
+                setTimeout(() => {
+                  router.push(
+                    {
+                      pathname: "/project/projects",
+                      query: { pid: pid.toHexString() },
+                    },
+                    "/project/projects"
+                  );
+                }, 100);
               }
-              // const result = await queryCreate(data);
-              // router.replace("/project/" + result.id);
             },
             cancelButtonProps: {
+              color: "warning",
+            },
+            confirmButtonProps: {
               color: "primary",
             },
             confirmButtonText: "Create",
           });
         }}
       >
-        Create New Project
+        Add New Project
       </Button>
     );
   };
@@ -308,7 +321,7 @@ const CreateProjectsPage = () => {
     return (
       <>
         <Head>
-          <title>Search Page</title>
+          <title>Add New Project</title>
         </Head>
         <PageAppbar>
           <PageNavbar
@@ -322,8 +335,18 @@ const CreateProjectsPage = () => {
           />
         </PageAppbar>
         <PageContainer>
-          <FillFromCSVButtonElement />
-          <TitleButtonElement />
+          <Box
+            sx={{ display: success ? "flex" : "none", alignItems: "center" }}
+          >
+            <Alert severity="success">
+              Add new project successfully Redirecting to project...
+            </Alert>
+          </Box>
+          <Box sx={{ display: "flex" }}>
+            <FillFromCSVButtonElement />
+            <Space size={"2px"} direction="column" />
+            <TitleButtonElement />
+          </Box>
           <Box
             sx={{
               border: 1,

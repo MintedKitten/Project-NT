@@ -8,8 +8,8 @@ import formidable, { Fields, File, Files } from "formidable";
 import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
 
-import { NextApiRequestExtended } from "./src/defaultHandler";
-import { userprofiletokenInt } from "./src/auth";
+// import { NextApiRequestExtended } from "./src/defaultHandler";
+// import { userprofiletokenInt } from "./src/auth";
 import { fileMetadataInt } from "./src/db";
 
 /**
@@ -109,9 +109,9 @@ async function insoDir2FileMetadata(
 }
 const dirfilepath = "/files/";
 
-declare module "express-serve-static-core" {
-  interface Request extends NextApiRequestExtended {}
-}
+// declare module "express-serve-static-core" {
+//   interface Request extends NextApiRequestExtended {}
+// }
 
 // start nextjs env and server, then start expressjs as fileserver, authenticate
 app
@@ -122,27 +122,27 @@ app
     // Authenticate connection
     fileserver
       .use("/files/", async (req, res, next) => {
-        req.userId = null;
-        req.profile = null;
-        req.sub = null;
-        req.iat = null;
+        // req.userId = null;
+        // req.profile = null;
+        // req.sub = null;
+        // req.iat = null;
         const { authorization } = req.headers;
         if (!authorization) {
           return res.status(401).end("Unauthorised");
         } else {
-          jsonwebtoken.verify(
-            `${authorization}`,
-            `${secret}`,
-            // @ts-ignore got the wrong overload
-            (error, decoded: userprofiletokenInt) => {
-              if (!error && decoded) {
-                req.userId = decoded.userId;
-                req.profile = decoded.profile;
-                req.sub = decoded.sub;
-                req.iat = decoded.iat;
-              }
-            }
-          );
+          // jsonwebtoken.verify(
+          //   `${authorization}`,
+          //   `${secret}`,
+          //   // @ts-ignore got the wrong overload
+          //   (error, decoded: userprofiletokenInt) => {
+          //     if (!error && decoded) {
+          //       req.userId = decoded.userId;
+          //       req.profile = decoded.profile;
+          //       req.sub = decoded.sub;
+          //       req.iat = decoded.iat;
+          //     }
+          //   }
+          // );
           next();
         }
       }) // Download a file
