@@ -230,13 +230,22 @@ const SearchProjectsPage: NextPage<
                     return (
                       <TableRow hover key={index}>
                         <TableCell scope="row" sx={{ cursor: "pointer" }}>
-                          <Link href={{ pathname: "/project/" + id }} passHref>
+                          <Link
+                            href={{
+                              pathname: "/project/projects",
+                              query: { pid: id },
+                            }}
+                            passHref
+                          >
                             <a
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(event) => {
                                 event.preventDefault();
-                                window.open("/project/" + id, "_blank");
+                                window.open(
+                                  "/project/projects?pid=" + id,
+                                  "_blank"
+                                );
                               }}
                               style={{
                                 font: "inherit",

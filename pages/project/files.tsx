@@ -83,9 +83,7 @@ const ProjectFilesPage: NextPage<
         }
         const isAllSuccessful = await addFMidsToProject(pid, fmids);
         if (isAllSuccessful) {
-          router.push(
-            { pathname: "/project/files", query: { pid: pid } },
-          );
+          router.push({ pathname: "/project/files", query: { pid: pid } });
         }
       },
       cancelButtonProps: {
@@ -252,16 +250,6 @@ const ProjectFilesPage: NextPage<
                         <a
                           download={filename}
                           href={`/files/${_id?.toHexString()}`}
-                          // onClick={(e) => {
-                          //   e.preventDefault();
-                          //   downloadFile(file);
-
-                          //   setTimeout(() => {
-                          //     let d = [...fileLoad];
-                          //     d[index] = false;
-                          //     setFileLoad(d);
-                          //   }, 1000);
-                          // }}
                         >
                           <DownloadIcon sx={{ cursor: "pointer" }} />
                         </a>
@@ -287,12 +275,10 @@ const ProjectFilesPage: NextPage<
                                     `${_id?.toHexString()}`
                                   );
                                 if (isDeleteSuccessful) {
-                                  router.push(
-                                    {
-                                      pathname: "/project/files",
-                                      query: { pid: pid },
-                                    },
-                                  );
+                                  router.push({
+                                    pathname: "/project/files",
+                                    query: { pid: pid },
+                                  });
                                 }
                               },
                               cancelButtonProps: {

@@ -41,7 +41,7 @@ const ProjectNavbar: FunctionComponent<{
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="lg">
       <Toolbar disableGutters sx={{ height: "40px" }}>
         <Box
           sx={{

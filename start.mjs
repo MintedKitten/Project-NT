@@ -49,7 +49,7 @@ async function insoFileMetadata(query) {
   return id;
 }
 async function insoDir2FileMetadata(fmid, query) {
-  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).updateOne({ _id: fmid }, { $set: query }).then((value) => {
+  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).updateOne({ _id: fmid }, { $set: { dir: query.dir } }).then((value) => {
     return value.upsertedId;
   });
   return id;

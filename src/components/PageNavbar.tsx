@@ -23,10 +23,10 @@ const PageNavbar: FunctionComponent<{
   return (
     <Container maxWidth="xl">
       <Toolbar disableGutters sx={{ height: "40px" }}>
-        {navlink.map((navl, index) => {
-          const { Header, Link } = navl;
-          return (
-            <Box key={index}>
+        <Box sx={{ display: "flex" }}>
+          {navlink.map((navl, index) => {
+            const { Header, Link } = navl;
+            return (
               <Typography
                 variant="h5"
                 noWrap
@@ -34,6 +34,7 @@ const PageNavbar: FunctionComponent<{
                   event.preventDefault();
                   reroute(Link);
                 }}
+                key={index}
                 sx={{
                   fontWeight: currentTab === Header ? 600 : 300,
                   ml: 1,
@@ -48,16 +49,16 @@ const PageNavbar: FunctionComponent<{
               >
                 {Header}
               </Typography>
-            </Box>
-          );
-        })}
+            );
+          })}
+        </Box>
         <Box sx={{ flexGrow: 1 }} />
         <Button color="inherit">{`Hello! ${session.user?.name}`}</Button>
         <Button
           color="inherit"
           variant="outlined"
           onClick={() => {
-            signOut();
+            signOut({ redirect: false, callbackUrl: window.location.origin });
           }}
         >
           Logout
