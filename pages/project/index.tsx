@@ -10,7 +10,7 @@ const RedirectPage: NextPage = () => {
   const { status, data } = session;
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {
@@ -19,7 +19,6 @@ const RedirectPage: NextPage = () => {
         pathname: "/project/projects",
         query: { pid: sessionStorage.getItem("projectId") },
       },
-      "/project/projects"
     );
   }
   return (

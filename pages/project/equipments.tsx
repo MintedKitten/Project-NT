@@ -18,7 +18,7 @@ const ProjectEquipmentsPage: NextPage<
   const { status, data } = session;
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {

@@ -37,7 +37,7 @@ const ProjectNavbar: FunctionComponent<{
   const router = useRouter();
 
   const reroute = (route: string) => {
-    router.push({ pathname: route, query: { pid: pid } }, route);
+    router.push({ pathname: route, query: { pid: pid } });
   };
 
   return (

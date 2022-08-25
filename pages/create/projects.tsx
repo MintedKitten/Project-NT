@@ -256,7 +256,6 @@ const CreateProjectsPage = () => {
                       pathname: "/project/projects",
                       query: { pid: pid.toHexString() },
                     },
-                    "/project/projects"
                   );
                 }, 100);
               }
@@ -315,7 +314,7 @@ const CreateProjectsPage = () => {
   };
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {

@@ -37,7 +37,6 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
               pathname: "/search/projects",
               query: { name: "", year: 0, type: 0 },
             },
-            "/search/projects"
           );
         }, 10);
       }

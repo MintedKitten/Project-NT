@@ -53,7 +53,7 @@ const ProjectFilesPage: NextPage<
   });
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
@@ -85,7 +85,6 @@ const ProjectFilesPage: NextPage<
         if (isAllSuccessful) {
           router.push(
             { pathname: "/project/files", query: { pid: pid } },
-            "/project/files"
           );
         }
       },
@@ -293,7 +292,6 @@ const ProjectFilesPage: NextPage<
                                       pathname: "/project/files",
                                       query: { pid: pid },
                                     },
-                                    "/project/files"
                                   );
                                 }
                               },

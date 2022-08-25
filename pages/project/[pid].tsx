@@ -23,7 +23,6 @@ const RedirectPage: NextPage = () => {
         pathname: "/project/projects",
         query: { pid: sessionStorage.getItem("projectId") },
       },
-      "/project/projects"
     );
   }
   return (

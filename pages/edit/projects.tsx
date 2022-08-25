@@ -312,7 +312,7 @@ const CreateProjectsPage: NextPage<
   };
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {

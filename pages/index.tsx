@@ -9,11 +9,11 @@ const HomePage: NextPage = () => {
   const { status, data } = session;
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {
-    router.push({ pathname: "/search/projects" }, "/search/projects");
+    router.push({ pathname: "/search/projects" });
   }
   return (
     <>

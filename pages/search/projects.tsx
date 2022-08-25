@@ -72,17 +72,14 @@ const SearchProjectsPage: NextPage<
       type: data.get("typeselect"),
       year: data.get("yearselect"),
     };
-    router.push(
-      {
-        pathname: "/search/projects",
-        query: {
-          name: "" + searchData.name,
-          type: "" + searchData.type,
-          year: "" + searchData.year,
-        },
+    router.push({
+      pathname: "/search/projects",
+      query: {
+        name: "" + searchData.name,
+        type: "" + searchData.type,
+        year: "" + searchData.year,
       },
-      "/search/projects"
-    );
+    });
   };
 
   const handleYearChange = (event: SelectChangeEvent) => {
@@ -111,7 +108,7 @@ const SearchProjectsPage: NextPage<
   };
 
   if (status === "unauthenticated") {
-    router.push("/api/auth/signin");
+    router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {
