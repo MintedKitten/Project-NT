@@ -237,7 +237,7 @@ export async function projectDistinct(
   return result;
 }
 
-interface stagesInt {
+export interface stagesInt {
   _id?: ObjectId;
   projId: ObjectId;
   name: string;
@@ -286,7 +286,7 @@ export async function initProject(
     const newstage: stagesInt = {
       projId: pid,
       order: index,
-      status: StagesProgress.Not_Done,
+      status: StagesProgress.OnGoing,
       name: element,
     };
     await stagesInsertOne(conn, newstage);

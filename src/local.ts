@@ -9,8 +9,8 @@ export enum InputEn {
 }
 
 export enum StagesProgress {
-  Not_Done,
-  Done,
+  OnGoing,
+  Complete,
 }
 
 const stageType1 = [
@@ -68,4 +68,20 @@ export function thDate(date: string | Date | number) {
     dt.getMilliseconds()
   );
   return thdate;
+}
+
+const thaiLetters = `_%ๅ+/๑-๒ภ๓ถ๔฿ค๕ต๖จ๗ข๘ช๙ๆ๐ไ"ำฎพฑะธรณนฯยญบฐล,ฃฅฟฤหฆกฏดโเฌาษสศวซง.ผ(ป)แฉอฮท?มฒใฬฝฦ`;
+const engLetters = `~!1@2#3$4%5^6&7*8(9)0_-+=QqWwEeRrTtYyUuIiOoPp{[}]AaSsDdFfGgHhJjKkLl:;"'ZzXxCcVvBbNnMm<,>.?/`;
+
+export function getLength(msg: string) {
+  let count = 0;
+  for (let index = 0; index < msg.length; index++) {
+    if (
+      thaiLetters.indexOf(msg.charAt(index)) > -1 ||
+      engLetters.indexOf(msg.charAt(index)) > -1
+    ) {
+      count += 1;
+    }
+  }
+  return count;
 }
