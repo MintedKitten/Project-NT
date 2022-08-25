@@ -1,6 +1,6 @@
 import { Toolbar, Typography, Box, Button, Container } from "@mui/material";
-import {} from "next";
 import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { FunctionComponent } from "react";
 
@@ -53,7 +53,13 @@ const PageNavbar: FunctionComponent<{
         })}
         <Box sx={{ flexGrow: 1 }} />
         <Button color="inherit">{`Hello! ${session.user?.name}`}</Button>
-        <Button color="inherit" variant="outlined">
+        <Button
+          color="inherit"
+          variant="outlined"
+          onClick={() => {
+            signOut();
+          }}
+        >
           Logout
         </Button>
       </Toolbar>

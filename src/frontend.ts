@@ -1,14 +1,39 @@
 import { retDatasignup } from "../pages/api/auth/signup";
 import { retDataregcheck } from "../pages/api/auth/regcheck";
 
+export async function rawfetcher(
+  apiurl: string,
+  body: FormData,
+  cb: (byteLoad: number, byteSent: number) => void
+) {
+  const xhr = new XMLHttpRequest();
+  let response: any = null;
+  xhr.responseType = "json";
+
+  const success = await new Promise((resolve) => {
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        cb(event.loaded, event.total);
+      }
+    });
+    xhr.addEventListener("loadend", (event) => {
+      response = xhr.response;
+      resolve(xhr.readyState === 4 && xhr.status === 201);
+    });
+
+    xhr.open("POST", apiurl, true);
+    xhr.send(body);
+  });
+  console.log("Success: " + success);
+  return response;
+}
+
 export async function fetcher(apiurl: string, body: object) {
   return await fetch(apiurl, {
     method: "POST",
     body: JSON.stringify(body),
   })
     .then((res) => {
-      if (res.status === 401) {
-      }
       return res.json();
     })
     .then((json: { data: any }) => {

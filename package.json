@@ -9,9 +9,11 @@
     "start": "npm run start:real",
     "lint": "npm run prerun && npm run lint:real",
     "prerun": "esbuild next.config.ts --bundle --format=esm --outfile=next.config.mjs --platform=node --external:./node_modules/* --target=es2020 --minify --allow-overwrite",
-    "dev:real": "cross-env NODE_ENV=development ts-node start.ts",
+    "prerun:dev": "esbuild start.ts --bundle --format=esm --outfile=start.mjs --platform=node --external:./node_modules/* --target=es2020 --allow-overwrite",
+    "prerun:start": "esbuild start.ts --bundle --outfile=start.js --platform=node --external:./node_modules/* --target=es2020 --allow-overwrite",
+    "dev:real": "cross-env NODE_ENV=development nodemon start.mjs",
     "build:real": "next build",
-    "start:real": "cross-env NODE_ENV=production ts-node start.ts",
+    "start:real": "cross-env NODE_ENV=production node start.js",
     "lint:real": "next lint"
   },
   "dependencies": {
@@ -40,6 +42,7 @@
     "next-auth": "^4.10.3",
     "next-connect": "^0.13.0",
     "nextjs-progressbar": "^0.0.14",
+    "nodemon": "^2.0.19",
     "papaparse": "^5.3.2",
     "react": "latest",
     "react-device-detect": "^2.2.2",

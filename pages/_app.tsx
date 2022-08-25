@@ -30,7 +30,7 @@ export default function MyApp(props: MyAppProps) {
         <SessionProvider>
           <NextNProgress />
           {/* @ts-ignore */}
-          <ConfirmDialogProvider>
+          <ConfirmDialogProvider preventDuplicate>
             <Component {...pageProps} />
           </ConfirmDialogProvider>
         </SessionProvider>

@@ -26,8 +26,9 @@ import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { fileMetadataInt, getMongoClient } from "../../src/db";
 import fileSize from "filesize";
 import { useConfirmDialog } from "react-mui-confirm";
-import { ChangeEvent } from "react";
-import { uploadInProject } from "../../src/create/files";
+import { ChangeEvent, ReactNode } from "react";
+import { uploadToServer } from "../../src/create/files";
+import { ObjectId } from "bson";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -50,21 +51,23 @@ const ProjectFilesPage: NextPage<
     const file = e.target.files;
     let filename = file[0].name;
     for (let index = 1; index < file.length; index++) {
-      const element = file[index].name;
-      filename += ", " + element;
+      const element = file[index];
+      filename += ", " + element.name;
     }
     openConfirmDialog({
       title: "Are you sure you want to upload file: " + filename,
       onConfirm: async () => {
-        const formData = new FormData();
-        for (let index = 1; index < file.length; index++) {
+        const fmids: ObjectId[] = [];
+        for (let index = 0; index < file.length; index++) {
           const elm = file[index];
+          const formData = new FormData();
           formData.append("file", elm);
+          const uploadRes = await uploadToServer(formData, (ld, tl) => {
+            console.log("progress: ", ld / tl);
+          });
+          fmids.push(new ObjectId(uploadRes.fmid));
         }
-        formData.append("pid", pid);
-        const isUploaded = await uploadInProject(formData);
-        // await addFiletoProjFiles(pid, fmid);
-        // router.reload();
+        console.log(fmids);
       },
       cancelButtonProps: {
         color: "primary",

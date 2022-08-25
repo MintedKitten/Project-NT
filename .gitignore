@@ -36,3 +36,5 @@ next.config.*
 
 # typescript
 *.tsbuildinfo
+
+/files/*

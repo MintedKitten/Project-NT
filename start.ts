@@ -2,7 +2,6 @@ import "dotenv/config";
 import next from "next";
 import express from "express";
 
-import * as jsonwebtoken from "jsonwebtoken";
 import { MongoClient } from "mongodb";
 import { ObjectId } from "bson";
 import formidable, { Fields, File, Files } from "formidable";
@@ -10,9 +9,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
 
 import { fileMetadataInt } from "./src/db";
-import { NextAuthOptions, unstable_getServerSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import seedrandom from "seedrandom";
+import { Co2Sharp } from "@mui/icons-material";
 
 /**
  * SHA256 Hashing
@@ -33,7 +30,6 @@ function sha256(msg: string) {
   return hashHex;
 }
 
-const secret = "AwesomeSauce";
 // Server config from env and server request handler
 const port = parseInt(`${process.env.PORT}`, 10) || 3000;
 const dev = process.env.NODE_ENV !== "production";
@@ -64,11 +60,11 @@ process.on("SIGINT", (signal) => {
 });
 
 function isInstanceOfFile(ob: any): ob is File {
-  return "originalFilename" in Object;
+  return "originalFilename" in ob;
 }
 
 function isInstanceOfArrayFile(ob: any): ob is File[] {
-  return "length" in Object;
+  return "length" in ob;
 }
 
 async function getFileName(fmid: ObjectId): Promise<fileMetadataInt | null> {
@@ -109,7 +105,7 @@ async function insoDir2FileMetadata(
     });
   return id;
 }
-const dirfilepath = "/files/";
+const dirfilepath = "./files/";
 
 // declare module "express-serve-static-core" {
 //   interface Request extends NextApiRequestExtended {}
@@ -148,14 +144,13 @@ app
         }
       })
       .post("/files/", async (req, res, next) => {
+        const form = formidable();
         const getDataFromBody = new Promise<{ fields: Fields; files: Files }>(
           (resolve, reject) => {
-            const form = formidable({ multiples: true });
             form.parse(req, (err, fields, files) => {
               if (err) {
                 reject(err);
               }
-              console.log(files);
               resolve({ fields, files });
             });
           }
@@ -190,7 +185,7 @@ app
                 uploadDate: new Date(),
               });
 
-              const dir = dirfilepath + (await sha256(fmid.toHexString()));
+              const dir = dirfilepath + sha256(fmid.toHexString());
               await new Promise<void>((resolve, reject) => {
                 const reader = createReadStream(file.filepath);
                 const writer = createWriteStream(dir);
@@ -206,10 +201,13 @@ app
               });
               await insoDir2FileMetadata(fmid, { dir: dir });
               console.log(`New file uploaded at: ${dir}`);
+              return res
+                .status(201)
+                .json({ data: { fmid: fmid.toHexString() } });
             });
-            return res.status(201).end();
           })
           .catch((err) => {
+            console.log(err);
             return res.status(500).end(err);
           });
       })
