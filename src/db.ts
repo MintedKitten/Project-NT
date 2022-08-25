@@ -292,3 +292,53 @@ export async function initProject(
     await stagesInsertOne(conn, newstage);
   }
 }
+
+interface projectFilesInt {
+  _id?: ObjectId;
+  projId: ObjectId;
+  fileId: ObjectId;
+}
+
+async function getProjectFilesColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<projectFilesInt>(`${process.env.projFilesCollection}`);
+  return coll;
+}
+
+export async function projectFilesInsertOne(
+  conn: MongoClient,
+  query: projectFilesInt
+) {
+  const result = await (await getProjectFilesColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function projectFilesDeleteOne(
+  conn: MongoClient,
+  filter: Partial<projectFilesInt>
+) {
+  const result = (await (await getProjectFilesColl(conn)).deleteOne(filter))
+    .acknowledged;
+  return result;
+}
+
+export async function projectFilesFindAll(
+  conn: MongoClient,
+  query: Partial<projectFilesInt>
+) {
+  const result = await (await getProjectFilesColl(conn)).find(query).toArray();
+  return result;
+}
+
+export async function getFileName(query: Partial<fileMetadataInt>) {
+  const result = await (await getMongoClient())
+    .db(`${process.env.dbName}`)
+    .collection<fileMetadataInt>(`${process.env.filesMetadataCollection}`)
+    .findOne(query);
+  return result;
+}

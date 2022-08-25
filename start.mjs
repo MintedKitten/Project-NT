@@ -49,7 +49,7 @@ async function insoFileMetadata(query) {
   return id;
 }
 async function insoDir2FileMetadata(fmid, query) {
-  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).updateOne({ _id: fmid }, { $set: { query } }).then((value) => {
+  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).updateOne({ _id: fmid }, { $set: query }).then((value) => {
     return value.upsertedId;
   });
   return id;
@@ -134,6 +134,7 @@ At: ${dir}`);
         });
         await insoDir2FileMetadata(fmid, { dir });
         console.log(`New file uploaded at: ${dir}`);
+        console.log(`fmid: ` + fmid.toHexString());
         return res.status(201).json({ data: { fmid: fmid.toHexString() } });
       });
     }).catch((err) => {

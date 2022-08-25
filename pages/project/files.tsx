@@ -23,21 +23,34 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { fileMetadataInt, getMongoClient } from "../../src/db";
+import {
+  fileMetadataInt,
+  getFileName as getFileMetadata,
+  getMongoClient,
+  projectFilesFindAll,
+} from "../../src/db";
 import fileSize from "filesize";
 import { useConfirmDialog } from "react-mui-confirm";
-import { ChangeEvent, ReactNode } from "react";
-import { uploadToServer } from "../../src/create/files";
+import { ChangeEvent } from "react";
+import {
+  addFMidsToProject,
+  deleteFileFromProject,
+  uploadToServer,
+} from "../../src/create/files";
 import { ObjectId } from "bson";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ pid, files }) => {
+> = ({ pid, srfiles }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
 
   const openConfirmDialog = useConfirmDialog();
+
+  const files = srfiles.map((sfile) => {
+    return convToTable(sfile);
+  });
 
   if (status === "unauthenticated") {
     router.push("/api/auth/signin");
@@ -57,17 +70,24 @@ const ProjectFilesPage: NextPage<
     openConfirmDialog({
       title: "Are you sure you want to upload file: " + filename,
       onConfirm: async () => {
-        const fmids: ObjectId[] = [];
+        const fmids: string[] = [];
         for (let index = 0; index < file.length; index++) {
           const elm = file[index];
           const formData = new FormData();
           formData.append("file", elm);
           const uploadRes = await uploadToServer(formData, (ld, tl) => {
-            console.log("progress: ", ld / tl);
+            // For upload progress bar
+            // console.log("progress: ", ld / tl);
           });
-          fmids.push(new ObjectId(uploadRes.fmid));
+          fmids.push(uploadRes.fmid);
         }
-        console.log(fmids);
+        const isAllSuccessful = await addFMidsToProject(pid, fmids);
+        if (isAllSuccessful) {
+          router.push(
+            { pathname: "/project/files", query: { pid: pid } },
+            "/project/files"
+          );
+        }
       },
       cancelButtonProps: {
         color: "primary",
@@ -263,8 +283,19 @@ const ProjectFilesPage: NextPage<
                             openConfirmDialog({
                               title: "Remove file: " + filename + "?",
                               onConfirm: async () => {
-                                // await deleteFile(`${_id?.toHexString()}`);
-                                // router.reload();
+                                const isDeleteSuccessful =
+                                  await deleteFileFromProject(
+                                    `${_id?.toHexString()}`
+                                  );
+                                if (isDeleteSuccessful) {
+                                  router.push(
+                                    {
+                                      pathname: "/project/files",
+                                      query: { pid: pid },
+                                    },
+                                    "/project/files"
+                                  );
+                                }
                               },
                               cancelButtonProps: {
                                 color: "primary",
@@ -308,7 +339,7 @@ export default ProjectFilesPage;
 
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
-  files: fileMetadataInt[];
+  srfiles: ReturnType<typeof convToSerializable>[];
 }> = async (context) => {
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
@@ -320,22 +351,40 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const conn = await getMongoClient();
+  const result = await projectFilesFindAll(conn, {
+    projId: new ObjectId(webquery["pid"]),
+  });
+  const files: ReturnType<typeof convToSerializable>[] = [];
+  for (let index = 0; index < result.length; index++) {
+    const element = result[index];
+    const file = await getFileMetadata({ _id: element.fileId });
+    if (file) {
+      files.push(convToSerializable(file));
+    }
+  }
   conn.close();
-  // const presult = await projectFindOne(conn, {
-  //   _id: new ObjectId(webquery["pid"] as string),
-  // });
-  // if (!presult) {
-  //   return {
-  //     redirect: {
-  //       destination: "/search/projects",
-  //       permanent: false,
-  //     },
-  //   };
-  // } else {
-  //   const conv = convtoSerializable(presult);
-  return { props: { pid: webquery.pid as string, files: [] } };
-  // }
+  return { props: { pid: webquery.pid as string, srfiles: files } };
 };
+
+function convToSerializable(data: fileMetadataInt) {
+  const { _id, uploadDate, ...r } = data;
+  return {
+    _id: _id?.toHexString(),
+    uploadDate: uploadDate.toString(),
+    ...r,
+  };
+}
+
+function convToTable(
+  data: ReturnType<typeof convToSerializable>
+): fileMetadataInt {
+  const { _id: s_id, uploadDate: suploadDate, ...r } = data;
+  return {
+    _id: new ObjectId(s_id),
+    uploadDate: new Date(suploadDate),
+    ...r,
+  };
+}
 
 function formatDate(uploadDate: Date) {
   return `${(uploadDate.getDate() + "").padStart(2, "0")}/${(

@@ -24,7 +24,6 @@ export async function rawfetcher(
     xhr.open("POST", apiurl, true);
     xhr.send(body);
   });
-  console.log("Success: " + success);
   return response;
 }
 

@@ -9,7 +9,6 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
 
 import { fileMetadataInt } from "./src/db";
-import { Co2Sharp } from "@mui/icons-material";
 
 /**
  * SHA256 Hashing
@@ -99,7 +98,7 @@ async function insoDir2FileMetadata(
   )
     .db(DBname)
     .collection(FilesMetaColl)
-    .updateOne({ _id: fmid }, { $set: { query } })
+    .updateOne({ _id: fmid }, { $set: { dir: query.dir } })
     .then((value) => {
       return value.upsertedId;
     });
@@ -201,6 +200,7 @@ app
               });
               await insoDir2FileMetadata(fmid, { dir: dir });
               console.log(`New file uploaded at: ${dir}`);
+              console.log(`fmid: ` + fmid.toHexString());
               return res
                 .status(201)
                 .json({ data: { fmid: fmid.toHexString() } });
