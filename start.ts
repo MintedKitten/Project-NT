@@ -35,8 +35,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();
 
-const expressMongoString =
-  "mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority";
+const expressMongoString = `${process.env.EXPRESS_MONGO_STRING}`;
 const DBname = dev ? "devProcurement" : "Procurement";
 const FilesMetaColl = "FilesMetadata";
 
