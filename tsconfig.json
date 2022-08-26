@@ -20,9 +20,6 @@
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true
   },
-  "ts-node": {
-    "esm": true
-  },
   "include": [".env.local", "next-env.d.ts", "**/*.ts", "**/*.tsx", "start.ts"],
   "exclude": ["node_modules"]
 }
