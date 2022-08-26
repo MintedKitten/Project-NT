@@ -1,11 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import nextConnect from "next-connect";
-import { authOptions } from "./auth";
-
-// export interface NextApiRequestExtended
-//   extends NextApiRequest,
-//     userprofiletokenInt {}
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 
 const nxcHandler = () => {
   return nextConnect<NextApiRequest, NextApiResponse>({
