@@ -5,6 +5,7 @@ import {
   Button,
   CircularProgress,
   Grid,
+  Typography,
 } from "@mui/material";
 import { Edit as EditIcon } from "@mui/icons-material";
 import Big from "big.js";
@@ -23,13 +24,24 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { getMongoClient, projectFindOne, projectsInt } from "../../src/db";
-import { InputEn, thDate } from "../../src/local";
+import {
+  getMongoClient,
+  projectFindOne,
+  projectsInt,
+  stagesFindAll,
+} from "../../src/db";
+import {
+  InputEn,
+  navInfo,
+  projectNavInfo,
+  StagesProgress,
+  thDate,
+} from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ pid, preresult }) => {
+> = ({ pid, preresult, isComplete }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -131,40 +143,29 @@ const ProjectsPage: NextPage<
         </Head>
         <PageAppbar>
           <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Project"}
+            navlink={navInfo}
+            currentTab={-1}
             session={data}
           />
           <ProjectNavbar
-            navlink={[
-              { Header: "Details", Link: "/project/projects" },
-              { Header: "Files", Link: "/project/files" },
-              { Header: "Equipments", Link: "/project/equipments" },
-              { Header: "Stages", Link: "/project/stages" },
-            ]}
+            navlink={projectNavInfo}
             currentTab={"Details"}
             pid={pid}
           />
         </PageAppbar>
 
         <PageContainer>
-          <Box
-            sx={{ display: success ? "flex" : "none", alignItems: "center" }}
-          >
-            <Alert severity="success">
-              Update project successfully Redirecting to project...
-            </Alert>
-          </Box>
           <Box sx={{ display: "flex" }}>
             <TitleButtonElement />
+            <Box sx={{ flexGrow: 1 }} />
+            <Typography sx={{ color: isComplete ? "Green" : "Red" }}>
+              {isComplete ? "Complete" : "On Going"}
+            </Typography>
           </Box>
           <Box
             className="details"
             sx={{
+              mt: 1,
               border: 1,
               paddingX: 5,
               paddingY: 1,
@@ -210,6 +211,7 @@ export default ProjectsPage;
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
   preresult: ReturnType<typeof convtoSerializable>;
+  isComplete: boolean;
 }> = async (context) => {
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
@@ -224,6 +226,17 @@ export const getServerSideProps: GetServerSideProps<{
   const presult = await projectFindOne(conn, {
     _id: new ObjectId(webquery["pid"] as string),
   });
+  const stages = await stagesFindAll(conn, {
+    projId: new ObjectId(webquery["pid"]),
+  });
+  let isComplete = true;
+  for (let index = 0; index < stages.length; index++) {
+    const element = stages[index];
+    if (element.status === StagesProgress.OnGoing) {
+      isComplete = false;
+      break;
+    }
+  }
   conn.close();
   if (!presult) {
     return {
@@ -234,7 +247,13 @@ export const getServerSideProps: GetServerSideProps<{
     };
   } else {
     const conv = convtoSerializable(presult);
-    return { props: { pid: webquery.pid as string, preresult: conv } };
+    return {
+      props: {
+        pid: webquery.pid as string,
+        preresult: conv,
+        isComplete: isComplete,
+      },
+    };
   }
 };
 

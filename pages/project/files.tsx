@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Grid,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Download as DownloadIcon,
@@ -25,7 +26,7 @@ import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import {
   fileMetadataInt,
-  getFileName as getFileMetadata,
+  getFileMetadata,
   getMongoClient,
   projectFilesFindAll,
 } from "../../src/db";
@@ -38,10 +39,13 @@ import {
   uploadToServer,
 } from "../../src/create/files";
 import { ObjectId } from "bson";
+import { isMobile } from "react-device-detect";
+import {  navInfo, projectNavInfo } from "../../src/local";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, srfiles }) => {
+  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -125,21 +129,12 @@ const ProjectFilesPage: NextPage<
         </Head>
         <PageAppbar>
           <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Project"}
+            navlink={navInfo}
+            currentTab={-1}
             session={data}
           />
           <ProjectNavbar
-            navlink={[
-              { Header: "Details", Link: "/project/projects" },
-              { Header: "Files", Link: "/project/files" },
-              { Header: "Equipments", Link: "/project/equipments" },
-              { Header: "Stages", Link: "/project/stages" },
-            ]}
+            navlink={projectNavInfo}
             currentTab={"Files"}
             pid={pid}
           />
@@ -151,6 +146,7 @@ const ProjectFilesPage: NextPage<
           </Box>
           <Box
             sx={{
+              mt: 1,
               border: 1,
               paddingX: 1,
               paddingY: 1,
@@ -162,13 +158,13 @@ const ProjectFilesPage: NextPage<
           >
             <Grid container spacing={1} rowSpacing={1}>
               <Grid item xs={6}>
-                Name
+                <Typography>Name</Typography>
               </Grid>
               <Grid item xs={2}>
-                Size
+                <Typography> Size</Typography>
               </Grid>
               <Grid item xs={2}>
-                Upload Date
+                <Typography>Upload Date</Typography>
               </Grid>
               <Grid item xs={2}></Grid>
             </Grid>
@@ -184,7 +180,6 @@ const ProjectFilesPage: NextPage<
               {files.length === 0 ? (
                 <Typography
                   sx={{
-                    fontFamily: "Roboto",
                     color: "lightgrey",
                     fontWeight: 300,
                     justifyContent: "flex-start",
@@ -207,7 +202,7 @@ const ProjectFilesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {filetype}
+                        <Typography>{filetype}</Typography>
                       </Grid>
                       <Grid
                         item
@@ -217,7 +212,7 @@ const ProjectFilesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {filename}
+                        <Typography>{filename}</Typography>
                       </Grid>
                       <Grid
                         item
@@ -227,7 +222,9 @@ const ProjectFilesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {fileSize(size, { standard: "iec" })}
+                        <Typography>
+                          {fileSize(size, { standard: "iec" })}
+                        </Typography>
                       </Grid>
                       <Grid
                         item
@@ -237,7 +234,7 @@ const ProjectFilesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {formatDate(uploadDate)}
+                        <Typography>{formatDate(uploadDate)}</Typography>
                       </Grid>
                       <Grid
                         item

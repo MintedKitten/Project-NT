@@ -20,7 +20,7 @@ import {
   ProjectDetailsInput,
   ProjectDetailsInputType,
 } from "../../src/models/ProjectDetailsInput";
-import { InputEn, thDate } from "../../src/local";
+import { InputEn, navInfo, projectNavInfo, thDate } from "../../src/local";
 import {
   convertRawCSVToData,
   createNewProject,
@@ -49,6 +49,7 @@ import { updateProject } from "../../src/edit/projects";
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, preresult }) => {
+  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -58,8 +59,6 @@ const CreateProjectsPage: NextPage<
   const [tableData, setTableData] = useState<projectsTableInt>(
     convtoTable(preresult)
   );
-
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
 
   const tableBody: () => ProjectDetailsInputType[] = () => {
     let temp = { ...tableData };
@@ -289,28 +288,6 @@ const CreateProjectsPage: NextPage<
     );
   };
 
-  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) {
-      return;
-    }
-    const file = e.target.files[0];
-
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      if (!evt?.target?.result) {
-        return;
-      }
-      const { result } = evt.target;
-      const parsedCSV = parsecsv<projectsInt>(result.toString(), {
-        header: true,
-        dynamicTyping: true,
-      });
-      setTableData(convertRawCSVToData(parsedCSV.data[0]));
-    };
-    // reader.readAsBinaryString(file);
-    reader.readAsText(file);
-  };
-
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -322,29 +299,20 @@ const CreateProjectsPage: NextPage<
           <title>Update Project</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Project"}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
           <ProjectNavbar
-            navlink={[
-              { Header: "Details", Link: "/project/projects" },
-              { Header: "Files", Link: "/project/files" },
-              { Header: "Equipments", Link: "/project/equipments" },
-              { Header: "Stages", Link: "/project/stages" },
-            ]}
+            navlink={projectNavInfo}
             currentTab={"Details Edit"}
             pid={pid}
           />
         </PageAppbar>
         <PageContainer>
           <Box
-            sx={{ display: success ? "flex" : "none", alignItems: "center" }}
+            sx={{
+              display: success ? "flex" : "none",
+              alignItems: "center",
+              mb: 1,
+            }}
           >
             <Alert severity="success">
               Update project successfully Redirecting to project...
@@ -355,6 +323,7 @@ const CreateProjectsPage: NextPage<
           </Box>
           <Box
             sx={{
+              mt: 1,
               border: 1,
               paddingX: 5,
               paddingY: 1,

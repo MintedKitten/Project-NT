@@ -38,10 +38,10 @@ export const ProjectDetailsInput = ({
   if (type === InputEn.Integer) {
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <TextField
             fullWidth
             variant="outlined"
@@ -62,10 +62,10 @@ export const ProjectDetailsInput = ({
   if (type === InputEn.Float) {
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <TextField
             fullWidth
             variant="outlined"
@@ -99,10 +99,10 @@ export const ProjectDetailsInput = ({
     );
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <LocalizationProvider
             dateAdapter={ThaiAdapterDayjs}
             dateFormats={{
@@ -268,10 +268,10 @@ export const ProjectDetailsInput = ({
     );
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <LocalizationProvider
             dateAdapter={ThaiAdapterDayjs}
             dateFormats={{
@@ -372,10 +372,10 @@ export const ProjectDetailsInput = ({
     const { amount, unit }: itemObjectInt = JSON.parse(value);
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <Box sx={{ display: "flex" }}>
             <TextField
               fullWidth
@@ -416,10 +416,10 @@ export const ProjectDetailsInput = ({
   if (type === InputEn.TypeList) {
     return (
       <>
-        <Grid item xs={6} sm={4}>
+        <Grid item xs={12} sm={4}>
           <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
         </Grid>
-        <Grid item xs={6} sm={8}>
+        <Grid item xs={12} sm={8}>
           <Select
             value={value}
             onChange={(e) => {
@@ -440,10 +440,10 @@ export const ProjectDetailsInput = ({
   // Type InputEn.String
   return (
     <>
-      <Grid item xs={6} sm={4}>
+      <Grid item xs={12} sm={4}>
         <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
       </Grid>
-      <Grid item xs={6} sm={8}>
+      <Grid item xs={12} sm={8}>
         <TextField
           fullWidth
           variant="outlined"

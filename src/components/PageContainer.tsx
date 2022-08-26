@@ -10,8 +10,8 @@ const PageContainer = ({
     <Container maxWidth="lg">
       <Box
         sx={{
-          mx: { sm: "60px" },
-          my: { sm: 3 },
+          my: 3,
+          mt: 1,
           justifyContent: "center",
           alignItems: "center",
         }}

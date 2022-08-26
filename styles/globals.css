@@ -14,7 +14,3 @@ a {
 * {
   box-sizing: border-box;
 }
-
-.MuiStepLabel-labelContainer span {
-  font-size: 15px;
-}

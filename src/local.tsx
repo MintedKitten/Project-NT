@@ -1,3 +1,6 @@
+import { Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
+import { Box, Typography } from "@mui/material";
+
 export enum InputEn {
   String,
   Integer,
@@ -85,3 +88,28 @@ export function getLength(msg: string) {
   }
   return count;
 }
+
+export const navInfo = [
+  {
+    Header: "Search Projects",
+    Link: "/search/projects",
+    Icon: () => <SearchIcon />,
+  },
+  {
+    Header: "Search Equipments",
+    Link: "/search/equipments",
+    Icon: () => <SearchIcon />,
+  },
+  {
+    Header: "Add New Project",
+    Link: "/create/projects",
+    Icon: () => <AddIcon />,
+  },
+];
+
+export const projectNavInfo = [
+  { Header: "Details", Link: "/project/projects" },
+  { Header: "Files", Link: "/project/files" },
+  { Header: "Equipments", Link: "/project/equipments" },
+  { Header: "Stages", Link: "/project/stages" },
+];

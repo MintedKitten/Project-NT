@@ -17,6 +17,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { useSession } from "next-auth/react";
@@ -41,6 +42,7 @@ import {
   projectsInt,
 } from "../../src/db";
 import { ObjectId } from "bson";
+import { navInfo } from "../../src/local";
 
 const SearchProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -119,12 +121,8 @@ const SearchProjectsPage: NextPage<
         </Head>
         <PageAppbar>
           <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Search Project"}
+            navlink={navInfo}
+            currentTab={0}
             session={data}
           />
         </PageAppbar>
@@ -264,11 +262,11 @@ const SearchProjectsPage: NextPage<
                           </Link>
                         </TableCell>
                         <TableCell align="center" scope="row">
-                          {typeArray[type]}
+                          <Typography>{typeArray[type]}</Typography>
                         </TableCell>
                         <TableCell align="center" scope="row">
                           {/* Convert to buddhist year */}
-                          {year + 543}
+                          <Typography>{year + 543}</Typography>
                         </TableCell>
                       </TableRow>
                     );

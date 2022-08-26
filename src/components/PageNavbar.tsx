@@ -7,11 +7,12 @@ import { FunctionComponent } from "react";
 interface NavbarNavlink {
   Header: string;
   Link: string;
+  Icon: FunctionComponent;
 }
 
 const PageNavbar: FunctionComponent<{
   navlink: NavbarNavlink[];
-  currentTab: string;
+  currentTab: number;
   session: Session;
 }> = ({ navlink, session, currentTab }) => {
   const router = useRouter();
@@ -22,38 +23,44 @@ const PageNavbar: FunctionComponent<{
 
   return (
     <Container maxWidth="xl">
-      <Toolbar disableGutters sx={{ height: "40px" }}>
+      <Toolbar disableGutters sx={{ height: "40px", overflow: "auto" }}>
         <Box sx={{ display: "flex" }}>
           {navlink.map((navl, index) => {
-            const { Header, Link } = navl;
+            const { Header, Link, Icon } = navl;
             return (
-              <Typography
-                variant="h5"
-                noWrap
-                onClick={(event) => {
-                  event.preventDefault();
-                  reroute(Link);
-                }}
+              <Box
                 key={index}
                 sx={{
-                  fontWeight: currentTab === Header ? 600 : 300,
                   ml: 1,
-                  fontSize: 16,
-                  color: "inherit",
-                  textDecoration: "none",
                   cursor: "pointer",
-                  border: currentTab === Header ? 2 : 1,
+                  border: currentTab === index ? 2 : 1,
                   borderRadius: 1,
                   padding: 1,
+                  display: "flex",
                 }}
               >
-                {Header}
-              </Typography>
+                <Icon />
+                <Typography
+                  variant="h5"
+                  noWrap
+                  onClick={(event) => {
+                    event.preventDefault();
+                    reroute(Link);
+                  }}
+                  sx={{
+                    fontWeight: currentTab === index ? 600 : 300,
+                    fontSize: 16,
+                    color: "inherit",
+                  }}
+                >
+                  {Header}
+                </Typography>
+              </Box>
             );
           })}
         </Box>
         <Box sx={{ flexGrow: 1 }} />
-        <Button color="inherit">{`Hello! ${session.user?.name}`}</Button>
+        <Typography sx={{ mx: 2 }}>Hello! {session.user?.name}</Typography>
         <Button
           color="inherit"
           variant="outlined"

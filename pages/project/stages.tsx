@@ -20,12 +20,15 @@ import {
   Stepper,
   styled,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import {
   fileMetadataInt,
+  getFileMetadata,
   getMongoClient,
+  stageFilesFindAll,
   stagesFindAll,
   stagesInt,
 } from "../../src/db";
@@ -34,18 +37,21 @@ import {
   Download as DownloadIcon,
   Delete as DeleteIcon,
   FileUpload as FileUploadIcon,
-  Check,
+  Check as CheckIcon,
+  Cancel as CancelIcon,
 } from "@mui/icons-material";
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
-import { getLength, StagesProgress } from "../../src/local";
-import { ChangeEvent, useEffect, useState } from "react";
+import { navInfo, projectNavInfo, StagesProgress } from "../../src/local";
+import { ChangeEvent, useEffect } from "react";
 import fileSize from "filesize";
-import { deleteFileFromProject, uploadToServer } from "../../src/create/files";
+import { uploadToServer } from "../../src/create/files";
 import { useConfirmDialog } from "react-mui-confirm";
+import { addFMidsToStage } from "../../src/create/stages";
+import { editStageStatus } from "../../src/edit/stages";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -87,9 +93,9 @@ function StageStepIcon(props: StepIconProps) {
   return (
     <StageStepIconRoot ownerState={{ active }} className={className}>
       {completed ? (
-        <Check className="StageStepIcon-completedIcon" />
+        <CheckIcon className="StageStepIcon-completedIcon" />
       ) : (
-        <StepIcon {...props}/>
+        <StepIcon {...props} />
       )}
     </StageStepIconRoot>
   );
@@ -97,96 +103,38 @@ function StageStepIcon(props: StepIconProps) {
 
 const ProjectStagesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ pid, preresult, step }) => {
+> = ({ pid, preresultstage, step, srfiles }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
 
-  let stages = preresult.map((res) => {
+  let stages = preresultstage.map((res) => {
     return convBack(res);
   });
 
-  stages = stages.sort((a, b) => {
-    return a.order < b.order ? -1 : 1;
+  const files = srfiles.map((sfile) => {
+    return convFileToTable(sfile);
   });
-
-  const [activeStep, setActiveStep] = useState(() => {
-    if (step === -1) {
-      for (let index = 0; index < stages.length; index++) {
-        const element = stages[index];
-        if (element.status === StagesProgress.OnGoing) {
-          return element.order;
-        }
-      }
-      return stages.length - 1;
-    } else {
-      return step;
-    }
-  });
-
-  const [files, setFiles] = useState<fileMetadataInt[]>([]);
 
   useEffect(() => {
     const actstep = document.getElementById(
-      `${stages[activeStep]._id?.toHexString()}`
+      `${stages[step]._id?.toHexString()}`
     );
     if (actstep) {
       actstep.scrollIntoView({ behavior: "smooth" });
     }
-  }, [activeStep, stages]);
+  }, [step, stages]);
 
   const handleChangeActiveStep = (step: number) => {
-    setActiveStep(step);
-    reloadthispage(step);
+    pagereload(step);
   };
 
-  const reloadthispage = (tostep: number) => {
+  const pagereload = (step: number) => {
     router.push({
       pathname: "/project/stages",
-      query: { pid: pid, step: tostep },
+      query: { pid: pid, step: step },
     });
   };
-
-  // const totalSteps = () => {
-  //   return stages.length;
-  // };
-
-  // const completedSteps = () => {
-  //   return Object.keys(completed).length;
-  // };
-
-  // const isLastStep = () => {
-  //   return activeStep === totalSteps() - 1;
-  // };
-
-  // const allStepsCompleted = () => {
-  //   return completedSteps() === totalSteps();
-  // };
-
-  // const handleNext = () => {
-  //   const newActiveStep =
-  //     isLastStep() && !allStepsCompleted()
-  //       ? // It's the last step, but not all stages have been completed,
-  //         // find the first step that has been completed
-  //         stages.findIndex((stage, i) => !(i in completed))
-  //       : activeStep + 1;
-  //   setActiveStep(newActiveStep);
-  // };
-
-  // const handleBack = () => {
-  //   setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  // };
-
-  // const handleStep = (step: number) => () => {
-  //   setActiveStep(step);
-  // };
-
-  // const handleComplete = () => {
-  //   const newCompleted = completed;
-  //   newCompleted[activeStep] = true;
-  //   setCompleted(newCompleted);
-  //   handleNext();
-  // };
 
   const openConfirmDialog = useConfirmDialog();
 
@@ -213,8 +161,11 @@ const ProjectStagesPage: NextPage<
             // For upload progress bar
           });
           fmids.push(uploadRes.fmid);
-          const stid = stages[activeStep]._id;
-          console.log(stid?.toHexString());
+        }
+        const stid = stages[step]._id?.toHexString() + "";
+        const isAllSuccessful = await addFMidsToStage(pid, stid, fmids);
+        if (isAllSuccessful) {
+          pagereload(step);
         }
         // const isAllSuccessful = await addFMidsToProject(pid, fmids);
         // if (isAllSuccessful) {
@@ -252,6 +203,52 @@ const ProjectStagesPage: NextPage<
     );
   };
 
+  const changeStageStatus = async (status: StagesProgress) => {
+    const isUpdateSuccessful = await editStageStatus(
+      stages[step]._id?.toHexString() + "",
+      status
+    );
+    if (isUpdateSuccessful) {
+      pagereload(step);
+    }
+  };
+
+  const StatusElement = () => {
+    if (stages[step].status === StagesProgress.OnGoing) {
+      return (
+        <>
+          <Typography sx={{ mr: 1 }}>Stage status: </Typography>
+          <Typography sx={{ color: "Red", mr: 1 }}>On Going</Typography>
+          <Button
+            variant="contained"
+            startIcon={<CheckIcon />}
+            onClick={() => {
+              changeStageStatus(StagesProgress.Complete);
+            }}
+          >
+            Mark as Complete
+          </Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Typography sx={{ mr: 1 }}>Stage status:</Typography>
+          <Typography sx={{ color: "Green", mr: 1 }}>Complete</Typography>
+          <Button
+            variant="contained"
+            startIcon={<CancelIcon />}
+            onClick={() => {
+              changeStageStatus(StagesProgress.OnGoing);
+            }}
+          >
+            Mark as On Going
+          </Button>
+        </>
+      );
+    }
+  };
+
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -263,22 +260,9 @@ const ProjectStagesPage: NextPage<
           <title>Project Details</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Project"}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={3} session={data} />
           <ProjectNavbar
-            navlink={[
-              { Header: "Details", Link: "/project/projects" },
-              { Header: "Files", Link: "/project/files" },
-              { Header: "Equipments", Link: "/project/equipments" },
-              { Header: "Stages", Link: "/project/stages" },
-            ]}
+            navlink={projectNavInfo}
             currentTab={"Stages"}
             pid={pid}
           />
@@ -293,11 +277,11 @@ const ProjectStagesPage: NextPage<
             }}
           >
             <div style={{ width: "100%", overflow: "auto" }}>
-              <div style={{ width: stages.length * 300 + "px" }}>
+              <div style={{ width: stages.length * 280 + "px" }}>
                 <Stepper
                   nonLinear
                   alternativeLabel
-                  activeStep={activeStep}
+                  activeStep={step}
                   connector={<StageConnector />}
                 >
                   {stages.map((stage, index) => {
@@ -308,7 +292,6 @@ const ProjectStagesPage: NextPage<
                         completed={status === StagesProgress.Complete}
                         id={_id?.toHexString()}
                         sx={{
-                          // minWidth: getLength(name) * 8,
                           minHeight: "120px",
                         }}
                       >
@@ -331,11 +314,22 @@ const ProjectStagesPage: NextPage<
         </Container>
         <PageContainer>
           <Box sx={{ display: "flex" }}>
+            <Typography
+              variant={"h5"}
+              sx={{ fontWeight: "bold", mr: 1, minWidth: "134px" }}
+            >
+              {`ขั้นตอน: (${step + 1})`}
+            </Typography>
+            <Typography variant={"h5"}>{stages[step].name}</Typography>
+          </Box>
+          <Box sx={{ display: "flex", mt: 1, alignItems: "center" }}>
             <TitleButtonElement />
-            {activeStep}
+            <Box sx={{ flexGrow: 1 }} />
+            <StatusElement />
           </Box>
           <Box
             sx={{
+              mt: 1,
               border: 1,
               paddingX: 1,
               paddingY: 1,
@@ -347,13 +341,13 @@ const ProjectStagesPage: NextPage<
           >
             <Grid container spacing={1} rowSpacing={1}>
               <Grid item xs={6}>
-                Name
+                <Typography>Name</Typography>
               </Grid>
               <Grid item xs={2}>
-                Size
+                <Typography>Size</Typography>
               </Grid>
               <Grid item xs={2}>
-                Upload Date
+                <Typography>Upload Date</Typography>
               </Grid>
               <Grid item xs={2}></Grid>
             </Grid>
@@ -369,7 +363,6 @@ const ProjectStagesPage: NextPage<
               {files.length === 0 ? (
                 <Typography
                   sx={{
-                    fontFamily: "Roboto",
                     color: "lightgrey",
                     fontWeight: 300,
                     justifyContent: "flex-start",
@@ -402,7 +395,7 @@ const ProjectStagesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {filename}
+                        <Typography>{filename}</Typography>
                       </Grid>
                       <Grid
                         item
@@ -412,7 +405,9 @@ const ProjectStagesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {fileSize(size, { standard: "iec" })}
+                        <Typography>
+                          {fileSize(size, { standard: "iec" })}
+                        </Typography>
                       </Grid>
                       <Grid
                         item
@@ -422,7 +417,7 @@ const ProjectStagesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        {formatDate(uploadDate)}
+                        <Typography>{formatDate(uploadDate)}</Typography>
                       </Grid>
                       <Grid
                         item
@@ -455,16 +450,16 @@ const ProjectStagesPage: NextPage<
                             openConfirmDialog({
                               title: "Remove file: " + filename + "?",
                               onConfirm: async () => {
-                                const isDeleteSuccessful =
-                                  await deleteFileFromProject(
-                                    `${_id?.toHexString()}`
-                                  );
-                                if (isDeleteSuccessful) {
-                                  router.push({
-                                    pathname: "/project/files",
-                                    query: { pid: pid },
-                                  });
-                                }
+                                // const isDeleteSuccessful =
+                                //   await deleteFileFromProject(
+                                //     `${_id?.toHexString()}`
+                                //   );
+                                // if (isDeleteSuccessful) {
+                                //   router.push({
+                                //     pathname: "/project/files",
+                                //     query: { pid: pid },
+                                //   });
+                                // }
                               },
                               cancelButtonProps: {
                                 color: "primary",
@@ -508,8 +503,9 @@ export default ProjectStagesPage;
 
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
-  preresult: ReturnType<typeof convtoSerializable>[];
+  preresultstage: ReturnType<typeof convtoSerializable>[];
   step: number;
+  srfiles: ReturnType<typeof convFileToSerializable>[];
 }> = async (context) => {
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
@@ -520,23 +516,60 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
-  let activestep = -1;
-  if (webquery["step"]) {
-    activestep = parseInt(webquery["step"]);
-  }
+
   const conn = await getMongoClient();
   const stages = await stagesFindAll(conn, {
     projId: new ObjectId(webquery["pid"]),
   });
-  const preresult = stages.map((stage) => {
+
+  stages.sort((a, b) => {
+    return a.order < b.order ? -1 : 1;
+  });
+
+  let activestep = 0;
+
+  if (!webquery["step"]) {
+    let isComplete = true;
+    activestep = parseInt(webquery["step"]);
+    for (let index = 0; index < stages.length; index++) {
+      const element = stages[index];
+      if (element.status === StagesProgress.OnGoing) {
+        activestep = element.order;
+        isComplete = false;
+        break;
+      }
+    }
+    if (isComplete) {
+      activestep = stages.length - 1;
+    }
+  } else {
+    const step = parseInt(webquery["step"]);
+    if (step > 0 && step < stages.length) {
+      activestep = step;
+    }
+  }
+
+  const preresultstage = stages.map((stage) => {
     return convtoSerializable(stage);
   });
+  const filesresult = await stageFilesFindAll(conn, {
+    stageId: stages[activestep]._id,
+  });
+  const files: ReturnType<typeof convFileToSerializable>[] = [];
+  for (let index = 0; index < filesresult.length; index++) {
+    const element = filesresult[index];
+    const file = await getFileMetadata({ _id: element.fileId });
+    if (file) {
+      files.push(convFileToSerializable(file));
+    }
+  }
   conn.close();
   return {
     props: {
       pid: webquery.pid as string,
-      preresult: preresult,
+      preresultstage: preresultstage,
       step: activestep,
+      srfiles: files,
     },
   };
 };
@@ -569,4 +602,24 @@ function formatDate(uploadDate: Date) {
   ).padStart(2, "0")}:${(uploadDate.getMinutes() + "").padStart(2, "0")}:${(
     uploadDate.getSeconds() + ""
   ).padStart(2, "0")}`;
+}
+
+function convFileToSerializable(data: fileMetadataInt) {
+  const { _id, uploadDate, ...r } = data;
+  return {
+    _id: _id?.toHexString(),
+    uploadDate: uploadDate.toString(),
+    ...r,
+  };
+}
+
+function convFileToTable(
+  data: ReturnType<typeof convFileToSerializable>
+): fileMetadataInt {
+  const { _id: s_id, uploadDate: suploadDate, ...r } = data;
+  return {
+    _id: new ObjectId(s_id),
+    uploadDate: new Date(suploadDate),
+    ...r,
+  };
 }

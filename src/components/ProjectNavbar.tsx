@@ -18,7 +18,6 @@ const tabLabel = (label: string) => {
   return (
     <Typography
       sx={{
-        fontFamily: "Roboto",
         color: "inherit",
         fontWeight: 500,
         fontSize: "1rem",
@@ -42,44 +41,51 @@ const ProjectNavbar: FunctionComponent<{
 
   return (
     <Container maxWidth="lg">
-      <Toolbar disableGutters sx={{ height: "40px" }}>
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            width: "100%",
-          }}
-        >
-          <Tabs
-            value={currentTab}
-            variant="fullWidth"
-            textColor="inherit"
-            indicatorColor="primary"
-            TabIndicatorProps={{
-              style: {
-                backgroundColor: "#fff",
-              },
+      <Box
+        sx={{
+          display: "flex",
+          overflow: "auto",
+          justifyContent: { xs: "start", sm: "center" },
+        }}
+      >
+        <Toolbar disableGutters sx={{ height: "40px" }}>
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
             }}
           >
-            {navlink.map((page, index) => {
-              const { Header, Link } = page;
-              let ml = index !== 0 ? 6 : 0;
-              return (
-                <Tab
-                  key={index}
-                  label={tabLabel(Header)}
-                  value={Header}
-                  {...a11yProps(index)}
-                  sx={{ marginLeft: ml }}
-                  onClick={(event) => {
-                    reroute(Link);
-                  }}
-                />
-              );
-            })}
-          </Tabs>
-        </Box>
-      </Toolbar>
+            <Tabs
+              value={currentTab}
+              variant="fullWidth"
+              textColor="inherit"
+              indicatorColor="primary"
+              TabIndicatorProps={{
+                style: {
+                  backgroundColor: "#fff",
+                },
+              }}
+            >
+              {navlink.map((page, index) => {
+                const { Header, Link } = page;
+                let ml = index !== 0 ? 6 : 0;
+                return (
+                  <Tab
+                    key={index}
+                    label={tabLabel(Header)}
+                    value={Header}
+                    {...a11yProps(index)}
+                    sx={{ marginLeft: ml }}
+                    onClick={(event) => {
+                      reroute(Link);
+                    }}
+                  />
+                );
+              })}
+            </Tabs>
+          </Box>
+        </Toolbar>
+      </Box>
     </Container>
   );
 };

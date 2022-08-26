@@ -20,7 +20,7 @@ import {
   ProjectDetailsInput,
   ProjectDetailsInputType,
 } from "../../src/models/ProjectDetailsInput";
-import { InputEn } from "../../src/local";
+import { InputEn, navInfo } from "../../src/local";
 import {
   convertRawCSVToData,
   createNewProject,
@@ -39,6 +39,7 @@ import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
 
 const CreateProjectsPage = () => {
+  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -47,8 +48,6 @@ const CreateProjectsPage = () => {
 
   const [tableData, setTableData] =
     useState<projectsTableInt>(projectsDefaultValue);
-
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
 
   const tableBody: () => ProjectDetailsInputType[] = () => {
     let temp = { ...tableData };
@@ -251,12 +250,10 @@ const CreateProjectsPage = () => {
                 const pid = await createNewProject(query);
                 setSuccess(true);
                 setTimeout(() => {
-                  router.push(
-                    {
-                      pathname: "/project/projects",
-                      query: { pid: pid.toHexString() },
-                    },
-                  );
+                  router.push({
+                    pathname: "/project/projects",
+                    query: { pid: pid.toHexString() },
+                  });
                 }, 100);
               }
             },
@@ -325,18 +322,18 @@ const CreateProjectsPage = () => {
         </Head>
         <PageAppbar>
           <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Add New Project"}
+            navlink={navInfo}
+            currentTab={2}
             session={data}
           />
         </PageAppbar>
         <PageContainer>
           <Box
-            sx={{ display: success ? "flex" : "none", alignItems: "center" }}
+            sx={{
+              display: success ? "flex" : "none",
+              alignItems: "center",
+              mb: 1,
+            }}
           >
             <Alert severity="success">
               Add new project successfully Redirecting to project...
@@ -349,6 +346,7 @@ const CreateProjectsPage = () => {
           </Box>
           <Box
             sx={{
+              mt: 1,
               border: 1,
               paddingX: 5,
               paddingY: 1,

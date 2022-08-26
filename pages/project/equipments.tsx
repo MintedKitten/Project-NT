@@ -1,5 +1,9 @@
-import type { GetServerSideProps, InferGetServerSidePropsType, NextPage } from "next";
-import { Backdrop, CircularProgress } from "@mui/material";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
+import { Backdrop, CircularProgress, useMediaQuery } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { getMongoClient } from "../../src/db";
@@ -9,10 +13,13 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
+import { isMobile } from "react-device-detect";
+import {  navInfo, projectNavInfo } from "../../src/local";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid }) => {
+  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -29,21 +36,12 @@ const ProjectEquipmentsPage: NextPage<
         </Head>
         <PageAppbar>
           <PageNavbar
-            navlink={[
-              { Header: "Search Project", Link: "/search/projects" },
-              { Header: "Search Equipments", Link: "/search/equipments" },
-              { Header: "Add New Project", Link: "/create/projects" },
-            ]}
-            currentTab={"Project"}
+            navlink={navInfo}
+            currentTab={-1}
             session={data}
           />
           <ProjectNavbar
-            navlink={[
-              { Header: "Details", Link: "/project/projects" },
-              { Header: "Files", Link: "/project/files" },
-              { Header: "Equipments", Link: "/project/equipments" },
-              { Header: "Stages", Link: "/project/stages" },
-            ]}
+            navlink={projectNavInfo}
             currentTab={"Equipments"}
             pid={pid}
           />

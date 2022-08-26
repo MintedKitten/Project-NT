@@ -272,6 +272,19 @@ export async function stagesFindAll(
   return result;
 }
 
+export async function stagesUpdateOne(
+  conn: MongoClient,
+  query: { _id: ObjectId },
+  upsert: Partial<stagesInt>
+) {
+  const result = await (await getStagesColl(conn))
+    .updateOne(query, { $set: upsert })
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
 const threshold = 100000000;
 
 export async function initProject(
@@ -335,10 +348,53 @@ export async function projectFilesFindAll(
   return result;
 }
 
-export async function getFileName(query: Partial<fileMetadataInt>) {
+export async function getFileMetadata(query: Partial<fileMetadataInt>) {
   const result = await (await getMongoClient())
     .db(`${process.env.dbName}`)
     .collection<fileMetadataInt>(`${process.env.filesMetadataCollection}`)
     .findOne(query);
+  return result;
+}
+
+interface stageFilesInt {
+  _id?: ObjectId;
+  projId: ObjectId;
+  stageId: ObjectId;
+  fileId: ObjectId;
+}
+
+async function getStageFilesColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<projectFilesInt>(`${process.env.stageFilesCollection}`);
+  return coll;
+}
+
+export async function stageFilesFindAll(
+  conn: MongoClient,
+  query: Partial<stageFilesInt>
+) {
+  const result = await (await getStageFilesColl(conn)).find(query).toArray();
+  return result;
+}
+
+export async function stageFilesInsertOne(
+  conn: MongoClient,
+  query: stageFilesInt
+) {
+  const result = await (await getStageFilesColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function stageFilesDeleteOne(
+  conn: MongoClient,
+  filter: Partial<stageFilesInt>
+) {
+  const result = (await (await getStageFilesColl(conn)).deleteOne(filter))
+    .acknowledged;
   return result;
 }
