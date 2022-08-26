@@ -292,7 +292,7 @@ export async function initProject(
   pid: ObjectId,
   budget: Big
 ) {
-  const type = budget.cmp(threshold) ? 0 : 1;
+  const type = budget.cmp(threshold) < 0 ? 0 : 1;
   const stname = stageNames[type];
   for (let index = 0; index < stname.length; index++) {
     const element = stname[index];

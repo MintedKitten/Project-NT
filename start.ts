@@ -1,4 +1,5 @@
-import "dotenv/config";
+import * as dotenv from "dotenv";
+dotenv.config({ path: "/.env.local" });
 import next from "next";
 import express from "express";
 
@@ -35,7 +36,7 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();
 
-const expressMongoString = `${process.env.EXPRESS_MONGO_STRING}`;
+const expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
 const DBname = dev ? "devProcurement" : "Procurement";
 const FilesMetaColl = "FilesMetadata";
 

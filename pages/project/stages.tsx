@@ -51,7 +51,7 @@ import fileSize from "filesize";
 import { uploadToServer } from "../../src/create/files";
 import { useConfirmDialog } from "react-mui-confirm";
 import { addFMidsToStage } from "../../src/create/stages";
-import { editStageStatus } from "../../src/edit/stages";
+import { deleteStageFile, editStageStatus } from "../../src/edit/stages";
 import { getToken } from "next-auth/jwt";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
@@ -210,7 +210,11 @@ const ProjectStagesPage: NextPage<
       status
     );
     if (isUpdateSuccessful) {
-      pagereload(step);
+      if (status === StagesProgress.Complete) {
+        pagereload(step + 1 < stages.length ? step + 1 : stages.length - 1);
+      } else {
+        pagereload(step);
+      }
     }
   };
 
@@ -328,160 +332,172 @@ const ProjectStagesPage: NextPage<
             <Box sx={{ flexGrow: 1 }} />
             <StatusElement />
           </Box>
-          <Box
-            sx={{
-              mt: 1,
-              border: 1,
-              paddingX: 1,
-              paddingY: 1,
-              borderColor: "lightgrey",
-              borderRadius: 2,
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-            }}
-          >
-            <Grid container spacing={1} rowSpacing={1}>
-              <Grid item xs={6}>
-                <Typography>Name</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography>Size</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography>Upload Date</Typography>
-              </Grid>
-              <Grid item xs={2}></Grid>
-            </Grid>
-          </Box>
-          <Box
-            sx={{
-              paddingTop: 1,
-              paddingLeft: 1,
-              borderColor: "lightgrey",
-            }}
-          >
-            <Grid container spacing={1} rowSpacing={1}>
-              {files.length === 0 ? (
-                <Typography
-                  sx={{
-                    color: "lightgrey",
-                    fontWeight: 300,
-                    justifyContent: "flex-start",
-                  }}
+          <Box component="div">
+            <Box
+              sx={{
+                mt: 1,
+                border: 1,
+                paddingLeft: 1,
+                paddingY: 1,
+                borderColor: "lightgrey",
+                borderRadius: 2,
+              }}
+            >
+              <Grid container spacing={1} sx={{ minWidth: "600px" }}>
+                <Grid
+                  item
+                  xs={6}
+                  sx={{ borderBottom: 1, borderColor: "lightgrey" }}
                 >
-                  No file was found.
-                </Typography>
-              ) : (
-                files.map((file, index) => {
-                  const { _id, filename, filetype, size, uploadDate, dir } =
-                    file;
-                  return (
-                    <>
-                      <Grid
-                        item
-                        xs={1}
-                        sx={{
-                          borderLeft: 1,
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                        }}
-                      >
-                        {filetype}
-                      </Grid>
-                      <Grid
-                        item
-                        xs={5}
-                        sx={{
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                        }}
-                      >
-                        <Typography>{filename}</Typography>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={2}
-                        sx={{
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                        }}
-                      >
-                        <Typography>
-                          {fileSize(size, { standard: "iec" })}
-                        </Typography>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={2}
-                        sx={{
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                        }}
-                      >
-                        <Typography>{formatDate(uploadDate)}</Typography>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={1}
-                        sx={{
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                        }}
-                      >
-                        <a
-                          download={filename}
-                          href={`/files/${_id?.toHexString()}`}
-                        >
-                          <DownloadIcon sx={{ cursor: "pointer" }} />
-                        </a>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={1}
-                        sx={{
-                          borderRight: 1,
-                          borderBottom: 1,
-                          borderColor: "lightgrey",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div
-                          onClick={(e) => {
-                            e.preventDefault();
-                            openConfirmDialog({
-                              title: "Remove file: " + filename + "?",
-                              onConfirm: async () => {
-                                // const isDeleteSuccessful =
-                                //   await deleteFileFromProject(
-                                //     `${_id?.toHexString()}`
-                                //   );
-                                // if (isDeleteSuccessful) {
-                                //   router.push({
-                                //     pathname: "/project/files",
-                                //     query: { pid: pid },
-                                //   });
-                                // }
-                              },
-                              cancelButtonProps: {
-                                color: "primary",
-                              },
-                              confirmButtonProps: {
-                                color: "warning",
-                              },
-                              confirmButtonText: "Delete",
-                            });
+                  <Typography>Name</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={2}
+                  sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+                >
+                  <Typography>Size</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={2}
+                  sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+                >
+                  <Typography>Upload Date</Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={2}
+                  sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+                >
+                  Action
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                spacing={1}
+                rowSpacing={1}
+                sx={{ mt: 0, maxHeight: "65vh", overflow: "auto" }}
+              >
+                {files.length === 0 ? (
+                  <Typography
+                    sx={{
+                      color: "lightgrey",
+                      fontWeight: 300,
+                      justifyContent: "flex-start",
+                    }}
+                  >
+                    No file was found.
+                  </Typography>
+                ) : (
+                  files.map((file, index) => {
+                    const { _id, filename, filetype, size, uploadDate, dir } =
+                      file;
+                    return (
+                      <>
+                        <Grid
+                          item
+                          xs={1}
+                          sx={{
+                            borderLeft: 1,
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
                           }}
                         >
-                          <DeleteIcon
-                            sx={{ cursor: "pointer", color: "red" }}
-                          />
-                        </div>
-                      </Grid>
-                    </>
-                  );
-                })
-              )}
-            </Grid>
+                          {filetype}
+                        </Grid>
+                        <Grid
+                          item
+                          xs={5}
+                          sx={{
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
+                          }}
+                        >
+                          <Typography>{filename}</Typography>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={2}
+                          sx={{
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
+                          }}
+                        >
+                          <Typography>
+                            {fileSize(size, { standard: "iec" })}
+                          </Typography>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={2}
+                          sx={{
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
+                          }}
+                        >
+                          <Typography>{formatDate(uploadDate)}</Typography>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={1}
+                          sx={{
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
+                          }}
+                        >
+                          <a
+                            download={filename}
+                            href={`/files/${_id?.toHexString()}`}
+                          >
+                            <DownloadIcon sx={{ cursor: "pointer" }} />
+                          </a>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={1}
+                          sx={{
+                            borderRight: 1,
+                            borderBottom: 1,
+                            borderColor: "lightgrey",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openConfirmDialog({
+                                title: "Remove file: " + filename + "?",
+                                onConfirm: async () => {
+                                  const isDeleteSuccessful =
+                                    await deleteStageFile(
+                                      `${_id?.toHexString()}`
+                                    );
+                                  if (isDeleteSuccessful) {
+                                    pagereload(step);
+                                  }
+                                },
+                                cancelButtonProps: {
+                                  color: "primary",
+                                },
+                                confirmButtonProps: {
+                                  color: "warning",
+                                },
+                                confirmButtonText: "Delete",
+                              });
+                            }}
+                          >
+                            <DeleteIcon
+                              sx={{ cursor: "pointer", color: "red" }}
+                            />
+                          </div>
+                        </Grid>
+                      </>
+                    );
+                  })
+                )}
+              </Grid>
+            </Box>
           </Box>
         </PageContainer>
       </>
@@ -540,9 +556,8 @@ export const getServerSideProps: GetServerSideProps<{
   });
 
   let activestep = 0;
-
+  let isComplete = true;
   if (!webquery["step"]) {
-    let isComplete = true;
     activestep = parseInt(webquery["step"]);
     for (let index = 0; index < stages.length; index++) {
       const element = stages[index];

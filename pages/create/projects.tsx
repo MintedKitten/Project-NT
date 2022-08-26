@@ -37,6 +37,7 @@ import { projectsInt } from "../../src/db";
 import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
+import { GetStaticPaths, GetStaticProps } from "next";
 
 const CreateProjectsPage = () => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
@@ -388,3 +389,8 @@ const CreateProjectsPage = () => {
 };
 
 export default CreateProjectsPage;
+
+export const getStaticProps: GetStaticProps = (context) => {
+  const { params } = context;
+  return { props: { text: "" }, revalidate: 1000 };
+};

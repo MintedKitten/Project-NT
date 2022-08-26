@@ -157,10 +157,7 @@ const ProjectFilesPage: NextPage<
               <Grid
                 item
                 xs={6}
-                sx={{
-                  borderBottom: 1,
-                  borderColor: "lightgrey",
-                }}
+                sx={{ borderBottom: 1, borderColor: "lightgrey" }}
               >
                 <Typography>Name</Typography>
               </Grid>
@@ -169,7 +166,7 @@ const ProjectFilesPage: NextPage<
                 xs={2}
                 sx={{ borderBottom: 1, borderColor: "lightgrey" }}
               >
-                <Typography> Size</Typography>
+                <Typography>Size</Typography>
               </Grid>
               <Grid
                 item
