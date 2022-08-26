@@ -3,23 +3,22 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { Backdrop, CircularProgress, useMediaQuery } from "@mui/material";
+import { Backdrop, Box, CircularProgress, useMediaQuery } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { getMongoClient } from "../../src/db";
 import Head from "next/head";
-import { pid } from "process";
+
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { isMobile } from "react-device-detect";
 import {  navInfo, projectNavInfo } from "../../src/local";
+import { getToken } from "next-auth/jwt";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid }) => {
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -32,14 +31,10 @@ const ProjectEquipmentsPage: NextPage<
     return (
       <>
         <Head>
-          <title>Project Details</title>
+          <title>Project Equipments</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={navInfo}
-            currentTab={-1}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Equipments"}
@@ -47,7 +42,10 @@ const ProjectEquipmentsPage: NextPage<
           />
         </PageAppbar>
 
-        <PageContainer></PageContainer>
+        <PageContainer>
+          <Box sx={{ display: "flex" }}></Box>
+          <Box></Box>
+        </PageContainer>
       </>
     );
   }
@@ -70,6 +68,18 @@ export const getServerSideProps: GetServerSideProps<{
   pid: string;
   // preresult: ReturnType<typeof convtoSerializable>;
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
@@ -80,7 +90,7 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const conn = await getMongoClient();
-  conn.close();
+  await conn.close();
   // const presult = await projectFindOne(conn, {
   //   _id: new ObjectId(webquery["pid"] as string),
   // });

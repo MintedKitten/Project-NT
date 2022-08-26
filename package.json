@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npm run prerun && npm run dev:real",
-    "build": "npm run prerun && npm run build:real",
+    "dev": "npm run prerun && npm run prerun:dev && npm run dev:real",
+    "build": "npm run prerun && npm run prerun:start && npm run build:real",
     "start": "npm run start:real",
     "lint": "npm run prerun && npm run lint:real",
     "prerun": "esbuild next.config.ts --bundle --format=esm --outfile=next.config.mjs --platform=node --external:./node_modules/* --target=es2020 --minify --allow-overwrite",

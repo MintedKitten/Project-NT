@@ -52,6 +52,7 @@ import { uploadToServer } from "../../src/create/files";
 import { useConfirmDialog } from "react-mui-confirm";
 import { addFMidsToStage } from "../../src/create/stages";
 import { editStageStatus } from "../../src/edit/stages";
+import { getToken } from "next-auth/jwt";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -257,7 +258,7 @@ const ProjectStagesPage: NextPage<
     return (
       <>
         <Head>
-          <title>Project Details</title>
+          <title>Project Stages</title>
         </Head>
         <PageAppbar>
           <PageNavbar navlink={navInfo} currentTab={3} session={data} />
@@ -507,6 +508,18 @@ export const getServerSideProps: GetServerSideProps<{
   step: number;
   srfiles: ReturnType<typeof convFileToSerializable>[];
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
@@ -563,7 +576,7 @@ export const getServerSideProps: GetServerSideProps<{
       files.push(convFileToSerializable(file));
     }
   }
-  conn.close();
+  await conn.close();
   return {
     props: {
       pid: webquery.pid as string,

@@ -1,5 +1,4 @@
 import {
-  Alert,
   Backdrop,
   Box,
   Button,
@@ -15,7 +14,7 @@ import {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -38,6 +37,7 @@ import {
   thDate,
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
+import { getToken } from "next-auth/jwt";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -142,11 +142,7 @@ const ProjectsPage: NextPage<
           <title>Project Details</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={navInfo}
-            currentTab={-1}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Details"}
@@ -213,6 +209,18 @@ export const getServerSideProps: GetServerSideProps<{
   preresult: ReturnType<typeof convtoSerializable>;
   isComplete: boolean;
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
@@ -237,7 +245,7 @@ export const getServerSideProps: GetServerSideProps<{
       break;
     }
   }
-  conn.close();
+  await conn.close();
   if (!presult) {
     return {
       redirect: {

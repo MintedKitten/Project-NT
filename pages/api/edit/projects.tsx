@@ -7,6 +7,7 @@ import { thDate } from "../../../src/local";
 export type retDataeditproject = { isUpdated: boolean };
 
 const handler = nxcHandler().all(async (req, res) => {
+  const conn = await getMongoClient();
   try {
     const body = JSON.parse(req.body);
     const upsert: projectsInt = {
@@ -31,12 +32,12 @@ const handler = nxcHandler().all(async (req, res) => {
       lastupdate: thDate(new Date()),
     };
     const query = { _id: new ObjectId(body["_id"]) };
-    const conn = await getMongoClient();
     const result = await projectUpdateOne(conn, query, upsert);
-    conn.close();
-    return res.status(200).json({ data: { isUpdated: result } });
+    res.status(200).json({ data: { isUpdated: result } });
   } catch (err) {
-    return res.status(400).end();
+    res.status(400).end();
+  } finally {
+    await conn.close();
   }
 });
 export default handler;

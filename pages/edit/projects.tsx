@@ -45,6 +45,7 @@ import {
 import Big from "big.js";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { updateProject } from "../../src/edit/projects";
+import { getToken } from "next-auth/jwt";
 
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -374,6 +375,18 @@ export const getServerSideProps: GetServerSideProps<{
   pid: string;
   preresult: ReturnType<typeof convtoSerializable>;
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
@@ -387,7 +400,7 @@ export const getServerSideProps: GetServerSideProps<{
   const presult = await projectFindOne(conn, {
     _id: new ObjectId(webquery["pid"] as string),
   });
-  conn.close();
+  await conn.close();
   if (!presult) {
     return {
       redirect: {

@@ -40,12 +40,12 @@ import {
 } from "../../src/create/files";
 import { ObjectId } from "bson";
 import { isMobile } from "react-device-detect";
-import {  navInfo, projectNavInfo } from "../../src/local";
+import { navInfo, projectNavInfo } from "../../src/local";
+import { getToken } from "next-auth/jwt";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, srfiles }) => {
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -87,7 +87,10 @@ const ProjectFilesPage: NextPage<
         }
         const isAllSuccessful = await addFMidsToProject(pid, fmids);
         if (isAllSuccessful) {
-          router.push({ pathname: "/project/files", query: { pid: pid } });
+          await router.push({
+            pathname: "/project/files",
+            query: { pid: pid },
+          });
         }
       },
       cancelButtonProps: {
@@ -128,11 +131,7 @@ const ProjectFilesPage: NextPage<
           <title>Project Files</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={navInfo}
-            currentTab={-1}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Files"}
@@ -148,35 +147,52 @@ const ProjectFilesPage: NextPage<
             sx={{
               mt: 1,
               border: 1,
-              paddingX: 1,
+              paddingLeft: 1,
               paddingY: 1,
               borderColor: "lightgrey",
               borderRadius: 2,
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
             }}
           >
-            <Grid container spacing={1} rowSpacing={1}>
-              <Grid item xs={6}>
+            <Grid container spacing={1} sx={{ minWidth: "600px" }}>
+              <Grid
+                item
+                xs={6}
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "lightgrey",
+                }}
+              >
                 <Typography>Name</Typography>
               </Grid>
-              <Grid item xs={2}>
+              <Grid
+                item
+                xs={2}
+                sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+              >
                 <Typography> Size</Typography>
               </Grid>
-              <Grid item xs={2}>
+              <Grid
+                item
+                xs={2}
+                sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+              >
                 <Typography>Upload Date</Typography>
               </Grid>
-              <Grid item xs={2}></Grid>
+              <Grid
+                item
+                xs={2}
+                sx={{ borderBottom: 1, borderColor: "lightgrey" }}
+                columns={2}
+              >
+                <Typography>Action</Typography>
+              </Grid>
             </Grid>
-          </Box>
-          <Box
-            sx={{
-              paddingTop: 1,
-              paddingLeft: 1,
-              borderColor: "lightgrey",
-            }}
-          >
-            <Grid container spacing={1} rowSpacing={1}>
+            <Grid
+              container
+              spacing={1}
+              rowSpacing={1}
+              sx={{ mt: 0, maxHeight: "65vh", overflow: "auto" }}
+            >
               {files.length === 0 ? (
                 <Typography
                   sx={{
@@ -197,8 +213,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={1}
                         sx={{
-                          borderLeft: 1,
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                         }}
                       >
@@ -208,7 +223,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={5}
                         sx={{
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                         }}
                       >
@@ -218,7 +233,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={2}
                         sx={{
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                         }}
                       >
@@ -230,7 +245,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={2}
                         sx={{
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                         }}
                       >
@@ -240,7 +255,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={1}
                         sx={{
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                         }}
                       >
@@ -255,8 +270,7 @@ const ProjectFilesPage: NextPage<
                         item
                         xs={1}
                         sx={{
-                          borderRight: 1,
-                          borderBottom: 1,
+                          borderTop: 1,
                           borderColor: "lightgrey",
                           alignItems: "center",
                         }}
@@ -272,7 +286,7 @@ const ProjectFilesPage: NextPage<
                                     `${_id?.toHexString()}`
                                   );
                                 if (isDeleteSuccessful) {
-                                  router.push({
+                                  await router.push({
                                     pathname: "/project/files",
                                     query: { pid: pid },
                                   });
@@ -322,6 +336,18 @@ export const getServerSideProps: GetServerSideProps<{
   pid: string;
   srfiles: ReturnType<typeof convToSerializable>[];
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
@@ -343,7 +369,7 @@ export const getServerSideProps: GetServerSideProps<{
       files.push(convToSerializable(file));
     }
   }
-  conn.close();
+  await conn.close();
   return { props: { pid: webquery.pid as string, srfiles: files } };
 };
 

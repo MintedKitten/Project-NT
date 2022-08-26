@@ -7,6 +7,7 @@ import { thDate } from "../../../src/local";
 export type retDatacreateproject = { pid: ObjectId };
 
 const handler = nxcHandler().all(async (req, res) => {
+  const conn = await getMongoClient();
   try {
     const body = JSON.parse(req.body);
     const query: projectsInt = {
@@ -30,12 +31,13 @@ const handler = nxcHandler().all(async (req, res) => {
       createdby: new ObjectId(body["createdby"]),
       lastupdate: thDate(new Date()),
     };
-    const conn = await getMongoClient();
+
     const result = await projectInsertOne(conn, query);
-    conn.close();
-    return res.status(200).json({ data: { pid: result } });
+    res.status(200).json({ data: { pid: result } });
   } catch (err) {
-    return res.status(400).end();
+    res.status(400).end();
+  } finally {
+    await conn.close();
   }
 });
 export default handler;

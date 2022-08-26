@@ -17,7 +17,7 @@ const handler = nxcHandler().all(async (req, res) => {
       { _id: stid },
       { status: newstatus }
     );
-    conn.close();
+    await conn.close();
     return res
       .status(200)
       .json({ data: { isUpdateSuccesful: isUpdateSuccesful } });

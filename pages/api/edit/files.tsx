@@ -17,7 +17,7 @@ const handler = nxcHandler().all(async (req, res) => {
     const isDeleteSuccessful = await projectFilesDeleteOne(conn, {
       fileId: fileId,
     });
-    conn.close();
+    await conn.close();
     return res
       .status(200)
       .json({ data: { isDeleteSuccessful: isDeleteSuccessful } });

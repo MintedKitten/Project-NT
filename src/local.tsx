@@ -1,5 +1,4 @@
 import { Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
-import { Box, Typography } from "@mui/material";
 
 export enum InputEn {
   String,
@@ -113,3 +112,4 @@ export const projectNavInfo = [
   { Header: "Equipments", Link: "/project/equipments" },
   { Header: "Stages", Link: "/project/stages" },
 ];
+

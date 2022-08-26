@@ -398,3 +398,48 @@ export async function stageFilesDeleteOne(
     .acknowledged;
   return result;
 }
+
+export interface equipmentsGroupInt {
+  _id?: ObjectId;
+  name: string;
+  desc: string;
+  order: number;
+}
+
+async function getEquipmentsGroupColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<equipmentsGroupInt>(`${process.env.equipmentsGroupCollection}`);
+  return coll;
+}
+
+export async function equipmentsGroupFindAll(
+  conn: MongoClient,
+  query: Partial<equipmentsGroupInt>
+) {
+  const result = await (await getEquipmentsGroupColl(conn))
+    .find(query)
+    .toArray();
+  return result;
+}
+
+export async function equipmentsGroupInsertOne(
+  conn: MongoClient,
+  query: equipmentsGroupInt
+) {
+  const result = await (await getEquipmentsGroupColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function equipmentsGroupDeleteOne(
+  conn: MongoClient,
+  filter: Partial<equipmentsGroupInt>
+) {
+  const result = (await (await getEquipmentsGroupColl(conn)).deleteOne(filter))
+    .acknowledged;
+  return result;
+}

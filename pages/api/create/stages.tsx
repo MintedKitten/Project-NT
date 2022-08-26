@@ -7,6 +7,7 @@ export type retDatacreatestages = {
 };
 
 const handler = nxcHandler().all(async (req, res) => {
+  const conn = await getMongoClient();
   try {
     const body = JSON.parse(req.body);
     const pid = new ObjectId(body.pid);
@@ -15,7 +16,6 @@ const handler = nxcHandler().all(async (req, res) => {
     const fmids = _fmids.map((fmid) => {
       return new ObjectId(fmid);
     });
-    const conn = await getMongoClient();
     let isAllSuccessful = true;
     for (let index = 0; index < fmids.length; index++) {
       const element = fmids[index];
@@ -28,10 +28,11 @@ const handler = nxcHandler().all(async (req, res) => {
           fileId: element,
         }));
     }
-    conn.close();
-    return res.status(200).json({ data: { isAllSuccessful: isAllSuccessful } });
+    res.status(200).json({ data: { isAllSuccessful: isAllSuccessful } });
   } catch (err) {
-    return res.status(400).end();
+    res.status(400).end();
+  } finally {
+    await conn.close();
   }
 });
 export default handler;

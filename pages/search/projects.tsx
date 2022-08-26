@@ -43,6 +43,7 @@ import {
 } from "../../src/db";
 import { ObjectId } from "bson";
 import { navInfo } from "../../src/local";
+import { getToken } from "next-auth/jwt";
 
 const SearchProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -117,14 +118,10 @@ const SearchProjectsPage: NextPage<
     return (
       <>
         <Head>
-          <title>Search Page</title>
+          <title>Search Projects</title>
         </Head>
         <PageAppbar>
-          <PageNavbar
-            navlink={navInfo}
-            currentTab={0}
-            session={data}
-          />
+          <PageNavbar navlink={navInfo} currentTab={0} session={data} />
         </PageAppbar>
         <PageContainer>
           <Box
@@ -306,6 +303,18 @@ export const getServerSideProps: GetServerSideProps<{
   result: ReturnType<typeof convtoTable>[];
   filterSelectionYear: number[];
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const webquery = context.query as { [key: string]: any };
   if ("name" in webquery && webquery["name"]) {
     webquery["name"] = new RegExp(".*" + webquery["name"] + ".*");
@@ -331,7 +340,7 @@ export const getServerSideProps: GetServerSideProps<{
     "ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist",
     {}
   );
-  conn.close();
+  await conn.close();
   const convresult = presult.map((res) => {
     return convtoTable(res);
   });
