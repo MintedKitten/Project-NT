@@ -128,7 +128,7 @@ const CreateProjectsPage: NextPage<
         onChange: (value) => {
           const fl = valFloat(value);
           if (fl.cmp(0) >= 0) {
-            temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = fl;
+            temp["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = fl;
             setTableData(temp);
           }
         },
