@@ -15,7 +15,7 @@ const handler = nxcHandler().all(async (req, res) => {
     const isUpdateSuccesful = await stagesUpdateOne(
       conn,
       { _id: stid },
-      { status: newstatus }
+      { $set: { status: newstatus } }
     );
     await conn.close();
     return res

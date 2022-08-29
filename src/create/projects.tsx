@@ -70,7 +70,7 @@ export function valTypeList(v: string) {
   }
 }
 
-export function valFloat(v: string) {
+export function valFloat(v: string | number) {
   try {
     const fl = new Big(v);
     return fl.cmp(0) ? fl : new Big(0);

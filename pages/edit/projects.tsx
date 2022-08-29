@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import {
   Backdrop,
   CircularProgress,
@@ -22,9 +22,6 @@ import {
 } from "../../src/models/ProjectDetailsInput";
 import { InputEn, navInfo, projectNavInfo, thDate } from "../../src/local";
 import {
-  convertRawCSVToData,
-  createNewProject,
-  projectsDefaultValue,
   projectsTableInt,
   valDate,
   valFloat,
@@ -32,11 +29,9 @@ import {
   valTypeList,
   valYear,
 } from "../../src/create/projects";
-import { parse as parsecsv } from "papaparse";
 import { getMongoClient, projectFindOne, projectsInt } from "../../src/db";
 import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
-import Space from "../../src/components/Space";
 import {
   GetServerSideProps,
   InferGetServerSidePropsType,
@@ -303,7 +298,7 @@ const CreateProjectsPage: NextPage<
           <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
-            currentTab={"Details Edit"}
+            currentTab={false}
             pid={pid}
           />
         </PageAppbar>
@@ -391,7 +386,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/project/",
+        destination: "/search/projects",
         permanent: false,
       },
     };

@@ -60,7 +60,11 @@ const PageNavbar: FunctionComponent<{
           })}
         </Box>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography sx={{ mx: 2 }}>Hello! {session.user?.name}</Typography>
+        <Box>
+          <Typography sx={{ mx: 2, width: "100%" }} noWrap>
+            Hello! {session.user?.name}
+          </Typography>
+        </Box>
         <Button
           color="inherit"
           variant="outlined"

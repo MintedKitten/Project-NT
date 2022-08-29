@@ -1,6 +1,13 @@
 import { ObjectId } from "bson";
 import { createHash } from "crypto";
-import { MongoClient, WithId } from "mongodb";
+import {
+  Filter,
+  FindOptions,
+  MongoClient,
+  UpdateFilter,
+  UpdateResult,
+  WithId,
+} from "mongodb";
 import { Big } from "big.js";
 import { stageNames, StagesProgress } from "./local";
 
@@ -52,7 +59,10 @@ async function getAuthColl(conn: MongoClient) {
   return coll;
 }
 
-export async function authFindOne(conn: MongoClient, query: Partial<userInt>) {
+export async function authFindOne(
+  conn: MongoClient,
+  query: FindOptions<userInt>
+) {
   const result = await (await getAuthColl(conn))
     .findOne(query)
     .then((value) => {
@@ -120,11 +130,10 @@ async function getProjectColl(conn: MongoClient) {
 
 export async function projectFindOne(
   conn: MongoClient,
-  query: Partial<projectsInt>
+  query: FindOptions<projectsInt>
 ) {
-  const wquery = convPartialProj(query);
   const result = await (await getProjectColl(conn))
-    .findOne(wquery)
+    .findOne(query)
     .then((value) => {
       return value;
     });
@@ -139,7 +148,7 @@ export async function projectFindOne(
 export async function projectFindAll(
   conn: MongoClient,
   query: Partial<projectsInt>,
-  options = {}
+  options: FindOptions<projectsInt> = {}
 ) {
   const wquery = convPartialProj(query);
   const result = await (await getProjectColl(conn))
@@ -185,6 +194,29 @@ function convPartialProj(
   return wquery;
 }
 
+function convUpdateProj(
+  query: UpdateFilter<projectsInt>
+): UpdateFilter<projectsInsertInt> {
+  if (query.$set) {
+    const {
+      "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
+      "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
+      ...r
+    } = query.$set;
+    let rqry = { ...r } as Partial<projectsInsertInt>;
+    if (budget) {
+      rqry["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budget.toString();
+    }
+    if (budgetWT) {
+      rqry["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budgetWT.toString();
+    }
+    const wquery: UpdateFilter<projectsInsertInt> = { $set: { ...rqry } };
+    return wquery;
+  } else {
+    return {};
+  }
+}
+
 function convProj(query: projectsInt): projectsInsertInt {
   const {
     "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
@@ -217,11 +249,11 @@ export async function projectInsertOne(conn: MongoClient, query: projectsInt) {
 export async function projectUpdateOne(
   conn: MongoClient,
   query: { _id: ObjectId },
-  upsert: projectsInt
+  upsert: UpdateFilter<projectsInt>
 ) {
-  const wupsert = convPartialProj(upsert);
+  const wupsert = convUpdateProj(upsert);
   const result = await (await getProjectColl(conn))
-    .updateOne(query, { $set: wupsert })
+    .updateOne(query, wupsert)
     .then((value) => {
       return value.acknowledged;
     });
@@ -249,6 +281,7 @@ async function getStagesColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
     .collection<stagesInt>(`${process.env.stagesCollection}`);
+  coll.createIndex({ order: 1 });
   return coll;
 }
 
@@ -275,10 +308,10 @@ export async function stagesFindAll(
 export async function stagesUpdateOne(
   conn: MongoClient,
   query: { _id: ObjectId },
-  upsert: Partial<stagesInt>
+  upsert: UpdateFilter<stagesInt>
 ) {
   const result = await (await getStagesColl(conn))
-    .updateOne(query, { $set: upsert })
+    .updateOne(query, upsert)
     .then((value) => {
       return value.acknowledged;
     });
@@ -333,7 +366,7 @@ export async function projectFilesInsertOne(
 
 export async function projectFilesDeleteOne(
   conn: MongoClient,
-  filter: Partial<projectFilesInt>
+  filter: Filter<projectFilesInt>
 ) {
   const result = (await (await getProjectFilesColl(conn)).deleteOne(filter))
     .acknowledged;
@@ -342,13 +375,13 @@ export async function projectFilesDeleteOne(
 
 export async function projectFilesFindAll(
   conn: MongoClient,
-  query: Partial<projectFilesInt>
+  query: Filter<projectFilesInt>
 ) {
   const result = await (await getProjectFilesColl(conn)).find(query).toArray();
   return result;
 }
 
-export async function getFileMetadata(query: Partial<fileMetadataInt>) {
+export async function getFileMetadata(query: Filter<fileMetadataInt>) {
   const result = await (await getMongoClient())
     .db(`${process.env.dbName}`)
     .collection<fileMetadataInt>(`${process.env.filesMetadataCollection}`)
@@ -401,8 +434,10 @@ export async function stageFilesDeleteOne(
 
 export interface equipmentsGroupInt {
   _id?: ObjectId;
+  projId: ObjectId;
   name: string;
   desc: string;
+  qty: number;
   order: number;
 }
 
@@ -410,12 +445,13 @@ async function getEquipmentsGroupColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
     .collection<equipmentsGroupInt>(`${process.env.equipmentsGroupCollection}`);
+  coll.createIndex({ order: 1 });
   return coll;
 }
 
 export async function equipmentsGroupFindAll(
   conn: MongoClient,
-  query: Partial<equipmentsGroupInt>
+  query: Filter<equipmentsGroupInt>
 ) {
   const result = await (await getEquipmentsGroupColl(conn))
     .find(query)
@@ -435,11 +471,44 @@ export async function equipmentsGroupInsertOne(
   return result;
 }
 
+// When a group is deleted
 export async function equipmentsGroupDeleteOne(
   conn: MongoClient,
-  filter: Partial<equipmentsGroupInt>
+  filter: Filter<equipmentsGroupInt>
 ) {
   const result = (await (await getEquipmentsGroupColl(conn)).deleteOne(filter))
     .acknowledged;
   return result;
+}
+
+export async function equipmentsGroupUpdateMany(
+  conn: MongoClient,
+  filter: Partial<equipmentsGroupInt>,
+  upsert: UpdateFilter<equipmentsGroupInt>
+) {
+  const result = await (await getEquipmentsGroupColl(conn))
+    .updateMany(filter, upsert)
+    .then((value) => {
+      if (isInstanceUpdateResult(value)) {
+        return value.acknowledged;
+      } else {
+        return false;
+      }
+    });
+  return result;
+}
+
+function isInstanceUpdateResult(ob: any): ob is UpdateResult {
+  return "acknowledged" in ob;
+}
+
+export interface equipmentsInt {
+  _id?: ObjectId;
+  projId: ObjectId;
+  eqgId: ObjectId;
+  partNumber: string;
+  desc: string;
+  qty: number;
+  unitPrice: number;
+  isDelete: boolean;
 }

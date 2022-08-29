@@ -349,7 +349,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/project/",
+        destination: "/search/projects",
         permanent: false,
       },
     };

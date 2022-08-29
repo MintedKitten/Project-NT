@@ -24,9 +24,11 @@ const handler = nxcHandler().all(async (req, res: NextApiResponse<restype>) => {
       query["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"] = parseInt(year);
     }
     const result = await projectFindAll(conn, query, {
-      รายการโครงการจัดซื้อจัดจ้าง: 1,
-      ประเภทโครงการ: 1,
-      ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+      projection: {
+        รายการโครงการจัดซื้อจัดจ้าง: 1,
+        ประเภทโครงการ: 1,
+        ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+      },
     });
     res.status(200).json({ data: result });
   } catch (err) {

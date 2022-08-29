@@ -7,7 +7,6 @@ import { ObjectId } from "./node_modules/bson/lib/bson.js";
 import formidable from "./node_modules/formidable/src/index.js";
 import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
-console.log("loading");
 dotenv.config({ path: "/.env.local" });
 function sha256(msg) {
   const msgBuffer = new TextEncoder().encode(msg);
@@ -20,7 +19,6 @@ var port = parseInt(`${process.env.PORT}`, 10) || 3e3;
 var dev = process.env.NODE_ENV !== "production";
 var app = next({ dev });
 var nexthandler = app.getRequestHandler();
-console.log("connecting");
 var expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
 var DBname = dev ? "devProcurement" : "Procurement";
 var FilesMetaColl = "FilesMetadata";
