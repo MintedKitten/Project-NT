@@ -19,7 +19,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // start.ts
-var import_config = require("./node_modules/dotenv/config.js");
+var dotenv = __toESM(require("./node_modules/dotenv/lib/main.js"), 1);
 var import_next = __toESM(require("./node_modules/next/dist/server/next.js"), 1);
 var import_express = __toESM(require("./node_modules/express/index.js"), 1);
 var import_mongodb = require("./node_modules/mongodb/lib/index.js");
@@ -27,6 +27,7 @@ var import_bson = require("./node_modules/bson/lib/bson.js");
 var import_formidable = __toESM(require("./node_modules/formidable/src/index.js"), 1);
 var import_fs = require("fs");
 var import_crypto = require("crypto");
+dotenv.config({ path: "/.env.local" });
 function sha256(msg) {
   const msgBuffer = new TextEncoder().encode(msg);
   const hashBuffer = (0, import_crypto.createHash)("sha256").update(msgBuffer).digest();
@@ -38,7 +39,7 @@ var port = parseInt(`${process.env.PORT}`, 10) || 3e3;
 var dev = process.env.NODE_ENV !== "production";
 var app = (0, import_next.default)({ dev });
 var nexthandler = app.getRequestHandler();
-var expressMongoString = `${process.env.EXPRESS_MONGO_STRING}`;
+var expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
 var DBname = dev ? "devProcurement" : "Procurement";
 var FilesMetaColl = "FilesMetadata";
 var client = new import_mongodb.MongoClient(expressMongoString).connect();
