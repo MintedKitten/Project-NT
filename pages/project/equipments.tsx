@@ -3,7 +3,14 @@ import type {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { Backdrop, Box, CircularProgress, useMediaQuery } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  useMediaQuery,
+} from "@mui/material";
+import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { getMongoClient } from "../../src/db";
@@ -13,8 +20,9 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import {  navInfo, projectNavInfo } from "../../src/local";
+import { navInfo, projectNavInfo } from "../../src/local";
 import { getToken } from "next-auth/jwt";
+import Link from "next/link";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -22,6 +30,21 @@ const ProjectEquipmentsPage: NextPage<
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
+
+  const TitleButtonElement = () => {
+    return (
+      <Link href={{ pathname: "/create/equipments", query: { pid: pid } }}>
+        <Button
+          className="titleButton"
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => {}}
+        >
+          Add New Equipments Group
+        </Button>
+      </Link>
+    );
+  };
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
@@ -43,7 +66,10 @@ const ProjectEquipmentsPage: NextPage<
         </PageAppbar>
 
         <PageContainer>
-          <Box sx={{ display: "flex" }}></Box>
+          <Box>
+            <Box className="filler" sx={{ flexGrow: 1 }} />
+            <TitleButtonElement />
+          </Box>
           <Box></Box>
         </PageContainer>
       </>
@@ -84,25 +110,12 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/project/",
+        destination: "/search/projects",
         permanent: false,
       },
     };
   }
   const conn = await getMongoClient();
   await conn.close();
-  // const presult = await projectFindOne(conn, {
-  //   _id: new ObjectId(webquery["pid"] as string),
-  // });
-  // if (!presult) {
-  //   return {
-  //     redirect: {
-  //       destination: "/search/projects",
-  //       permanent: false,
-  //     },
-  //   };
-  // } else {
-  //   const conv = convtoSerializable(presult);
   return { props: { pid: webquery.pid as string } };
-  // }
 };

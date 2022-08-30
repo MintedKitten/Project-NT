@@ -30,7 +30,7 @@ const tabLabel = (label: string) => {
 
 const ProjectNavbar: FunctionComponent<{
   navlink: NavbarNavlink[];
-  currentTab: string;
+  currentTab: string | boolean;
   pid: string;
 }> = ({ navlink, currentTab, pid }) => {
   const router = useRouter();

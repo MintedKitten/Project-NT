@@ -14,11 +14,10 @@ import {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
@@ -47,8 +46,6 @@ const ProjectsPage: NextPage<
   const { status, data } = session;
 
   const result = convtoTable(preresult);
-
-  const [success, setSuccess] = useState(false);
 
   const gridData = [
     {
@@ -154,7 +151,8 @@ const ProjectsPage: NextPage<
           <Box sx={{ display: "flex" }}>
             <TitleButtonElement />
             <Box sx={{ flexGrow: 1 }} />
-            <Typography sx={{ color: isComplete ? "Green" : "Red" }}>
+            <Typography>Status:</Typography>
+            <Typography sx={{ color: isComplete ? "Green" : "Red", ml: 1 }}>
               {isComplete ? "Complete" : "On Going"}
             </Typography>
           </Box>
@@ -225,7 +223,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/project/",
+        destination: "/search/projects",
         permanent: false,
       },
     };

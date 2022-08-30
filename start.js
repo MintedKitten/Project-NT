@@ -1,2 +1,174 @@
-"use strict";var R=Object.create;var S=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var V=Object.getOwnPropertyNames;var _=Object.getPrototypeOf,k=Object.prototype.hasOwnProperty;var z=(e,t,n,s)=>{if(t&&typeof t=="object"||typeof t=="function")for(let o of V(t))!k.call(e,o)&&o!==n&&S(e,o,{get:()=>t[o],enumerable:!(s=T(t,o))||s.enumerable});return e};var w=(e,t,n)=>(n=e!=null?R(_(e)):{},z(t||!e||!e.__esModule?S(n,"default",{value:e,enumerable:!0}):n,e));var Z=require("./node_modules/dotenv/config.js"),O=w(require("./node_modules/next/dist/server/next.js"),1),j=w(require("./node_modules/express/index.js"),1),v=require("./node_modules/mongodb/lib/index.js"),P=require("./node_modules/bson/lib/bson.js"),$=w(require("./node_modules/formidable/src/index.js"),1),a=require("fs"),E=require("crypto");function L(e){let t=new TextEncoder().encode(e),n=(0,E.createHash)("sha256").update(t).digest();return Array.from(new Uint8Array(n)).map(l=>l.toString(16).padStart(2,"0")).join("")}var M=parseInt(`${process.env.PORT}`,10)||3e3,H=process.env.NODE_ENV!=="production",A=(0,O.default)({dev:H}),W=A.getRequestHandler(),q="mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority",y=H?"devProcurement":"Procurement",F="FilesMetadata",C=new v.MongoClient(q).connect();async function I(){return await C}async function G(){(await C).close()}process.on("SIGINT",e=>{console.log("Closing signal: "+e),G()});function U(e){return"originalFilename"in e}function J(e){return"length"in e}async function K(e){return await(await I()).db(y).collection(F).findOne({_id:e},{projection:{filename:1,dir:1}})}async function Q(e){return await(await I()).db(y).collection(F).insertOne(e).then(n=>n.insertedId)}async function X(e,t){return await(await I()).db(y).collection(F).updateOne({_id:e},{$set:{dir:t.dir}}).then(s=>s.upsertedId)}var h="./files/";A.prepare().then(()=>{let e=(0,j.default)();e.get("/files/:fmid",async(t,n,s)=>{try{let o=await K(new P.ObjectId(t.params.fmid));if(o){let{filename:l,dir:r}=o;console.log(`File downloading: ${l}
-At: ${r}`),n.download(`${r}`,`${l}`,function(d){return d?(console.log(`Error downloading: ${d}`),s(d)):(console.log(`Successfully downloaded: ${l}`),n.status(200).end())})}else return n.status(404).end("Can't find that file, sorry!")}catch(o){return console.log(o),n.status(500).end("Something went wrong.")}}).post("/files/",async(t,n,s)=>{let o=(0,$.default)(),l=new Promise((r,d)=>{o.parse(t,(c,f,i)=>{c&&d(c),r({fields:f,files:i})})});(0,a.existsSync)(h)||(0,a.mkdirSync)(h),await l.then(r=>{let{fields:d,files:c}=r,f=[];if(U(c.file)?f[0]=c.file:J(c.file)&&(f=c.file),f.length<1)throw new Error("Can't find any files");f.forEach(async i=>{let x=i.originalFilename?.lastIndexOf("."),b=i.originalFilename?.substring(x?x+1:0),m=await Q({filename:i.originalFilename?i.originalFilename:"",filetype:b||"",contentType:i.mimetype?i.mimetype:"",size:i.size,uploadDate:new Date}),u=h+L(m.toHexString());return await new Promise((g,D)=>{let N=(0,a.createReadStream)(i.filepath),p=(0,a.createWriteStream)(u);p.on("error",B=>{D(B)}),p.on("finish",()=>{g()}),N.pipe(p)}).catch(g=>{throw new Error(g)}),await X(m,{dir:u}),console.log(`New file uploaded at: ${u}`),console.log("fmid: "+m.toHexString()),n.status(201).json({data:{fmid:m.toHexString()}})})}).catch(r=>(console.log(r),n.status(500).end(r)))}).all("*",(t,n)=>W(t,n)),e.listen(M,()=>{console.log(`Server started on port ${M}`)})}).catch(e=>{console.error(e),process.exit(1)});
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// start.ts
+var dotenv = __toESM(require("./node_modules/dotenv/lib/main.js"), 1);
+var import_next = __toESM(require("./node_modules/next/dist/server/next.js"), 1);
+var import_express = __toESM(require("./node_modules/express/index.js"), 1);
+var import_mongodb = require("./node_modules/mongodb/lib/index.js");
+var import_bson = require("./node_modules/bson/lib/bson.js");
+var import_formidable = __toESM(require("./node_modules/formidable/src/index.js"), 1);
+var import_fs = require("fs");
+var import_crypto = require("crypto");
+dotenv.config({ path: "/.env.local" });
+function sha256(msg) {
+  const msgBuffer = new TextEncoder().encode(msg);
+  const hashBuffer = (0, import_crypto.createHash)("sha256").update(msgBuffer).digest();
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  return hashHex;
+}
+var port = parseInt(`${process.env.PORT}`, 10) || 3e3;
+var dev = process.env.NODE_ENV !== "production";
+var app = (0, import_next.default)({ dev });
+var nexthandler = app.getRequestHandler();
+var expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
+var DBname = dev ? "devProcurement" : "Procurement";
+var FilesMetaColl = "FilesMetadata";
+var client = new import_mongodb.MongoClient(expressMongoString).connect();
+async function getMongoclient() {
+  return await client;
+}
+async function closeMongoclient() {
+  (await client).close();
+}
+process.on("SIGINT", (signal) => {
+  console.log("Closing signal: " + signal);
+  closeMongoclient();
+});
+function isInstanceOfFile(ob) {
+  return "originalFilename" in ob;
+}
+function isInstanceOfArrayFile(ob) {
+  return "length" in ob;
+}
+async function getFileName(fmid) {
+  const result = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).findOne({ _id: fmid }, { projection: { filename: 1, dir: 1 } });
+  return result;
+}
+async function insoFileMetadata(query) {
+  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).insertOne(query).then((value) => {
+    return value.insertedId;
+  });
+  return id;
+}
+async function insoDir2FileMetadata(fmid, query) {
+  const id = await (await getMongoclient()).db(DBname).collection(FilesMetaColl).updateOne({ _id: fmid }, { $set: { dir: query.dir } }).then((value) => {
+    return value.upsertedId;
+  });
+  return id;
+}
+var dirfilepath = "./files/";
+app.prepare().then(() => {
+  const fileserver = (0, import_express.default)();
+  fileserver.get("/files/:fmid", async (req, res, next2) => {
+    try {
+      const result = await getFileName(new import_bson.ObjectId(req.params.fmid));
+      if (result) {
+        const { filename, dir } = result;
+        console.log(`File downloading: ${filename}
+At: ${dir}`);
+        res.download(`${dir}`, `${filename}`, function(err) {
+          if (!err) {
+            console.log(`Successfully downloaded: ${filename}`);
+            return res.status(200).end();
+          } else {
+            console.log(`Error downloading: ${err}`);
+            return next2(err);
+          }
+        });
+      } else {
+        return res.status(404).end("Can't find that file, sorry!");
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(500).end("Something went wrong.");
+    }
+  }).post("/files/", async (req, res, next2) => {
+    const form = (0, import_formidable.default)();
+    const getDataFromBody = new Promise(
+      (resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+          if (err) {
+            reject(err);
+          }
+          resolve({ fields, files });
+        });
+      }
+    );
+    if (!(0, import_fs.existsSync)(dirfilepath)) {
+      (0, import_fs.mkdirSync)(dirfilepath);
+    }
+    await getDataFromBody.then((value) => {
+      const { fields, files } = value;
+      let filelist = [];
+      if (isInstanceOfFile(files.file)) {
+        filelist[0] = files.file;
+      } else if (isInstanceOfArrayFile(files.file)) {
+        filelist = files.file;
+      }
+      if (filelist.length < 1) {
+        throw new Error("Can't find any files");
+      }
+      filelist.forEach(async (file) => {
+        let index = file.originalFilename?.lastIndexOf(".");
+        let filetype = file.originalFilename?.substring(
+          index ? index + 1 : 0
+        );
+        const fmid = await insoFileMetadata({
+          filename: file.originalFilename ? file.originalFilename : "",
+          filetype: filetype ? filetype : "",
+          contentType: file.mimetype ? file.mimetype : "",
+          size: file.size,
+          uploadDate: new Date()
+        });
+        const dir = dirfilepath + sha256(fmid.toHexString());
+        await new Promise((resolve, reject) => {
+          const reader = (0, import_fs.createReadStream)(file.filepath);
+          const writer = (0, import_fs.createWriteStream)(dir);
+          writer.on("error", (err) => {
+            reject(err);
+          });
+          writer.on("finish", () => {
+            resolve();
+          });
+          reader.pipe(writer);
+        }).catch((err) => {
+          throw new Error(err);
+        });
+        await insoDir2FileMetadata(fmid, { dir });
+        console.log(`New file uploaded at: ${dir}`);
+        console.log(`fmid: ` + fmid.toHexString());
+        return res.status(201).json({ data: { fmid: fmid.toHexString() } });
+      });
+    }).catch((err) => {
+      console.log(err);
+      return res.status(500).end(err);
+    });
+  }).all("*", (req, res) => {
+    return nexthandler(req, res);
+  });
+  fileserver.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+  });
+}).catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

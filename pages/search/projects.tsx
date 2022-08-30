@@ -17,7 +17,6 @@ import {
   TableRow,
   TextField,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { useSession } from "next-auth/react";
@@ -65,9 +64,7 @@ const SearchProjectsPage: NextPage<
     parseInt(router.query.type ? "" + router.query.type : "0")
   );
 
-  const handleSearchSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const searchData = {

@@ -32,7 +32,7 @@ const handler = nxcHandler().all(async (req, res) => {
       lastupdate: thDate(new Date()),
     };
     const query = { _id: new ObjectId(body["_id"]) };
-    const result = await projectUpdateOne(conn, query, upsert);
+    const result = await projectUpdateOne(conn, query, { $set: { ...upsert } });
     res.status(200).json({ data: { isUpdated: result } });
   } catch (err) {
     res.status(400).end();

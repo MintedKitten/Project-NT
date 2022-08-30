@@ -6,6 +6,7 @@ export type retDatacreatestages = {
   isAllSuccessful: boolean;
 };
 
+// Upload the file to stage, not creating the stage
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

@@ -1,5 +1,5 @@
 // start.ts
-import "./node_modules/dotenv/config.js";
+import * as dotenv from "./node_modules/dotenv/lib/main.js";
 import next from "./node_modules/next/dist/server/next.js";
 import express from "./node_modules/express/index.js";
 import { MongoClient } from "./node_modules/mongodb/lib/index.js";
@@ -7,6 +7,7 @@ import { ObjectId } from "./node_modules/bson/lib/bson.js";
 import formidable from "./node_modules/formidable/src/index.js";
 import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
+dotenv.config({ path: "/.env.local" });
 function sha256(msg) {
   const msgBuffer = new TextEncoder().encode(msg);
   const hashBuffer = createHash("sha256").update(msgBuffer).digest();
@@ -18,7 +19,7 @@ var port = parseInt(`${process.env.PORT}`, 10) || 3e3;
 var dev = process.env.NODE_ENV !== "production";
 var app = next({ dev });
 var nexthandler = app.getRequestHandler();
-var expressMongoString = "mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority";
+var expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
 var DBname = dev ? "devProcurement" : "Procurement";
 var FilesMetaColl = "FilesMetadata";
 var client = new MongoClient(expressMongoString).connect();
