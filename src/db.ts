@@ -49,7 +49,7 @@ export interface userInt {
 
 export async function getMongoClient() {
   const conn = await new MongoClient(`${process.env.mongodbPath}`, {
-    compressors: ["snappy"],
+    compressors: ["zstd", "zlib", "snappy", "none"],
   }).connect();
   return conn;
 }
@@ -104,6 +104,43 @@ export interface projectsInt {
   createdby: ObjectId;
   lastupdate: Date;
 }
+
+// backend change
+// collProject
+// _id?
+// รายการโครงการจัดซื้อจัดจ้าง                 = projName
+// ประเภทโครงการ                          = type
+// จำนวนหน่วย                             = systemCount
+// "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"    = budget // create stages ** stages * display stage type
+// "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"      = budgetVat // Remove -> budget * 1.07
+// ประเภทงบประมาณ                         = budgetType
+// ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist          = procurementYear
+// วันเริ่มสัญญา_buddhist                    = contractstartDate
+// "MA (ระยะเวลารับประกัน)"                  = maTime // Remove -> maendDate - mastartDate -> format as year month day
+// "วันเริ่ม MA_buddhist"                    = mastartDate
+// "วันหมดอายุ MA_buddhist"                = maendDate
+// หมายเหตุ                               = comments
+// createdby
+// lastupdate
+//                                       +? = contractendDate
+// change to useState => [[data,type]]
+// and have the rest be figureout inside the display
+// turn the thing into a form then once submit collect the data
+
+// frontend change
+// confirmation -> dialog status then loading page
+// Navigation move to the side -> collapsible
+// wording On Going -> In Progress
+// Track wording from English to Thai
+// Project creation add more helper text and calculated fields
+
+// both
+// new page for tracking projects, devided into past deadline, within 3 months, within 1 year, and over 1 year
+// each one has name, type, progress status, due date
+
+// thoughts
+// way to edit the stages? no idea how but will be really useful
+// exporting data, no idea about any of these but i just want something else to think
 
 interface projectsInsertInt {
   _id?: ObjectId;

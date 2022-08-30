@@ -328,9 +328,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
   const conn = await getMongoClient();
   const presult = await projectFindAll(conn, query, {
-    รายการโครงการจัดซื้อจัดจ้าง: 1,
-    ประเภทโครงการ: 1,
-    ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+    projection: {
+      รายการโครงการจัดซื้อจัดจ้าง: 1,
+      ประเภทโครงการ: 1,
+      ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+    },
   });
   const pyear = await projectDistinct(
     conn,
