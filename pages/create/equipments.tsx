@@ -21,7 +21,7 @@ import {
   GridCallbackDetails,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
-import { Alert, useMediaQuery } from "@mui/material";
+import { Alert, TextField, useMediaQuery } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
@@ -330,8 +330,14 @@ const CreateEquipmentsGroup = () => {
               New Equipment Group Added. Redirecting...
             </Alert>
           </Box>
-          <Box sx={{ display: "flex" }}>
-            <TitleButtonElement />
+          <Box component={"form"}>
+            <Box sx={{ display: "flex" }}>
+              <TitleButtonElement />
+            </Box>
+            <Box>
+              <TextField name="name" label="Group Name" />
+              <TextField name="desc" label="Group Description" />
+            </Box>
           </Box>
           <Box
             sx={{
