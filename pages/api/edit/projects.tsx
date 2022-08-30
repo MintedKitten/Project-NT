@@ -9,26 +9,20 @@ export type retDataeditproject = { isUpdated: boolean };
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {
-    const body = JSON.parse(req.body);
+    const body = JSON.parse(req.body) as { [key in keyof projectsInt]: any };
     const upsert: projectsInt = {
-      รายการโครงการจัดซื้อจัดจ้าง: body["รายการโครงการจัดซื้อจัดจ้าง"],
-      ประเภทโครงการ: body["ประเภทโครงการ"],
-      จำนวนหน่วย: body["จำนวนหน่วย"],
-      "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(
-        body["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]
-      ),
-      "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(
-        body["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"]
-      ),
-      ประเภทงบประมาณ: body["ประเภทงบประมาณ"],
-      ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist:
-        body["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"],
-      วันเริ่มสัญญา_buddhist: thDate(body["วันเริ่มสัญญา_buddhist"]),
-      "MA (ระยะเวลารับประกัน)": body["MA (ระยะเวลารับประกัน)"],
-      "วันเริ่ม MA_buddhist": thDate(body["วันเริ่ม MA_buddhist"]),
-      "วันหมดอายุ MA_buddhist": thDate(body["วันหมดอายุ MA_buddhist"]),
-      หมายเหตุ: body["หมายเหตุ"],
-      createdby: new ObjectId(body["createdby"]),
+      projName: body.projName,
+      type: body.type,
+      systemCount: body.systemCount,
+      budget: Big(body.budget),
+      budgetType: body.budgetType,
+      procurementYear: body.procurementYear,
+      contractstartDate: thDate(body.contractstartDate),
+      contractendDate: thDate(body.contractendDate),
+      mastartDate: thDate(body.mastartDate),
+      maendDate: thDate(body.maendDate),
+      comments: body.comments,
+      createdby: new ObjectId(),
       lastupdate: thDate(new Date()),
     };
     const query = { _id: new ObjectId(body["_id"]) };

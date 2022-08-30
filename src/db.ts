@@ -9,7 +9,7 @@ import {
   WithId,
 } from "mongodb";
 import { Big } from "big.js";
-import { stageNames, StagesProgress } from "./local";
+import { budgetThreshold, stageNames, StagesProgress } from "./local";
 
 /**
  * SHA256 Hashing
@@ -48,9 +48,7 @@ export interface userInt {
 }
 
 export async function getMongoClient() {
-  const conn = await new MongoClient(`${process.env.mongodbPath}`, {
-    compressors: ["zstd", "zlib", "snappy", "none"],
-  }).connect();
+  const conn = await new MongoClient(`${process.env.mongodbPath}`).connect();
   return conn;
 }
 
@@ -87,24 +85,6 @@ export interface itemObjectInt {
   unit: string;
 }
 
-export interface projectsInt {
-  _id?: ObjectId;
-  รายการโครงการจัดซื้อจัดจ้าง: string;
-  ประเภทโครงการ: number;
-  จำนวนหน่วย: itemObjectInt;
-  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
-  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
-  ประเภทงบประมาณ: string;
-  ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: number;
-  วันเริ่มสัญญา_buddhist: Date;
-  "MA (ระยะเวลารับประกัน)": itemObjectInt;
-  "วันเริ่ม MA_buddhist": Date;
-  "วันหมดอายุ MA_buddhist": Date;
-  หมายเหตุ: string;
-  createdby: ObjectId;
-  lastupdate: Date;
-}
-
 // backend change
 // collProject
 // _id?
@@ -123,9 +103,12 @@ export interface projectsInt {
 // createdby
 // lastupdate
 //                                       +? = contractendDate
+// ^Done
 // change to useState => [[data,type]]
 // and have the rest be figureout inside the display
+// ^Done
 // turn the thing into a form then once submit collect the data
+// ^Decided Against
 
 // frontend change
 // confirmation -> dialog status then loading page
@@ -144,18 +127,34 @@ export interface projectsInt {
 
 interface projectsInsertInt {
   _id?: ObjectId;
-  รายการโครงการจัดซื้อจัดจ้าง: string;
-  ประเภทโครงการ: number;
-  จำนวนหน่วย: itemObjectInt;
-  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
-  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
-  ประเภทงบประมาณ: string;
-  ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: number;
-  วันเริ่มสัญญา_buddhist: Date;
-  "MA (ระยะเวลารับประกัน)": itemObjectInt;
-  "วันเริ่ม MA_buddhist": Date;
-  "วันหมดอายุ MA_buddhist": Date;
-  หมายเหตุ: string;
+  projName: string;
+  type: number;
+  systemCount: itemObjectInt;
+  budget: string;
+  budgetType: string;
+  procurementYear: number;
+  contractstartDate: Date;
+  contractendDate: Date;
+  mastartDate: Date;
+  maendDate: Date;
+  comments: string;
+  createdby: ObjectId;
+  lastupdate: Date;
+}
+
+export interface projectsInt {
+  _id?: ObjectId;
+  projName: string;
+  type: number;
+  systemCount: itemObjectInt;
+  budget: Big;
+  budgetType: string;
+  procurementYear: number;
+  contractstartDate: Date;
+  contractendDate: Date;
+  mastartDate: Date;
+  maendDate: Date;
+  comments: string;
   createdby: ObjectId;
   lastupdate: Date;
 }
@@ -169,7 +168,7 @@ async function getProjectColl(conn: MongoClient) {
 
 export async function projectFindOne(
   conn: MongoClient,
-  query: FindOptions<projectsInt>
+  query: Partial<projectsInsertInt>
 ) {
   const result = await (await getProjectColl(conn))
     .findOne(query)
@@ -200,17 +199,10 @@ export async function projectFindAll(
 }
 
 function convPartialProjBack(query: Partial<projectsInsertInt>) {
-  const {
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudgetWT,
-    ...r
-  } = query;
+  const { budget: sbudget, ...r } = query;
   let wquery: Partial<projectsInt> = { ...r };
   if (sbudget) {
-    wquery["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = Big(sbudget);
-  }
-  if (sbudgetWT) {
-    wquery["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = Big(sbudgetWT);
+    wquery["budget"] = Big(sbudget);
   }
   return wquery as WithId<projectsInt>;
 }
@@ -218,17 +210,10 @@ function convPartialProjBack(query: Partial<projectsInsertInt>) {
 function convPartialProj(
   query: Partial<projectsInt>
 ): Partial<projectsInsertInt> {
-  const {
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
-    ...r
-  } = query;
+  const { budget, ...r } = query;
   let wquery: Partial<projectsInsertInt> = { ...r };
   if (budget) {
-    wquery["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budget.toString();
-  }
-  if (budgetWT) {
-    wquery["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budgetWT.toString();
+    wquery["budget"] = budget.toString();
   }
   return wquery;
 }
@@ -237,17 +222,10 @@ function convUpdateProj(
   query: UpdateFilter<projectsInt>
 ): UpdateFilter<projectsInsertInt> {
   if (query.$set) {
-    const {
-      "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
-      "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
-      ...r
-    } = query.$set;
+    const { budget, ...r } = query.$set;
     let rqry = { ...r } as Partial<projectsInsertInt>;
     if (budget) {
-      rqry["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budget.toString();
-    }
-    if (budgetWT) {
-      rqry["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = budgetWT.toString();
+      rqry["budget"] = budget.toString();
     }
     const wquery: UpdateFilter<projectsInsertInt> = { $set: { ...rqry } };
     return wquery;
@@ -257,14 +235,9 @@ function convUpdateProj(
 }
 
 function convProj(query: projectsInt): projectsInsertInt {
-  const {
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
-    ...r
-  } = query;
+  const { budget, ...r } = query;
   const wquery: projectsInsertInt = {
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budget.toString(),
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT.toString(),
+    budget: budget.toString(),
     ...r,
   };
   return wquery;
@@ -277,11 +250,7 @@ export async function projectInsertOne(conn: MongoClient, query: projectsInt) {
     .then((value) => {
       return value.insertedId;
     });
-  await initProject(
-    conn,
-    result,
-    query["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]
-  );
+  await initProject(conn, result, query["budget"]);
   return result;
 }
 
@@ -357,14 +326,12 @@ export async function stagesUpdateOne(
   return result;
 }
 
-const threshold = 100000000;
-
 export async function initProject(
   conn: MongoClient,
   pid: ObjectId,
   budget: Big
 ) {
-  const type = budget.cmp(threshold) < 0 ? 0 : 1;
+  const type = budget.cmp(budgetThreshold) < 0 ? 0 : 1;
   const stname = stageNames[type];
   for (let index = 0; index < stname.length; index++) {
     const element = stname[index];

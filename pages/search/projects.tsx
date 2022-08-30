@@ -313,32 +313,28 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const webquery = context.query as { [key: string]: any };
-  if ("name" in webquery && webquery["name"]) {
+  const query: { [key in keyof projectsInt]?: any } = {};
+  if ("name" in webquery && webquery["projName"]) {
     webquery["name"] = new RegExp(".*" + webquery["name"] + ".*");
   }
-  const query: { [key: string]: any } = {};
-  if (webquery["name"]) {
-    query["รายการโครงการจัดซื้อจัดจ้าง"] = webquery["name"];
+  if ("name" in webquery && webquery["name"]) {
+    query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
   }
   if (webquery["type"] && webquery["type"] !== "0") {
-    query["ประเภทโครงการ"] = parseInt(webquery["type"]);
+    query["type"] = parseInt(webquery["type"]);
   }
   if (webquery["year"] && webquery["year"] !== "0") {
-    query["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"] = parseInt(webquery["year"]);
+    query["procurementYear"] = parseInt(webquery["year"]);
   }
   const conn = await getMongoClient();
   const presult = await projectFindAll(conn, query, {
     projection: {
-      รายการโครงการจัดซื้อจัดจ้าง: 1,
-      ประเภทโครงการ: 1,
-      ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+      projName: 1,
+      type: 1,
+      procurementYear: 1,
     },
   });
-  const pyear = await projectDistinct(
-    conn,
-    "ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist",
-    {}
-  );
+  const pyear = await projectDistinct(conn, "procurementYear", {});
   await conn.close();
   const convresult = presult.map((res) => {
     return convtoTable(res);
@@ -354,8 +350,8 @@ export const getServerSideProps: GetServerSideProps<{
 function convtoTable(data: projectsInt) {
   return {
     id: (data._id as ObjectId).toHexString(),
-    name: data.รายการโครงการจัดซื้อจัดจ้าง,
-    type: data.ประเภทโครงการ,
-    year: data.ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist,
+    name: data.projName,
+    type: data.type,
+    year: data.procurementYear,
   };
 }

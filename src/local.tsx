@@ -8,12 +8,15 @@ export enum InputEn {
   Year,
   Item,
   TypeList,
+  Calculated,
 }
 
 export enum StagesProgress {
   OnGoing,
   Complete,
 }
+
+export const budgetThreshold = 100000000;
 
 const stageType1 = [
   "ขออนุมัติหลักการงบประมาณ",
@@ -112,4 +115,3 @@ export const projectNavInfo = [
   { Header: "Equipments", Link: "/project/equipments" },
   { Header: "Stages", Link: "/project/stages" },
 ];
-

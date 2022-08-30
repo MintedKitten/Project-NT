@@ -5,12 +5,12 @@ import { retDatacreateproject } from "../../pages/api/create/projects";
 import { ObjectId } from "bson";
 
 const __today = () => new Date();
-const today = () => {
+const today = (day = 0) => {
   const _today = __today();
   return new Date(
     _today.getFullYear(),
     _today.getMonth(),
-    _today.getDate(),
+    _today.getDate() + day,
     0,
     0,
     0,
@@ -22,30 +22,32 @@ export interface projectsTableInt {
   รายการโครงการจัดซื้อจัดจ้าง: string;
   ประเภทโครงการ: number;
   จำนวนหน่วย: itemObjectInt;
-  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
-  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big;
+  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
   ประเภทงบประมาณ: string;
   "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": Date;
   "วันเริ่มสัญญา (พ.ศ.)": Date;
-  "MA (ระยะเวลารับประกัน)": itemObjectInt;
+  "วันหมดสัญญา (พ.ศ.)": Date;
   "วันเริ่ม MA (พ.ศ.)": Date;
   "วันหมดอายุ MA (พ.ศ.)": Date;
   หมายเหตุ: string;
+  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": string;
+  "MA (ระยะเวลารับประกัน)": string;
 }
 
 export const projectsDefaultValue: projectsTableInt = {
   รายการโครงการจัดซื้อจัดจ้าง: "",
   ประเภทโครงการ: 1,
   จำนวนหน่วย: { amount: 0, unit: "หน่วย" },
-  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": new Big(0),
-  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": new Big(0),
+  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": "0",
+  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": "",
   ประเภทงบประมาณ: "",
   "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": today(),
   "วันเริ่มสัญญา (พ.ศ.)": today(),
-  "MA (ระยะเวลารับประกัน)": { amount: 0, unit: "ปี" },
+  "MA (ระยะเวลารับประกัน)": "",
   "วันเริ่ม MA (พ.ศ.)": today(),
   "วันหมดอายุ MA (พ.ศ.)": today(),
   หมายเหตุ: "",
+  "วันหมดสัญญา (พ.ศ.)": today(1),
 };
 
 export function valInteger(v: string) {
@@ -117,42 +119,39 @@ export const valDate = (v: string) => {
 export function convertRawCSVToData(data: {
   [key in keyof projectsInt]: any;
 }): projectsTableInt {
-  let io1 = parseio(data.จำนวนหน่วย);
-  let io2 = parseio(data["MA (ระยะเวลารับประกัน)"]);
-  let dt1 = parsedate(data["วันเริ่มสัญญา_buddhist"]);
-  let dt2 = parsedate(data["วันเริ่ม MA_buddhist"]);
-  let dt3 = parsedate(data["วันหมดอายุ MA_buddhist"]);
-  let l: number = 1;
-  if (typeof data.ประเภทโครงการ === "string") {
-    if (data.ประเภทโครงการ.includes("ซื้อ")) {
-      l = 1;
-    } else if (data.ประเภทโครงการ.includes("เช่า")) {
-      l = 3;
-    } else if (data.ประเภทโครงการ.includes("จ้าง")) {
-      l = 2;
+  let systemCount = parseio(data.systemCount);
+  let contractstartDate = parsedate(data.contractstartDate);
+  let contractendDate = parsedate(data.contractendDate);
+  let mastartDate = parsedate(data.mastartDate);
+  let maendDate = parsedate(data.maendDate);
+  let type: number = 1;
+  if (typeof data.type === "string") {
+    if (data.type.includes("ซื้อ")) {
+      type = 1;
+    } else if (data.type.includes("เช่า")) {
+      type = 3;
+    } else if (data.type.includes("จ้าง")) {
+      type = 2;
     }
   }
   const c: projectsTableInt = {
-    รายการโครงการจัดซื้อจัดจ้าง: data.รายการโครงการจัดซื้อจัดจ้าง || "",
-    ประเภทโครงการ: l,
-    จำนวนหน่วย: io1,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": new Big(
-      data["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] + ""
-    ),
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": new Big(
-      data["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] + ""
-    ),
-    ประเภทงบประมาณ: data.ประเภทงบประมาณ,
+    รายการโครงการจัดซื้อจัดจ้าง: data.projName || "",
+    ประเภทโครงการ: type,
+    จำนวนหน่วย: systemCount,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": "",
+    ประเภทงบประมาณ: data.budgetType,
     "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": new Date(
-      parseInt(data["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"] + "") - 543,
+      parseInt(data.procurementYear + "") - 543,
       0,
       1
     ),
-    "วันเริ่มสัญญา (พ.ศ.)": dt1,
-    "MA (ระยะเวลารับประกัน)": io2,
-    "วันเริ่ม MA (พ.ศ.)": dt2,
-    "วันหมดอายุ MA (พ.ศ.)": dt3,
-    หมายเหตุ: data.หมายเหตุ || "",
+    "วันเริ่มสัญญา (พ.ศ.)": contractstartDate,
+    "วันเริ่ม MA (พ.ศ.)": mastartDate,
+    "วันหมดอายุ MA (พ.ศ.)": maendDate,
+    หมายเหตุ: data.comments || "",
+    "วันหมดสัญญา (พ.ศ.)": contractendDate,
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(data.budget).toNumber() + "",
+    "MA (ระยะเวลารับประกัน)": "",
   };
   return c;
 

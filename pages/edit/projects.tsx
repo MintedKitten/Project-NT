@@ -20,7 +20,13 @@ import {
   ProjectDetailsInput,
   ProjectDetailsInputType,
 } from "../../src/models/ProjectDetailsInput";
-import { InputEn, navInfo, projectNavInfo, thDate } from "../../src/local";
+import {
+  budgetThreshold,
+  InputEn,
+  navInfo,
+  projectNavInfo,
+  thDate,
+} from "../../src/local";
 import {
   projectsTableInt,
   valDate,
@@ -41,6 +47,7 @@ import Big from "big.js";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { updateProject } from "../../src/edit/projects";
 import { getToken } from "next-auth/jwt";
+import dayjs from "dayjs";
 
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -55,12 +62,27 @@ const CreateProjectsPage: NextPage<
   const [tableData, setTableData] = useState<projectsTableInt>(
     convtoTable(preresult)
   );
-
+  const tops = [
+    "รายการโครงการจัดซื้อจัดจ้าง", //0
+    "ประเภทโครงการ", //1
+    "จำนวนหน่วย", //2
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)", //3
+    "ประเภทขั้นตอน", // added
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)", // 4 Cal
+    "ประเภทงบประมาณ", //5
+    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)", //6
+    "วันเริ่มสัญญา (พ.ศ.)", //7
+    "วันหมดสัญญา (พ.ศ.)", //8
+    "วันเริ่ม MA (พ.ศ.)", //9
+    "วันหมดอายุ MA (พ.ศ.)", //10
+    "MA (ระยะเวลารับประกัน)", // 11 Cal
+    "หมายเหตุ", //12
+  ];
   const tableBody: () => ProjectDetailsInputType[] = () => {
     let temp = { ...tableData };
     const tBody: ProjectDetailsInputType[] = [
       {
-        id: 0 + "",
+        id: "รายการโครงการจัดซื้อจัดจ้าง",
         header: "รายการโครงการจัดซื้อจัดจ้าง",
         value: tableData["รายการโครงการจัดซื้อจัดจ้าง"] + "",
         type: InputEn.String,
@@ -70,7 +92,7 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 1 + "",
+        id: "ประเภทโครงการ",
         header: "ประเภทโครงการ",
         value: tableData["ประเภทโครงการ"] + "",
         type: InputEn.TypeList,
@@ -87,7 +109,7 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 2 + "",
+        id: "จำนวนหน่วย",
         header: "จำนวนหน่วย",
         value: JSON.stringify(tableData["จำนวนหน่วย"]),
         type: InputEn.Item,
@@ -102,34 +124,52 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 3 + "",
+        id: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
         header: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
         value:
           tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"].valueOf() + "",
         type: InputEn.Float,
         onChange: (value) => {
-          const fl = valFloat(value);
-          if (fl.cmp(0) >= 0) {
-            temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = fl;
-            setTableData(temp);
+          const format = value.indexOf(".") === value.lastIndexOf(".");
+          if (format) {
+            if (value.indexOf(".") === value.length - 1) {
+              temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = value;
+              setTableData(temp);
+            } else {
+              const fl = valFloat(value);
+              if (fl.cmp(0) >= 0) {
+                temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] =
+                  fl.toNumber() + "";
+                setTableData(temp);
+              }
+            }
           }
         },
       },
       {
-        id: 4 + "",
+        id: "ประเภทขั้นตอน",
+        header: "ประเภทขั้นตอน",
+        value:
+          Big(tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]).cmp(
+            budgetThreshold
+          ) < 0
+            ? "ขั้นตอนการทำจัดซื้อจัดจ้าง"
+            : "ขั้นตอนการทำจัดซื้อจัดจ้าง (นำเสนอคณะกรรมการบริหารฯ และคณะกรรมการบริษัท โทรคมนาคมแห่งชาติ จำกัด (มหาชน)",
+        type: InputEn.Calculated,
+        onChange() {},
+      },
+      {
+        id: "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)",
         header: "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)",
-        value: tableData["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] + "",
-        type: InputEn.Float,
-        onChange: (value) => {
-          const fl = valFloat(value);
-          if (fl.cmp(0) >= 0) {
-            temp["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"] = fl;
-            setTableData(temp);
-          }
-        },
+        value:
+          Big(tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"])
+            .mul(1.07)
+            .valueOf() + "",
+        type: InputEn.Calculated,
+        onChange() {},
       },
       {
-        id: 5 + "",
+        id: "ประเภทงบประมาณ",
         header: "ประเภทงบประมาณ",
         value: tableData["ประเภทงบประมาณ"] + "",
         type: InputEn.String,
@@ -139,7 +179,7 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 6 + "",
+        id: "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)",
         header: "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)",
         value: tableData["ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)"].toISOString(),
         type: InputEn.Year,
@@ -152,7 +192,7 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 7 + "",
+        id: "วันเริ่มสัญญา (พ.ศ.)",
         header: "วันเริ่มสัญญา (พ.ศ.)",
         value: tableData["วันเริ่มสัญญา (พ.ศ.)"].toISOString(),
         type: InputEn.Date,
@@ -165,22 +205,20 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 8 + "",
-        header: "MA (ระยะเวลารับประกัน)",
-        value: JSON.stringify(tableData["MA (ระยะเวลารับประกัน)"]),
-        type: InputEn.Item,
+        id: "วันหมดสัญญา (พ.ศ.)",
+        header: "วันหมดสัญญา (พ.ศ.)",
+        value: tableData["วันหมดสัญญา (พ.ศ.)"].toISOString(),
+        type: InputEn.Date,
         onChange: (value) => {
-          const item = valItem(value);
-          if (item.amount < 0) {
-            temp["MA (ระยะเวลารับประกัน)"] = { amount: 0, unit: item.unit };
-          } else {
-            temp["MA (ระยะเวลารับประกัน)"] = item;
+          const dt = valDate(value);
+          if (dt) {
+            temp["วันหมดสัญญา (พ.ศ.)"] = dt;
+            setTableData(temp);
           }
-          setTableData(temp);
         },
       },
       {
-        id: 9 + "",
+        id: "วันเริ่ม MA (พ.ศ.)",
         header: "วันเริ่ม MA (พ.ศ.)",
         value: tableData["วันเริ่ม MA (พ.ศ.)"].toISOString(),
         type: InputEn.Date,
@@ -193,7 +231,7 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 10 + "",
+        id: "วันหมดอายุ MA (พ.ศ.)",
         header: "วันหมดอายุ MA (พ.ศ.)",
         value: tableData["วันหมดอายุ MA (พ.ศ.)"].toISOString(),
         type: InputEn.Date,
@@ -206,7 +244,17 @@ const CreateProjectsPage: NextPage<
         },
       },
       {
-        id: 11 + "",
+        id: "MA (ระยะเวลารับประกัน)",
+        header: "MA (ระยะเวลารับประกัน)",
+        value: calculateDiffTime(
+          tableData["วันเริ่ม MA (พ.ศ.)"],
+          tableData["วันหมดอายุ MA (พ.ศ.)"]
+        ),
+        type: InputEn.Calculated,
+        onChange() {},
+      },
+      {
+        id: "หมายเหตุ",
         header: "หมายเหตุ",
         value: tableData["หมายเหตุ"] + "",
         type: InputEn.String,
@@ -233,24 +281,22 @@ const CreateProjectsPage: NextPage<
             onConfirm: async () => {
               if (data) {
                 const query: projectsInt = {
-                  รายการโครงการจัดซื้อจัดจ้าง:
-                    tableData["รายการโครงการจัดซื้อจัดจ้าง"],
-                  ประเภทโครงการ: tableData["ประเภทโครงการ"],
-                  จำนวนหน่วย: tableData["จำนวนหน่วย"],
-                  "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)":
-                    tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"],
-                  "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)":
-                    tableData["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"],
-                  ประเภทงบประมาณ: tableData["ประเภทงบประมาณ"],
-                  ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist:
+                  projName: tableData["รายการโครงการจัดซื้อจัดจ้าง"],
+                  type: tableData["ประเภทโครงการ"],
+                  systemCount: tableData["จำนวนหน่วย"],
+                  budget: Big(
+                    tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"]
+                  ),
+                  budgetType: tableData["ประเภทงบประมาณ"],
+                  procurementYear:
                     tableData[
                       "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)"
                     ].getFullYear(),
-                  วันเริ่มสัญญา_buddhist: tableData["วันเริ่มสัญญา (พ.ศ.)"],
-                  "MA (ระยะเวลารับประกัน)": tableData["MA (ระยะเวลารับประกัน)"],
-                  "วันเริ่ม MA_buddhist": tableData["วันเริ่ม MA (พ.ศ.)"],
-                  "วันหมดอายุ MA_buddhist": tableData["วันหมดอายุ MA (พ.ศ.)"],
-                  หมายเหตุ: tableData["หมายเหตุ"],
+                  contractstartDate: tableData["วันเริ่มสัญญา (พ.ศ.)"],
+                  contractendDate: tableData["วันหมดสัญญา (พ.ศ.)"],
+                  mastartDate: tableData["วันเริ่ม MA (พ.ศ.)"],
+                  maendDate: tableData["วันหมดอายุ MA (พ.ศ.)"],
+                  comments: tableData["หมายเหตุ"],
                   createdby: new ObjectId("" + data.id),
                   lastupdate: new Date(),
                 };
@@ -414,22 +460,22 @@ function convtoSerializable(data: projectsInt) {
     _id,
     createdby,
     lastupdate,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
-    วันเริ่มสัญญา_buddhist: startCdt,
-    "วันเริ่ม MA_buddhist": startMAdt,
-    "วันหมดอายุ MA_buddhist": endMAdt,
+    budget,
+    contractstartDate,
+    contractendDate,
+    mastartDate,
+    maendDate,
     ...r
   } = data;
   return {
     _id: (_id as ObjectId).toHexString(),
     createdby: createdby.toHexString(),
     lastupdate: lastupdate.toString(),
-    วันเริ่มสัญญา_buddhist: startCdt.toString(),
-    "วันเริ่ม MA_buddhist": startMAdt.toString(),
-    "วันหมดอายุ MA_buddhist": endMAdt.toString(),
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budget.toString(),
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT.toString(),
+    contractstartDate: contractstartDate.toString(),
+    contractendDate: contractendDate.toString(),
+    mastartDate: mastartDate.toString(),
+    maendDate: maendDate.toString(),
+    budget: budget.toString(),
     ...r,
   };
 }
@@ -441,21 +487,42 @@ function convtoTable(
     _id: s_id,
     createdby: screatedby,
     lastupdate: slastupdate,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudgetWT,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
-    วันเริ่มสัญญา_buddhist: sstartCdt,
-    "วันเริ่ม MA_buddhist": sstartMAdt,
-    "วันหมดอายุ MA_buddhist": sendMAdt,
-    ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: purchasedt,
+    budget: sbudget,
+    contractstartDate: scontractstartDate,
+    contractendDate: scontractendDate,
+    mastartDate: smastartDate,
+    maendDate: smaendDate,
+    procurementYear: sprocYear,
     ...r
   } = data;
-  return {
-    "วันเริ่มสัญญา (พ.ศ.)": thDate(sstartCdt),
-    "วันเริ่ม MA (พ.ศ.)": thDate(sstartMAdt),
-    "วันหมดอายุ MA (พ.ศ.)": thDate(sendMAdt),
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudget),
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudgetWT),
-    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": thDate(purchasedt),
-    ...r,
+  const table: projectsTableInt = {
+    "วันเริ่มสัญญา (พ.ศ.)": thDate(scontractstartDate),
+    "วันหมดสัญญา (พ.ศ.)": thDate(scontractendDate),
+    "วันเริ่ม MA (พ.ศ.)": thDate(smastartDate),
+    "วันหมดอายุ MA (พ.ศ.)": thDate(smaendDate),
+    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": thDate(sprocYear),
+    รายการโครงการจัดซื้อจัดจ้าง: r.projName,
+    ประเภทโครงการ: r.type,
+    จำนวนหน่วย: r.systemCount,
+    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": "",
+    ประเภทงบประมาณ: r.budgetType,
+    หมายเหตุ: r.comments,
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
+    "MA (ระยะเวลารับประกัน)": "",
   };
+  return table;
+}
+
+function calculateDiffTime(before: Date, after: Date) {
+  if (before.getTime() > after.getTime()) {
+    return `0 ปี 0 เดื่อน 0 วัน`;
+  } else {
+    const _days = dayjs(before.getTime()).diff(dayjs(after.getTime()), "days");
+    let days = _days;
+    let months = days / 30;
+    days %= 30;
+    let years = months / 12;
+    months %= 12;
+    return `${years} ปี ${months} เดื่อน ${days} วัน`;
+  }
 }

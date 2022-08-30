@@ -32,8 +32,8 @@ export const ProjectDetailsInput = ({
   header,
   value,
   type,
-  onChange,
   isDisplayMobile,
+  onChange,
 }: ProjectDetailsInputType) => {
   if (type === InputEn.Integer) {
     return (
@@ -433,6 +433,19 @@ export const ProjectDetailsInput = ({
               </MenuItem>
             ))}
           </Select>
+        </Grid>
+      </>
+    );
+  }
+  if (type == InputEn.Calculated) {
+    const val: string = value + "";
+    return (
+      <>
+        <Grid item xs={12} sm={4}>
+          <Typography sx={{ fontWeight: "bold" }}>{header}</Typography>
+        </Grid>
+        <Grid item xs={12} sm={8}>
+          <Typography sx={{ fontWeight: "Medium" }}>{val}</Typography>
         </Grid>
       </>
     );

@@ -29,6 +29,7 @@ import {
   stagesFindAll,
 } from "../../src/db";
 import {
+  budgetThreshold,
   InputEn,
   navInfo,
   projectNavInfo,
@@ -37,6 +38,7 @@ import {
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
+import dayjs from "dayjs";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -50,62 +52,75 @@ const ProjectsPage: NextPage<
   const gridData = [
     {
       header: "รายการโครงการจัดซื้อจัดจ้าง",
-      value: result["รายการโครงการจัดซื้อจัดจ้าง"],
+      value: result.projName,
       type: InputEn.String,
     },
     {
       header: "ประเภทโครงการ",
-      value: result["ประเภทโครงการ"] + "",
+      value: result.type,
       type: InputEn.TypeList,
     },
     {
       header: "จำนวนหน่วย",
-      value: result["จำนวนหน่วย"],
+      value: result.systemCount,
       type: InputEn.Item,
     },
     {
       header: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
-      value: result["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"],
+      value: result.budget.toNumber(),
       type: InputEn.Float,
     },
     {
       header: "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)",
-      value: result["งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"],
-      type: InputEn.Float,
+      value: result.budget.mul(1.07).toNumber(),
+      type: InputEn.Calculated,
+    },
+    {
+      header: "ประเภทขั้นตอน",
+      value:
+        result.budget.cmp(budgetThreshold) < 0
+          ? "ขั้นตอนการทำจัดซื้อจัดจ้าง"
+          : "ขั้นตอนการทำจัดซื้อจัดจ้าง (นำเสนอคณะกรรมการบริหารฯ และคณะกรรมการบริษัท โทรคมนาคมแห่งชาติ จำกัด (มหาชน)",
+      type: InputEn.Calculated,
     },
     {
       header: "ประเภทงบประมาณ",
-      value: result["ประเภทงบประมาณ"],
+      value: result.budgetType,
       type: InputEn.String,
     },
     {
       header: "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)",
-      value: result["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"],
+      value: result.procurementYear,
       type: InputEn.Year,
     },
     {
       header: "วันเริ่มสัญญา (พ.ศ.)",
-      value: result["วันเริ่มสัญญา_buddhist"],
+      value: result.contractstartDate,
       type: InputEn.Date,
     },
     {
-      header: "MA (ระยะเวลารับประกัน)",
-      value: result["MA (ระยะเวลารับประกัน)"],
-      type: InputEn.Item,
+      header: "วันหมดสัญญา (พ.ศ.)",
+      value: result.contractendDate,
+      type: InputEn.Date,
     },
     {
       header: "วันเริ่ม MA (พ.ศ.)",
-      value: result["วันเริ่ม MA_buddhist"],
+      value: result.mastartDate,
       type: InputEn.Date,
     },
     {
       header: "วันหมดอายุ MA (พ.ศ.)",
-      value: result["วันหมดอายุ MA_buddhist"],
+      value: result.maendDate,
       type: InputEn.Date,
     },
     {
+      header: "MA (ระยะเวลารับประกัน)",
+      value: calculateDiffTime(result.mastartDate, result.maendDate),
+      type: InputEn.Calculated,
+    },
+    {
       header: "หมายเหตุ",
-      value: result["หมายเหตุ"],
+      value: result.comments,
       type: InputEn.String,
     },
   ];
@@ -268,22 +283,22 @@ function convtoSerializable(data: projectsInt) {
     _id,
     createdby,
     lastupdate,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budget,
-    วันเริ่มสัญญา_buddhist: startCdt,
-    "วันเริ่ม MA_buddhist": startMAdt,
-    "วันหมดอายุ MA_buddhist": endMAdt,
+    budget,
+    contractstartDate,
+    contractendDate,
+    mastartDate,
+    maendDate,
     ...r
   } = data;
   return {
     _id: (_id as ObjectId).toHexString(),
     createdby: createdby.toHexString(),
     lastupdate: lastupdate.toString(),
-    วันเริ่มสัญญา_buddhist: startCdt.toString(),
-    "วันเริ่ม MA_buddhist": startMAdt.toString(),
-    "วันหมดอายุ MA_buddhist": endMAdt.toString(),
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": budget.toString(),
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": budgetWT.toString(),
+    contractstartDate: contractstartDate.toString(),
+    contractendDate: contractendDate.toString(),
+    mastartDate: mastartDate.toString(),
+    maendDate: maendDate.toString(),
+    budget: budget.toString(),
     ...r,
   };
 }
@@ -293,22 +308,32 @@ function convtoTable(data: ReturnType<typeof convtoSerializable>): projectsInt {
     _id: s_id,
     createdby: screatedby,
     lastupdate: slastupdate,
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudgetWT,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
-    วันเริ่มสัญญา_buddhist: sstartCdt,
-    "วันเริ่ม MA_buddhist": sstartMAdt,
-    "วันหมดอายุ MA_buddhist": sendMAdt,
+    budget: sbudget,
+    contractstartDate: scontractstartDate,
+    contractendDate: scontractendDate,
+    mastartDate: smastartDate,
+    maendDate: smaendDate,
     ...r
   } = data;
   return {
     _id: new ObjectId(s_id),
     createdby: new ObjectId(screatedby),
     lastupdate: thDate(slastupdate),
-    วันเริ่มสัญญา_buddhist: thDate(sstartCdt),
-    "วันเริ่ม MA_buddhist": thDate(sstartMAdt),
-    "วันหมดอายุ MA_buddhist": thDate(sendMAdt),
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudget),
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(sbudgetWT),
+    contractstartDate: thDate(scontractstartDate),
+    contractendDate: thDate(scontractendDate),
+    mastartDate: thDate(smastartDate),
+    maendDate: thDate(smaendDate),
+    budget: Big(sbudget),
     ...r,
   };
+}
+
+function calculateDiffTime(before: Date, after: Date) {
+  const _days = -dayjs(before).diff(dayjs(after), "days");
+  let days = _days;
+  let months = Math.floor(days / 30);
+  days %= 30;
+  let years = Math.floor(months / 12);
+  months %= 12;
+  return `${years} ปี ${months} เดือน(30) ${days} วัน`;
 }
