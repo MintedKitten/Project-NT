@@ -14,13 +14,14 @@ const handler = nxcHandler().all(async (req, res) => {
     const eqgName = body.eqgName;
     const eqgDesc = body.eqgDesc;
     const eqgQty = body.eqgQty;
-    // const 
+    // const
     // const eqgId = await equipmentsGroupInsertOne(conn, {
     //   projId: pid,
     //   desc: eqgDesc,
     //   name: eqgName,
     //   qty: eqgQty,
     // });
+    const query = {};
 
     res.status(200).json({ data: { eqgId: "" } });
   } catch (err) {

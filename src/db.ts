@@ -48,7 +48,9 @@ export interface userInt {
 }
 
 export async function getMongoClient() {
-  const conn = await new MongoClient(`${process.env.mongodbPath}`).connect();
+  const conn = await new MongoClient(`${process.env.mongodbPath}`, {
+    compressors: ["snappy"],
+  }).connect();
   return conn;
 }
 
