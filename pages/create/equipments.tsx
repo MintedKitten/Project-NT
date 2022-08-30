@@ -27,7 +27,7 @@ import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -38,6 +38,8 @@ import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { navInfo, projectNavInfo } from "../../src/local";
 import { rowInt } from "../../src/create/equipments";
+import { parse as parsecsv } from "papaparse";
+import Space from "../../src/components/Space";
 
 interface EditToolbarProps {
   setRows: (
@@ -73,7 +75,44 @@ function EditToolbar(props: EditToolbarProps) {
     }));
   };
 
-  const handleAddMultipleFromCSV = () => {};
+  const handleAddMultipleFromCSV = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      alert("File select canceled");
+      return;
+    }
+    const file = e.target.files[0];
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (!event.target?.result) {
+        alert("Can't read file");
+        return;
+      }
+      const { result } = event.target;
+      const parsedCSV = parsecsv<rowInt>(result.toString(), {
+        header: true,
+        dynamicTyping: true,
+      });
+      const newRows = parsedCSV.data;
+      const withIdNewRows: rowInt[] = [];
+      const withIdModel: GridRowModesModel = {};
+      newRows.forEach((nrow) => {
+        const id = randomId();
+        withIdNewRows.push({ ...nrow, [id]: id, isNew: false, isToSave: true });
+        withIdModel[id] = {
+          mode: GridRowModes.View,
+        };
+      });
+
+      setRows((oldRows) => {
+        return [...oldRows, ...withIdNewRows];
+      });
+      setRowModesModel((oldModel) => {
+        return { ...oldModel, ...withIdModel };
+      });
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <GridToolbarContainer>
@@ -83,6 +122,16 @@ function EditToolbar(props: EditToolbarProps) {
         onClick={handleClickAddOneEmptyRow}
       >
         Add New Equipment
+      </Button>
+      <Space size={10} direction="column" />
+      <Button color="primary" startIcon={<AddIcon />} component="label">
+        Import from CSV
+        <input
+          type="file"
+          hidden
+          accept=".csv, text/csv"
+          onChange={handleAddMultipleFromCSV}
+        />
       </Button>
     </GridToolbarContainer>
   );
