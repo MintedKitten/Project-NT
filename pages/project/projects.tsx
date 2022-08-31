@@ -163,7 +163,7 @@ const ProjectsPage: NextPage<
         </PageAppbar>
 
         <PageContainer>
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <TitleButtonElement />
             <Box sx={{ flexGrow: 1 }} />
             <Typography>Status:</Typography>

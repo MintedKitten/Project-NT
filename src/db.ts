@@ -532,6 +532,17 @@ async function getEquipmentsColl(conn: MongoClient) {
   return coll;
 }
 
+export async function equipmentsFindAll(
+  conn: MongoClient,
+  query: Filter<equipmentsInt>,
+  options: FindOptions<equipmentsInt> = {}
+) {
+  const result = await (await getEquipmentsColl(conn))
+    .find(query, options)
+    .toArray();
+  return result;
+}
+
 export async function equipmentsInsertOne(
   conn: MongoClient,
   query: equipmentsInt

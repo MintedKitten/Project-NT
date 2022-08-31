@@ -9,16 +9,15 @@
     },
     {
       "name": "Next.js: debug client-side",
-      "type": "firefox",
+      "type": "msedge",
       "request": "launch",
-      "url": "http://192.168.4.150:3000"
+      "url": "http://25.63.251.163:3000"
     },
     {
       "name": "Next.js: debug full stack",
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "console": "integratedTerminal",
       "serverReadyAction": {
         "pattern": "started server on .+, url: (https?://.+)",
         "uriFormat": "%s",

@@ -22,8 +22,6 @@ import {
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
 import { Alert, TextField, useMediaQuery } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
@@ -489,42 +487,33 @@ const CreateEquipmentsGroup = () => {
               },
             }}
           >
-            <LocalizationProvider
-              dateAdapter={ThaiAdapterDayjs}
-              dateFormats={{
-                monthAndYear: "MMMM(MM) BBBB",
-                monthShort: "MMM(MM)",
-                year: "BBBB",
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              editMode="row"
+              rowModesModel={rowModesModel}
+              onRowEditStart={handleRowEditStart}
+              onRowEditStop={handleRowEditStop}
+              processRowUpdate={processRowUpdate}
+              components={{
+                Toolbar: EditToolbar,
               }}
-            >
-              <DataGrid
-                rows={rows}
-                columns={columns}
-                editMode="row"
-                rowModesModel={rowModesModel}
-                onRowEditStart={handleRowEditStart}
-                onRowEditStop={handleRowEditStop}
-                processRowUpdate={processRowUpdate}
-                components={{
-                  Toolbar: EditToolbar,
-                }}
-                componentsProps={{
-                  toolbar: { setRows, setRowModesModel },
-                }}
-                pageSize={rowsPerPage}
-                onPageSizeChange={handleChangeRowsPerPage}
-                rowsPerPageOptions={[10, 20, 50]}
-                experimentalFeatures={{ newEditingApi: true }}
-                getCellClassName={(params) => {
-                  return `grid-theme--${
-                    params.isEditable || !["xPrice"].includes(params.field)
-                      ? "Editable"
-                      : "NotEditable"
-                  }`;
-                }}
-                disableColumnSelector
-              />
-            </LocalizationProvider>
+              componentsProps={{
+                toolbar: { setRows, setRowModesModel },
+              }}
+              pageSize={rowsPerPage}
+              onPageSizeChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[10, 20, 50]}
+              experimentalFeatures={{ newEditingApi: true }}
+              getCellClassName={(params) => {
+                return `grid-theme--${
+                  params.isEditable || !["xPrice"].includes(params.field)
+                    ? "Editable"
+                    : "NotEditable"
+                }`;
+              }}
+              disableColumnSelector
+            />
           </Box>
         </PageContainer>
       </>
