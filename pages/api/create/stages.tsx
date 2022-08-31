@@ -20,7 +20,6 @@ const handler = nxcHandler().all(async (req, res) => {
     let isAllSuccessful = true;
     for (let index = 0; index < fmids.length; index++) {
       const element = fmids[index];
-      console.log("Adding: " + element.toHexString());
       isAllSuccessful =
         isAllSuccessful &&
         (await stageFilesInsertOne(conn, {

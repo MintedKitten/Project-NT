@@ -329,6 +329,7 @@ const CreateProjectsPage = () => {
       const parsedCSV = parsecsv<projectsInt>(result.toString(), {
         header: true,
         dynamicTyping: true,
+        skipEmptyLines: true,
       });
       setTableData(convertRawCSVToData(parsedCSV.data[0]));
     };

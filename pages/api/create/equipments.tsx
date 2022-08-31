@@ -1,16 +1,41 @@
+import { ObjectId } from "bson";
 import { NextApiResponse } from "next";
-import { getMongoClient, projectFindAll } from "../../../src/db";
+import { rowCSVInt } from "../../../src/create/equipments";
+import {
+  equipmentsInsertOne,
+  equipmentsInt,
+  getMongoClient,
+  projectFindAll,
+} from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
-// export type restype = {
-//   data: Awaited<ReturnType<typeof projectFindAll>>;
-// };
+export type retDatacreateequipments = {
+  isCreateSuccessful: boolean;
+};
 
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {
     const body = JSON.parse(req.body);
-    res.status(200).json({ data: "" });
+    const pid = new ObjectId(body.pid);
+    const eqgId = new ObjectId(body.eqgId);
+    const rows = body.rows as rowCSVInt[];
+    let isCreateSuccessful = true;
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
+      const query: equipmentsInt = {
+        projId: pid,
+        eqgId: eqgId,
+        partNumber: row.partNumber,
+        desc: row.desc,
+        qty: row.qty,
+        unitPrice: row.uPrice,
+      };
+      isCreateSuccessful =
+        isCreateSuccessful && (await equipmentsInsertOne(conn, query));
+    }
+    console.log(rows);
+    res.status(200).json({ data: { isCreateSuccessful: isCreateSuccessful } });
   } catch (err) {
     res.status(400).end();
   } finally {

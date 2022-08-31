@@ -37,9 +37,14 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { navInfo, projectNavInfo } from "../../src/local";
-import { rowInt } from "../../src/create/equipments";
+import {
+  rowInt,
+  rowCSVInt,
+  addEquipmentGroupAndEquipments,
+} from "../../src/create/equipments";
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
+import Big from "big.js";
 
 interface EditToolbarProps {
   setRows: (
@@ -64,7 +69,7 @@ function EditToolbar(props: EditToolbarProps) {
         age: "",
         partNumber: "",
         desc: "",
-        uPrice: 0,
+        uPrice: Big(0),
         qty: 0,
         isNew: true,
       },
@@ -89,16 +94,25 @@ function EditToolbar(props: EditToolbarProps) {
         return;
       }
       const { result } = event.target;
-      const parsedCSV = parsecsv<rowInt>(result.toString(), {
+      const parsedCSV = parsecsv<rowCSVInt>(result.toString(), {
         header: true,
         dynamicTyping: true,
+        skipEmptyLines: true,
       });
       const newRows = parsedCSV.data;
       const withIdNewRows: rowInt[] = [];
       const withIdModel: GridRowModesModel = {};
       newRows.forEach((nrow) => {
         const id = randomId();
-        withIdNewRows.push({ ...nrow, [id]: id, isNew: false, isToSave: true });
+        const { uPrice, ...r } = nrow;
+        withIdNewRows.push({
+          ...r,
+          uPrice: Big((uPrice + "").replace(/,/g, "")),
+          id: id,
+          isNew: false,
+          isToSave: true,
+          eqid: new ObjectId(),
+        });
         withIdModel[id] = {
           mode: GridRowModes.View,
         };
@@ -133,6 +147,16 @@ function EditToolbar(props: EditToolbarProps) {
           onChange={handleAddMultipleFromCSV}
         />
       </Button>
+      <Space size={10} direction="column" />
+      <Button
+        component="a"
+        download
+        size="small"
+        href="/equipments_template_with_header.csv"
+        variant="outlined"
+      >
+        Get CSV Template
+      </Button>
     </GridToolbarContainer>
   );
 }
@@ -141,8 +165,11 @@ const CreateEquipmentsGroup = () => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
-  const pid = router.query.pid;
+  const pid = router.query.pid as string;
   const { status, data } = session;
+
+  const [nameError, setNameError] = useState("");
+  const [amountError, setAmountError] = useState("");
 
   const [success, setSuccess] = useState(false);
 
@@ -213,6 +240,7 @@ const CreateEquipmentsGroup = () => {
       field: "desc",
       headerName: "Description",
       flex: 1,
+      minWidth: 300,
       editable: true,
     },
     {
@@ -237,7 +265,7 @@ const CreateEquipmentsGroup = () => {
       width: 165,
       editable: true,
       renderCell: (params) => {
-        const upr = valFloat(params.row.uPrice);
+        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
     },
@@ -248,8 +276,10 @@ const CreateEquipmentsGroup = () => {
       width: 200,
       editable: false,
       valueGetter: (params) => {
-        const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
-        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : "0";
+        const xpr = valFloat((params.row.uPrice + "").replace(/,/g, "")).mul(
+          params.row.qty
+        );
+        return !xpr.lt(0) ? xpr : Big(0);
       },
       renderCell: (params) => {
         const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
@@ -306,47 +336,71 @@ const CreateEquipmentsGroup = () => {
   ];
 
   const openConfirmDialog = useConfirmDialog();
-  const TitleButtonElement = () => {
-    return (
-      <Button
-        className="titleButton"
-        variant="contained"
-        startIcon={<SaveIcon />}
-        onClick={() => {
-          openConfirmDialog({
-            title: "Are you sure you want to add new equipment group?",
-            onConfirm: async () => {
-              const rowsToUpdate: rowInt[] = [];
-              rows.forEach((row) => {
-                if (row.isToSave) {
-                  rowsToUpdate.push(row);
-                }
-              });
-              console.log(rowsToUpdate);
-              // Add new Equipments Group
-              if (true) {
-                setSuccess(true);
-                setTimeout(() => {
-                  router.push({
-                    pathname: "/project/equipments",
-                    query: { pid: pid },
-                  });
-                }, 10);
-              }
-            },
-            cancelButtonProps: {
-              color: "warning",
-            },
-            confirmButtonProps: {
-              color: "primary",
-            },
-            confirmButtonText: "Create",
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const eqGroup = {
+      name: data.get("name"),
+      desc: data.get("desc"),
+      qty: data.get("amount"),
+    };
+    let isFilled = true;
+    if (!eqGroup.name) {
+      setNameError("Please, enter the name of the group");
+      isFilled = false;
+    } else {
+      setNameError("");
+    }
+    if (!eqGroup.qty) {
+      setAmountError("Please, enter the amount");
+      isFilled = false;
+    } else {
+      try {
+        const am = parseInt((eqGroup.qty + "").replace(/./g, ""));
+        setAmountError("");
+      } catch (err) {
+        setAmountError("Please, enter a whole number");
+        isFilled = false;
+      }
+    }
+    if (isFilled) {
+      openConfirmDialog({
+        title: "Are you sure you want to add new equipment group?",
+        onConfirm: async () => {
+          console.log(eqGroup);
+          const rowsToUpdate: rowInt[] = [];
+          rows.forEach((row) => {
+            if (row.isToSave) {
+              rowsToUpdate.push(row);
+            }
           });
-        }}
-      >
-        Add Equipment Group
-      </Button>
-    );
+          console.log(rowsToUpdate);
+          const isSuccessful = await addEquipmentGroupAndEquipments(
+            pid,
+            eqGroup.name + "",
+            eqGroup.desc + "",
+            parseInt(eqGroup.qty + ""),
+            rowsToUpdate
+          );
+          if (isSuccessful) {
+            setSuccess(true);
+            setTimeout(() => {
+              router.push({
+                pathname: "/project/equipments",
+                query: { pid: pid },
+              });
+            }, 10);
+          }
+        },
+        cancelButtonProps: {
+          color: "warning",
+        },
+        confirmButtonProps: {
+          color: "primary",
+        },
+        confirmButtonText: "Create",
+      });
+    }
   };
 
   if (status === "unauthenticated") {
@@ -379,13 +433,38 @@ const CreateEquipmentsGroup = () => {
               New Equipment Group Added. Redirecting...
             </Alert>
           </Box>
-          <Box component={"form"}>
+          <Box component={"form"} noValidate onSubmit={handleSubmit}>
             <Box sx={{ display: "flex" }}>
-              <TitleButtonElement />
+              <Button
+                className="titleButton"
+                variant="contained"
+                startIcon={<SaveIcon />}
+                type="submit"
+              >
+                Add Equipment Group
+              </Button>
             </Box>
-            <Box>
-              <TextField name="name" label="Group Name" />
-              <TextField name="desc" label="Group Description" />
+            <Box sx={{ mt: 1 }}>
+              <Box sx={{ display: "flex" }}>
+                <TextField
+                  name="name"
+                  label="Group Name"
+                  required
+                  error={nameError !== ""}
+                  helperText={nameError}
+                />
+                <Space size={10} direction="column" />
+                <TextField
+                  name="amount"
+                  label="Amount"
+                  type="number"
+                  required
+                  error={amountError !== ""}
+                  helperText={amountError}
+                />
+              </Box>
+              <Space size={10} direction="row" />
+              <TextField name="desc" label="Group Description" fullWidth />
             </Box>
           </Box>
           <Box

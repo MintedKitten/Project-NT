@@ -460,6 +460,18 @@ export async function equipmentsGroupFindAll(
   return result;
 }
 
+export async function equipmentsGroupLastOrderInProject(
+  conn: MongoClient,
+  query: Filter<equipmentsGroupInt>
+) {
+  const ret = await (await getEquipmentsGroupColl(conn))
+    .find(query)
+    .sort({ order: "descending" })
+    .limit(1)
+    .toArray();
+  return ret;
+}
+
 export async function equipmentsGroupInsertOne(
   conn: MongoClient,
   query: equipmentsGroupInt
@@ -467,7 +479,7 @@ export async function equipmentsGroupInsertOne(
   const result = await (await getEquipmentsGroupColl(conn))
     .insertOne(query)
     .then((value) => {
-      return value.acknowledged;
+      return value.insertedId;
     });
   return result;
 }
@@ -510,6 +522,46 @@ export interface equipmentsInt {
   partNumber: string;
   desc: string;
   qty: number;
-  unitPrice: number;
-  isDelete: boolean;
+  unitPrice: string;
+}
+
+async function getEquipmentsColl(conn: MongoClient) {
+  const coll = conn
+    .db(`${process.env.dbName}`)
+    .collection<equipmentsInt>(`${process.env.equipmentsCollection}`);
+  return coll;
+}
+
+export async function equipmentsInsertOne(
+  conn: MongoClient,
+  query: equipmentsInt
+) {
+  const result = await (await getEquipmentsColl(conn))
+    .insertOne(query)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function equipmentsUpsertOne(
+  conn: MongoClient,
+  query: Filter<equipmentsInt>,
+  upsert: UpdateFilter<equipmentsInt>
+) {
+  const result = await (await getEquipmentsColl(conn))
+    .updateOne(query, upsert, { upsert: true })
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
+export async function equipmentsDeleteOne(
+  conn: MongoClient,
+  filter: Filter<equipmentsInt>
+) {
+  const result = (await (await getEquipmentsColl(conn)).deleteOne(filter))
+    .acknowledged;
+  return result;
 }

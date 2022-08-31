@@ -1,5 +1,5 @@
 import { ObjectId } from "bson";
-import { equipmentsGroupInsertOne, getMongoClient } from "../../../src/db";
+import { equipmentsGroupInsertOne, equipmentsGroupLastOrderInProject, getMongoClient } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
 export type retCreateequipmentsgroup = {
@@ -14,16 +14,21 @@ const handler = nxcHandler().all(async (req, res) => {
     const eqgName = body.eqgName;
     const eqgDesc = body.eqgDesc;
     const eqgQty = body.eqgQty;
-    // const
-    // const eqgId = await equipmentsGroupInsertOne(conn, {
-    //   projId: pid,
-    //   desc: eqgDesc,
-    //   name: eqgName,
-    //   qty: eqgQty,
-    // });
-    const query = {};
-
-    res.status(200).json({ data: { eqgId: "" } });
+    const retOrder = await equipmentsGroupLastOrderInProject(conn, { projId: pid });
+    console.log(retOrder);
+    let order = 0;
+    if (retOrder.length > 0) {
+      order = retOrder[0].order + 1;
+    }
+    const query = {
+      projId: pid,
+      name: eqgName,
+      desc: eqgDesc,
+      qty: eqgQty,
+      order: order,
+    };
+    const eqgId = await equipmentsGroupInsertOne(conn, query);
+    res.status(200).json({ data: { eqgId: eqgId.toHexString() } });
   } catch (err) {
     res.status(400).end();
   } finally {
