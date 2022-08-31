@@ -4,18 +4,30 @@ import type {
   NextPage,
 } from "next";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Backdrop,
   Box,
   Button,
   CircularProgress,
+  Typography,
   useMediaQuery,
 } from "@mui/material";
-import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  ExpandMore as ExpandMoreIcon,
+} from "@mui/icons-material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { getMongoClient } from "../../src/db";
+import {
+  equipmentsFindAll,
+  equipmentsGroupFindAll,
+  equipmentsGroupInt,
+  equipmentsInt,
+  getMongoClient,
+} from "../../src/db";
 import Head from "next/head";
-
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
@@ -23,13 +35,44 @@ import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { navInfo, projectNavInfo } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import Link from "next/link";
+import { ObjectId } from "bson";
+import Big from "big.js";
+import { randomId } from "@mui/x-data-grid-generator";
+import { GridColumns, DataGrid, GridCallbackDetails } from "@mui/x-data-grid";
+import { valFloat, valInteger } from "../../src/create/projects";
+import { useState } from "react";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ pid }) => {
+> = ({ pid, peqGroups, pequipments }) => {
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const handleChangeRowsPerPage = (
+    pageSize: number,
+    event: GridCallbackDetails<any>
+  ) => {
+    setRowsPerPage(pageSize);
+  };
+
+  const eqGroups = peqGroups.map((eqg) => {
+    return convBack(eqg);
+  });
+
+  const totals: Big[] = [];
+
+  let totalxPrice = Big(0);
+  pequipments.forEach((eqmts) => {
+    let total = Big(0);
+    eqmts.forEach((eqmt) => {
+      total = total.plus(Big(eqmt.unitPrice).mul(eqmt.qty));
+    });
+    totals.push(total);
+    totalxPrice = totalxPrice.plus(total);
+  });
+  console.log("Total price: " + totalxPrice.toNumber().toLocaleString());
 
   const TitleButtonElement = () => {
     return (
@@ -45,6 +88,62 @@ const ProjectEquipmentsPage: NextPage<
       </Link>
     );
   };
+
+  const columns: GridColumns = [
+    {
+      field: "partNumber",
+      headerName: "Part Number",
+      width: 150,
+      editable: false,
+    },
+    {
+      field: "desc",
+      headerName: "Description",
+      flex: 1,
+      minWidth: 300,
+      editable: false,
+    },
+    {
+      field: "qty",
+      headerName: "Qty.",
+      type: "number",
+      width: 100,
+      editable: false,
+      valueGetter: (params) => {
+        const qty = valInteger(params.row.qty);
+        return qty > 0 ? qty : 0;
+      },
+    },
+    {
+      field: "uPrice",
+      headerName: "Unit Price (บาท)",
+      type: "number",
+      width: 165,
+      editable: false,
+      renderCell: (params) => {
+        console.log(params.row.uPrice);
+        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+        return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
+      },
+    },
+    {
+      field: "xPrice",
+      headerName: "Extended Price (บาท)",
+      type: "number",
+      width: 200,
+      editable: false,
+      valueGetter: (params) => {
+        const xpr = valFloat((params.row.uPrice + "").replace(/,/g, "")).mul(
+          params.row.qty
+        );
+        return !xpr.lt(0) ? xpr : Big(0);
+      },
+      renderCell: (params) => {
+        const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
+        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : "0";
+      },
+    },
+  ];
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
@@ -70,7 +169,54 @@ const ProjectEquipmentsPage: NextPage<
             <Box className="filler" sx={{ flexGrow: 1 }} />
             <TitleButtonElement />
           </Box>
-          <Box></Box>
+          <Box sx={{ mt: 1 }}>
+            <Typography>{`Total Extended Price: ${totalxPrice
+              .toNumber()
+              .toLocaleString()} บาท`}</Typography>
+            <Typography>{`Total Extended Price + VAT: ${totalxPrice
+              .mul(1.07)
+              .toNumber()
+              .toLocaleString()} บาท`}</Typography>
+          </Box>
+          <Box sx={{ mt: 1 }}>
+            {eqGroups.map((eqg, index) => {
+              const { desc, name, order, projId, qty, _id } = eqg;
+              const equipments = pequipments[index].map((eqmt) => {
+                const { unitPrice, ...r } = eqmt;
+                return { ...r, id: randomId(), uPrice: unitPrice };
+              });
+              return (
+                <Accordion key={name}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Box sx={{ display: "flex", width: "100%" }}>
+                      <Typography>{`${name}`}</Typography>
+                      <Box sx={{ flexGrow: 1 }} />
+                      <Typography>{`${qty} จำนวน ${totals[index]
+                        .toNumber()
+                        .toLocaleString()} บาท`}</Typography>
+                    </Box>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Typography>{`${desc}`}</Typography>
+                      <Box sx={{ flexGrow: 1 }} />
+                      <Button variant="contained">Edit</Button>
+                    </Box>
+                    <Box sx={{ height: "60vh", mt: 1 }}>
+                      <DataGrid
+                        rows={equipments}
+                        columns={columns}
+                        pageSize={rowsPerPage}
+                        onPageSizeChange={handleChangeRowsPerPage}
+                        rowsPerPageOptions={[10, 20, 50]}
+                        disableColumnSelector
+                      />
+                    </Box>
+                  </AccordionDetails>
+                </Accordion>
+              );
+            })}
+          </Box>
         </PageContainer>
       </>
     );
@@ -92,7 +238,8 @@ export default ProjectEquipmentsPage;
 
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
-  // preresult: ReturnType<typeof convtoSerializable>;
+  peqGroups: ReturnType<typeof convToSerializable>[];
+  pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][];
 }> = async (context) => {
   const token = await getToken({
     req: context.req,
@@ -115,7 +262,51 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const pid = new ObjectId(webquery["pid"]);
   const conn = await getMongoClient();
+  const eqGroups = await equipmentsGroupFindAll(conn, { projId: pid });
+  eqGroups.sort((a, b) => {
+    return a.order < b.order ? -1 : 1;
+  });
+  const eqmtsArray: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][] = [];
+  for (let index = 0; index < eqGroups.length; index++) {
+    const eqg = eqGroups[index];
+    const result = await equipmentsFindAll(
+      conn,
+      { eqgId: eqg._id },
+      { projection: { projId: 0, eqgId: 0, _id: 0 } }
+    );
+    eqmtsArray.push(result);
+  }
+  const eqgSel = eqGroups.map((eqg) => {
+    return convToSerializable(eqg);
+  });
   await conn.close();
-  return { props: { pid: webquery.pid as string } };
+  return {
+    props: {
+      pid: webquery.pid as string,
+      peqGroups: eqgSel,
+      pequipments: eqmtsArray,
+    },
+  };
 };
+
+function convToSerializable(data: equipmentsGroupInt) {
+  const { _id, projId, ...r } = data;
+  return {
+    _id: _id?.toHexString(),
+    projId: projId.toHexString(),
+    ...r,
+  };
+}
+
+function convBack(
+  data: ReturnType<typeof convToSerializable>
+): equipmentsGroupInt {
+  const { _id: s_id, projId: sprojId, ...r } = data;
+  return {
+    _id: new ObjectId(s_id),
+    projId: new ObjectId(sprojId),
+    ...r,
+  };
+}
