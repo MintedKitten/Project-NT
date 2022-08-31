@@ -128,23 +128,8 @@ const CreateProjectsPage: NextPage<
         header: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
         value:
           tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"].valueOf() + "",
-        type: InputEn.Float,
-        onChange: (value) => {
-          const format = value.indexOf(".") === value.lastIndexOf(".");
-          if (format) {
-            if (value.indexOf(".") === value.length - 1) {
-              temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] = value;
-              setTableData(temp);
-            } else {
-              const fl = valFloat(value);
-              if (fl.cmp(0) >= 0) {
-                temp["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"] =
-                  fl.toNumber() + "";
-                setTableData(temp);
-              }
-            }
-          }
-        },
+        type: InputEn.Calculated,
+        onChange() {},
       },
       {
         id: "ประเภทขั้นตอน",
@@ -514,15 +499,11 @@ function convtoTable(
 }
 
 function calculateDiffTime(before: Date, after: Date) {
-  if (before.getTime() > after.getTime()) {
-    return `0 ปี 0 เดื่อน 0 วัน`;
-  } else {
-    const _days = dayjs(before.getTime()).diff(dayjs(after.getTime()), "days");
-    let days = _days;
-    let months = days / 30;
-    days %= 30;
-    let years = months / 12;
-    months %= 12;
-    return `${years} ปี ${months} เดื่อน ${days} วัน`;
-  }
+  const _days = -dayjs(before).diff(dayjs(after), "days");
+  let days = _days;
+  let months = Math.floor(days / 30);
+  days %= 30;
+  let years = Math.floor(months / 12);
+  months %= 12;
+  return `${years} ปี ${months} เดือน(30) ${days} วัน`;
 }

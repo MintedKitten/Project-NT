@@ -114,7 +114,7 @@ const CreateProjectsPage = () => {
       },
       {
         id: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
-        header: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)",
+        header: "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท) (สร้างแล้วแก้ไขไม่ได้)",
         value:
           tableData["งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"].valueOf() + "",
         type: InputEn.Float,
@@ -339,7 +339,7 @@ const CreateProjectsPage = () => {
   const FillFromCSVButtonElement = () => {
     return (
       <Button variant="contained" component="label">
-        From CSV file
+        Import from CSV file
         <input
           type="file"
           hidden
@@ -380,6 +380,16 @@ const CreateProjectsPage = () => {
           <Box sx={{ display: "flex" }}>
             <FillFromCSVButtonElement />
             <Space size={"2px"} direction="column" />
+            <Button
+              component="a"
+              download
+              size="small"
+              href="/project_template_with_header.csv"
+              variant="outlined"
+            >
+              Get CSV Template
+            </Button>
+            <Box sx={{ flexGrow: 1 }} />
             <TitleButtonElement />
           </Box>
           <Box

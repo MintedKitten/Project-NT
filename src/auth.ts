@@ -1,14 +1,5 @@
-import {
-  authFindOne,
-  authInsertOne,
-  getMongoClient,
-  sha256,
-} from "./db";
+import { authFindOne, authInsertOne, getMongoClient, sha256 } from "./db";
 import seedrandom from "seedrandom";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-
-
 
 export function hashPassword(username: string, password: string) {
   const hashed = sha256(

@@ -150,7 +150,8 @@ export function convertRawCSVToData(data: {
     "วันหมดอายุ MA (พ.ศ.)": maendDate,
     หมายเหตุ: data.comments || "",
     "วันหมดสัญญา (พ.ศ.)": contractendDate,
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": Big(data.budget).toNumber() + "",
+    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)":
+      Big(data.budget.replace(/,/g, "")).toNumber() + "",
     "MA (ระยะเวลารับประกัน)": "",
   };
   return c;

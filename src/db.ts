@@ -59,10 +59,7 @@ async function getAuthColl(conn: MongoClient) {
   return coll;
 }
 
-export async function authFindOne(
-  conn: MongoClient,
-  query: FindOptions<userInt>
-) {
+export async function authFindOne(conn: MongoClient, query: Filter<userInt>) {
   const result = await (await getAuthColl(conn))
     .findOne(query)
     .then((value) => {
@@ -107,8 +104,6 @@ export interface itemObjectInt {
 // change to useState => [[data,type]]
 // and have the rest be figureout inside the display
 // ^Done
-// turn the thing into a form then once submit collect the data
-// ^Decided Against
 
 // frontend change
 // confirmation -> dialog status then loading page
