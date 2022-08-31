@@ -1,5 +1,5 @@
 import { NextApiResponse } from "next";
-import { getMongoClient, projectFindAll } from "../../../src/db";
+import { getMongoClient, projectFindAll, projectsInt } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
 export type restype = {
@@ -13,21 +13,21 @@ const handler = nxcHandler().all(async (req, res: NextApiResponse<restype>) => {
     const name = body.name;
     const type = body.type;
     const year = body.year;
-    const query: { [key: string]: any } = {};
+    const query: { [key in keyof projectsInt]?: any } = {};
     if (name) {
-      query["รายการโครงการจัดซื้อจัดจ้าง"] = new RegExp(".*" + name + ".*");
+      query["projName"] = new RegExp(".*" + name + ".*");
     }
     if (type) {
-      query["ประเภทโครงการ"] = parseInt(type);
+      query["type"] = parseInt(type);
     }
     if (year) {
-      query["ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist"] = parseInt(year);
+      query["procurementYear"] = parseInt(year);
     }
     const result = await projectFindAll(conn, query, {
       projection: {
-        รายการโครงการจัดซื้อจัดจ้าง: 1,
-        ประเภทโครงการ: 1,
-        ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist: 1,
+        projName: 1,
+        type: 1,
+        procurementYear: 1,
       },
     });
     res.status(200).json({ data: result });

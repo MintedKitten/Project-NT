@@ -67,7 +67,7 @@ const SearchProjectsPage: NextPage<
         {result &&
           result.map((res) => {
             return (
-              <Typography key={res.รายการโครงการจัดซื้อจัดจ้าง}>
+              <Typography key={res.projName}>
                 {JSON.stringify(res)}
               </Typography>
             );
@@ -80,7 +80,6 @@ const SearchProjectsPage: NextPage<
 export default SearchProjectsPage;
 
 export const getStaticProps: GetStaticProps<{ test: string }> = (context) => {
-  console.log(context);
   return { props: { test: "" }, revalidate: 1000 };
 };
 

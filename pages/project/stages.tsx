@@ -46,6 +46,7 @@ import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
 import { navInfo, projectNavInfo, StagesProgress } from "../../src/local";
+import { fileicon } from "../../src/fileicon";
 import { ChangeEvent, useEffect } from "react";
 import fileSize from "filesize";
 import { uploadToServer } from "../../src/create/files";
@@ -399,18 +400,17 @@ const ProjectStagesPage: NextPage<
                           item
                           xs={1}
                           sx={{
-                            borderLeft: 1,
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                           }}
                         >
-                          {filetype}
+                          <Typography>{fileicon(filetype)}</Typography>
                         </Grid>
                         <Grid
                           item
                           xs={5}
                           sx={{
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                           }}
                         >
@@ -420,7 +420,7 @@ const ProjectStagesPage: NextPage<
                           item
                           xs={2}
                           sx={{
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                           }}
                         >
@@ -432,7 +432,7 @@ const ProjectStagesPage: NextPage<
                           item
                           xs={2}
                           sx={{
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                           }}
                         >
@@ -442,7 +442,7 @@ const ProjectStagesPage: NextPage<
                           item
                           xs={1}
                           sx={{
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                           }}
                         >
@@ -457,8 +457,7 @@ const ProjectStagesPage: NextPage<
                           item
                           xs={1}
                           sx={{
-                            borderRight: 1,
-                            borderBottom: 1,
+                            borderTop: 1,
                             borderColor: "lightgrey",
                             alignItems: "center",
                           }}

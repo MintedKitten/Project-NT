@@ -26,6 +26,7 @@
     "@mui/material": "latest",
     "@mui/x-data-grid": "^5.16.0",
     "@mui/x-date-pickers": "^5.0.0-beta.6",
+    "@types/react-file-icon": "^1.0.1",
     "big.js": "^6.2.1",
     "bson": "^4.7.0",
     "cross-env": "^7.0.3",
@@ -45,6 +46,7 @@
     "react": "latest",
     "react-device-detect": "^2.2.2",
     "react-dom": "latest",
+    "react-file-icon": "^1.2.0",
     "react-mui-confirm": "^1.0.1",
     "seedrandom": "^3.0.5"
   },

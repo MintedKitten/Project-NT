@@ -36,27 +36,21 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();
 
-const expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
+// const expressMongoString = `mongodb+srv://expressjs:fVlgIRopIn2V6LLN@cluster0.n9ki8.mongodb.net/?retryWrites=true&w=majority`;
 const DBname = dev ? "devProcurement" : "Procurement";
 const FilesMetaColl = "FilesMetadata";
 
 // ExpressJS DB Functions
 // Statically create the client, so there's only 1 client per connection
-const client = new MongoClient(expressMongoString).connect();
+
+let client: MongoClient;
 
 async function getMongoclient(): Promise<MongoClient> {
-  return await client;
+  if (!client) {
+    client = new MongoClient(process.env.EXPRESS_MONGO_STRING + "");
+  }
+  return await client.connect();
 }
-
-async function closeMongoclient(): Promise<void> {
-  (await client).close();
-}
-
-// When Nodejs server shut down, close MongoDBClient
-process.on("SIGINT", (signal) => {
-  console.log("Closing signal: " + signal);
-  closeMongoclient();
-});
 
 function isInstanceOfFile(ob: any): ob is File {
   return "originalFilename" in ob;
@@ -67,25 +61,25 @@ function isInstanceOfArrayFile(ob: any): ob is File[] {
 }
 
 async function getFileName(fmid: ObjectId): Promise<fileMetadataInt | null> {
-  const result = await (
-    await getMongoclient()
-  )
+  const conn = await getMongoclient();
+  const result = await conn
     .db(DBname)
     .collection(FilesMetaColl)
     .findOne({ _id: fmid }, { projection: { filename: 1, dir: 1 } });
+
   return result as fileMetadataInt | null;
 }
 
 async function insoFileMetadata(query: fileMetadataInt): Promise<ObjectId> {
-  const id = await (
-    await getMongoclient()
-  )
+  const conn = await getMongoclient();
+  const id = await conn
     .db(DBname)
     .collection(FilesMetaColl)
     .insertOne(query)
     .then((value) => {
       return value.insertedId;
     });
+  await conn.close();
   return id;
 }
 
@@ -93,15 +87,15 @@ async function insoDir2FileMetadata(
   fmid: ObjectId,
   query: { dir: string }
 ): Promise<ObjectId> {
-  const id = await (
-    await getMongoclient()
-  )
+  const conn = await getMongoclient();
+  const id = await conn
     .db(DBname)
     .collection(FilesMetaColl)
     .updateOne({ _id: fmid }, { $set: { dir: query.dir } })
     .then((value) => {
       return value.upsertedId;
     });
+  await conn.close();
   return id;
 }
 const dirfilepath = "./files/";

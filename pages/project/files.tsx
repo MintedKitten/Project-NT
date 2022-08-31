@@ -41,6 +41,7 @@ import {
 import { ObjectId } from "bson";
 import { isMobile } from "react-device-detect";
 import { navInfo, projectNavInfo } from "../../src/local";
+import { fileicon } from "../../src/fileicon";
 import { getToken } from "next-auth/jwt";
 
 const ProjectFilesPage: NextPage<
@@ -214,7 +215,7 @@ const ProjectFilesPage: NextPage<
                           borderColor: "lightgrey",
                         }}
                       >
-                        <Typography>{filetype}</Typography>
+                        <Typography>{fileicon(filetype)}</Typography>
                       </Grid>
                       <Grid
                         item
