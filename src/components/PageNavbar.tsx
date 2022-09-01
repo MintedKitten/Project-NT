@@ -3,16 +3,11 @@ import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { FunctionComponent } from "react";
-
-interface NavbarNavlink {
-  Header: string;
-  Link: string;
-  Icon: FunctionComponent;
-}
+import { NavbarNavlink } from "../local";
 
 const PageNavbar: FunctionComponent<{
   navlink: NavbarNavlink[];
-  currentTab: number;
+  currentTab: string;
   session: Session;
 }> = ({ navlink, session, currentTab }) => {
   const router = useRouter();
@@ -33,10 +28,13 @@ const PageNavbar: FunctionComponent<{
                 sx={{
                   ml: 1,
                   cursor: "pointer",
-                  border: currentTab === index ? 2 : 1,
                   borderRadius: 1,
                   padding: 1,
                   display: "flex",
+                  alignItems: "center",
+                  ":hover": {
+                    boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                  },
                 }}
               >
                 <Icon />
@@ -48,7 +46,7 @@ const PageNavbar: FunctionComponent<{
                     reroute(Link);
                   }}
                   sx={{
-                    fontWeight: currentTab === index ? 600 : 300,
+                    fontWeight: currentTab === Header ? 600 : 300,
                     fontSize: 16,
                     color: "inherit",
                   }}

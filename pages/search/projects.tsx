@@ -122,7 +122,11 @@ const SearchProjectsPage: NextPage<
           <title>Search Projects</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={0} session={data} />
+          <PageNavbar
+            navlink={navInfo}
+            currentTab={"Search Projects"}
+            session={data}
+          />
         </PageAppbar>
         <PageContainer>
           <Box

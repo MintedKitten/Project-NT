@@ -95,10 +95,14 @@ const SearchEquipmentsPage: NextPage<
     return (
       <>
         <Head>
-          <title>Search Projects</title>
+          <title>Search Equipments</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={1} session={data} />
+          <PageNavbar
+            navlink={navInfo}
+            currentTab={"Search Equipments"}
+            session={data}
+          />
         </PageAppbar>
         <PageContainer>
           <Box
@@ -242,9 +246,7 @@ const SearchEquipmentsPage: NextPage<
                               >
                                 {partNumber}
                                 <Tooltip title="Open Project" arrow>
-                                  <OpenInBrowserIcon
-                                    fontSize="small"
-                                  />
+                                  <OpenInBrowserIcon fontSize="small" />
                                 </Tooltip>
                               </Typography>
                             </a>

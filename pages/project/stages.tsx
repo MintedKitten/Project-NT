@@ -267,7 +267,7 @@ const ProjectStagesPage: NextPage<
           <title>Project Stages</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={3} session={data} />
+          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Stages"}

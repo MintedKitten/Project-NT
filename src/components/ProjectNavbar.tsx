@@ -1,11 +1,7 @@
 import { Box, Container, Tab, Tabs, Toolbar, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { FunctionComponent } from "react";
-
-interface NavbarNavlink {
-  Header: string;
-  Link: string;
-}
+import { NavbarProjNavlink } from "../local";
 
 function a11yProps(index: number) {
   return {
@@ -21,6 +17,7 @@ const tabLabel = (label: string) => {
         color: "inherit",
         fontWeight: 500,
         fontSize: "1rem",
+        mx: 2,
       }}
     >
       {label}
@@ -29,7 +26,7 @@ const tabLabel = (label: string) => {
 };
 
 const ProjectNavbar: FunctionComponent<{
-  navlink: NavbarNavlink[];
+  navlink: NavbarProjNavlink[];
   currentTab: string | boolean;
   pid: string;
 }> = ({ navlink, currentTab, pid }) => {
@@ -75,7 +72,13 @@ const ProjectNavbar: FunctionComponent<{
                     label={tabLabel(Header)}
                     value={Header}
                     {...a11yProps(index)}
-                    sx={{ marginLeft: ml }}
+                    sx={{
+                      marginLeft: ml,
+                      ":hover": {
+                        boxShadow:
+                          "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                      },
+                    }}
                     onClick={(event) => {
                       reroute(Link);
                     }}

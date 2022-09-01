@@ -1,4 +1,5 @@
 import { Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
+import { FunctionComponent } from "react";
 
 export enum InputEn {
   String,
@@ -91,7 +92,18 @@ export function getLength(msg: string) {
   return count;
 }
 
-export const navInfo = [
+export interface NavbarNavlink {
+  Header: string;
+  Link: string;
+  Icon: FunctionComponent;
+}
+
+export interface NavbarProjNavlink {
+  Header: string;
+  Link: string;
+}
+
+export const navInfo: NavbarNavlink[] = [
   {
     Header: "Search Projects",
     Link: "/search/projects",
@@ -109,7 +121,7 @@ export const navInfo = [
   },
 ];
 
-export const projectNavInfo = [
+export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Details", Link: "/project/projects" },
   { Header: "Files", Link: "/project/files" },
   { Header: "Equipments", Link: "/project/equipments" },

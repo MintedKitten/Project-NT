@@ -152,7 +152,7 @@ const ProjectsPage: NextPage<
           <title>Project Details</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
+          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Details"}

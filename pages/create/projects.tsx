@@ -364,7 +364,11 @@ const CreateProjectsPage = () => {
           <title>Add New Project</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={2} session={data} />
+          <PageNavbar
+            navlink={navInfo}
+            currentTab={"Add New Project"}
+            session={data}
+          />
         </PageAppbar>
         <PageContainer>
           <Box

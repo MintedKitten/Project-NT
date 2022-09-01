@@ -13,7 +13,6 @@ import {
   Button,
   CircularProgress,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -43,11 +42,9 @@ import {
   GridColumns,
   DataGrid,
   GridCallbackDetails,
-  GridToolbar,
   GridToolbarContainer,
   GridToolbarExport,
   GridToolbarDensitySelector,
-  GridToolbarQuickFilter,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { valFloat, valInteger } from "../../src/create/projects";
@@ -205,7 +202,7 @@ const ProjectEquipmentsPage: NextPage<
           <title>Project Equipments</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
+          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={"Equipments"}
