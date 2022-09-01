@@ -209,9 +209,9 @@ const SearchProjectsPage: NextPage<
             <Table aria-label="result table">
               <TableHead color="secondary">
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell align="center">Type</TableCell>
-                  <TableCell align="center">Year</TableCell>
+                  <TableCell>รายการโครงการจัดซื้อจัดจ้าง</TableCell>
+                  <TableCell align="center">ประเภทโครงการ</TableCell>
+                  <TableCell align="center">ปีที่ดำเนินการจัดซื้อจัดจ้าง</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

@@ -11,7 +11,6 @@ import {
   CircularProgress,
   Grid,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import {
   Download as DownloadIcon,
@@ -40,7 +39,6 @@ import {
   uploadToServer,
 } from "../../src/create/files";
 import { ObjectId } from "bson";
-import { isMobile } from "react-device-detect";
 import { navInfo, projectNavInfo } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { getToken } from "next-auth/jwt";

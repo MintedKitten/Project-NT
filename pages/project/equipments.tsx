@@ -241,7 +241,7 @@ const ProjectEquipmentsPage: NextPage<
                     <Box sx={{ display: "flex", width: "100%" }}>
                       <Typography>{`${name}`}</Typography>
                       <Box sx={{ flexGrow: 1 }} />
-                      <Typography>{`${qty} จำนวน ${totals[index]
+                      <Typography>{`${qty} จำนวน | ${totals[index]
                         .toNumber()
                         .toLocaleString()} บาท`}</Typography>
                     </Box>
