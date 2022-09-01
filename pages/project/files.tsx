@@ -367,12 +367,11 @@ export const getServerSideProps: GetServerSideProps<{
     const files: ReturnType<typeof convToSerializable>[] = [];
     for (let index = 0; index < result.length; index++) {
       const element = result[index];
-      const file = await getFileMetadata({ _id: element.fileId });
+      const file = await getFileMetadata(conn, { _id: element.fileId });
       if (file) {
         files.push(convToSerializable(file));
       }
     }
-
     retOb = { props: { pid: webquery.pid as string, srfiles: files } };
   } catch (err) {
     retOb = {
@@ -383,6 +382,7 @@ export const getServerSideProps: GetServerSideProps<{
     };
   } finally {
     await conn.close();
+
     return retOb;
   }
 };

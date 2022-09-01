@@ -9,7 +9,7 @@ export async function uploadToServer(
   const data = await rawfetcher("/files/", formData, (ld, tl) => {
     cb(ld, tl);
   });
-  return data.reponse as { fmid: string };
+  return data.response as { fmid: string };
 }
 
 export async function addFMidsToProject(pid: string, fmids: string[]) {

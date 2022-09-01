@@ -24,7 +24,7 @@ export async function rawfetcher(
     xhr.open("POST", apiurl, true);
     xhr.send(body);
   });
-  return { reponse: response, isSuccess: isSuccess };
+  return { response: response.data, isSuccess: isSuccess };
 }
 
 export async function fetcher(apiurl: string, body: object) {

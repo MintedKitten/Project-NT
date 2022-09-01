@@ -48,7 +48,9 @@ export interface userInt {
 }
 
 export async function getMongoClient() {
-  const conn = await new MongoClient(`${process.env.mongodbPath}`).connect();
+  const conn = await new MongoClient(
+    `${process.env.NEXT_MONGO_STRING}`
+  ).connect();
   return conn;
 }
 
@@ -352,8 +354,11 @@ export async function projectFilesFindAll(
   return result;
 }
 
-export async function getFileMetadata(query: Filter<fileMetadataInt>) {
-  const result = await (await getMongoClient())
+export async function getFileMetadata(
+  conn: MongoClient,
+  query: Filter<fileMetadataInt>
+) {
+  const result = await conn
     .db(`${process.env.dbName}`)
     .collection<fileMetadataInt>(`${process.env.filesMetadataCollection}`)
     .findOne(query);
