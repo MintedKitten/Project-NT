@@ -1,5 +1,6 @@
 import type {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -346,9 +347,18 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    srfiles: ReturnType<typeof convToSerializable>[];
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
-    return {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
@@ -356,19 +366,31 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const conn = await getMongoClient();
-  const result = await projectFilesFindAll(conn, {
-    projId: new ObjectId(webquery["pid"]),
-  });
-  const files: ReturnType<typeof convToSerializable>[] = [];
-  for (let index = 0; index < result.length; index++) {
-    const element = result[index];
-    const file = await getFileMetadata({ _id: element.fileId });
-    if (file) {
-      files.push(convToSerializable(file));
+  try {
+    const result = await projectFilesFindAll(conn, {
+      projId: new ObjectId(webquery["pid"]),
+    });
+    const files: ReturnType<typeof convToSerializable>[] = [];
+    for (let index = 0; index < result.length; index++) {
+      const element = result[index];
+      const file = await getFileMetadata({ _id: element.fileId });
+      if (file) {
+        files.push(convToSerializable(file));
+      }
     }
+
+    retOb = { props: { pid: webquery.pid as string, srfiles: files } };
+  } catch (err) {
+    retOb = {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  } finally {
+    await conn.close();
+    return retOb;
   }
-  await conn.close();
-  return { props: { pid: webquery.pid as string, srfiles: files } };
 };
 
 function convToSerializable(data: fileMetadataInt) {

@@ -11,6 +11,7 @@ import Big from "big.js";
 import { ObjectId } from "bson";
 import {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -234,9 +235,19 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    preresult: ReturnType<typeof convtoSerializable>;
+    isComplete: boolean;
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
-    return {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
@@ -244,37 +255,49 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const conn = await getMongoClient();
-  const presult = await projectFindOne(conn, {
-    _id: new ObjectId(webquery["pid"] as string),
-  });
-  const stages = await stagesFindAll(conn, {
-    projId: new ObjectId(webquery["pid"]),
-  });
-  let isComplete = true;
-  for (let index = 0; index < stages.length; index++) {
-    const element = stages[index];
-    if (element.status === StagesProgress.OnGoing) {
-      isComplete = false;
-      break;
+  try {
+    const presult = await projectFindOne(conn, {
+      _id: new ObjectId(webquery["pid"] as string),
+    });
+    const stages = await stagesFindAll(conn, {
+      projId: new ObjectId(webquery["pid"]),
+    });
+    let isComplete = true;
+    for (let index = 0; index < stages.length; index++) {
+      const element = stages[index];
+      if (element.status === StagesProgress.OnGoing) {
+        isComplete = false;
+        break;
+      }
     }
-  }
-  await conn.close();
-  if (!presult) {
-    return {
+
+    if (!presult) {
+      retOb = {
+        redirect: {
+          destination: "/search/projects",
+          permanent: false,
+        },
+      };
+    } else {
+      const conv = convtoSerializable(presult);
+      retOb = {
+        props: {
+          pid: webquery.pid as string,
+          preresult: conv,
+          isComplete: isComplete,
+        },
+      };
+    }
+  } catch (err) {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
       },
     };
-  } else {
-    const conv = convtoSerializable(presult);
-    return {
-      props: {
-        pid: webquery.pid as string,
-        preresult: conv,
-        isComplete: isComplete,
-      },
-    };
+  } finally {
+    await conn.close();
+    return retOb;
   }
 };
 

@@ -1,5 +1,6 @@
 import type {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -253,42 +254,64 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    peqGroups: ReturnType<typeof convToSerializable>[];
+    pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][];
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
-    return {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
       },
     };
   }
-  const pid = new ObjectId(webquery["pid"]);
   const conn = await getMongoClient();
-  const eqGroups = await equipmentsGroupFindAll(conn, { projId: pid });
-  eqGroups.sort((a, b) => {
-    return a.order < b.order ? -1 : 1;
-  });
-  const eqmtsArray: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][] = [];
-  for (let index = 0; index < eqGroups.length; index++) {
-    const eqg = eqGroups[index];
-    const result = await equipmentsFindAll(
-      conn,
-      { eqgId: eqg._id },
-      { projection: { projId: 0, eqgId: 0, _id: 0 } }
-    );
-    eqmtsArray.push(result);
+  try {
+    const pid = new ObjectId(webquery["pid"]);
+    const eqGroups = await equipmentsGroupFindAll(conn, { projId: pid });
+    eqGroups.sort((a, b) => {
+      return a.order < b.order ? -1 : 1;
+    });
+    const eqmtsArray: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][] = [];
+    for (let index = 0; index < eqGroups.length; index++) {
+      const eqg = eqGroups[index];
+      const result = await equipmentsFindAll(
+        conn,
+        { eqgId: eqg._id },
+        { projection: { projId: 0, eqgId: 0, _id: 0 } }
+      );
+      eqmtsArray.push(result);
+    }
+    const eqgSel = eqGroups.map((eqg) => {
+      return convToSerializable(eqg);
+    });
+
+    retOb = {
+      props: {
+        pid: webquery.pid as string,
+        peqGroups: eqgSel,
+        pequipments: eqmtsArray,
+      },
+    };
+  } catch (err) {
+    retOb = {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  } finally {
+    await conn.close();
+    return retOb;
   }
-  const eqgSel = eqGroups.map((eqg) => {
-    return convToSerializable(eqg);
-  });
-  await conn.close();
-  return {
-    props: {
-      pid: webquery.pid as string,
-      peqGroups: eqgSel,
-      pequipments: eqmtsArray,
-    },
-  };
 };
 
 function convToSerializable(data: equipmentsGroupInt) {

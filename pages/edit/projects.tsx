@@ -40,6 +40,7 @@ import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
 import {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -413,9 +414,18 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    preresult: ReturnType<typeof convtoSerializable>;
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
-    return {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
@@ -423,20 +433,31 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
   const conn = await getMongoClient();
-  const presult = await projectFindOne(conn, {
-    _id: new ObjectId(webquery["pid"] as string),
-  });
-  await conn.close();
-  if (!presult) {
-    return {
+  try {
+    const presult = await projectFindOne(conn, {
+      _id: new ObjectId(webquery["pid"] as string),
+    });
+    if (!presult) {
+      retOb = {
+        redirect: {
+          destination: "/search/projects",
+          permanent: false,
+        },
+      };
+    } else {
+      const conv = convtoSerializable(presult);
+      retOb = { props: { pid: webquery.pid as string, preresult: conv } };
+    }
+  } catch (err) {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
       },
     };
-  } else {
-    const conv = convtoSerializable(presult);
-    return { props: { pid: webquery.pid as string, preresult: conv } };
+  } finally {
+    await conn.close();
+    return retOb;
   }
 };
 

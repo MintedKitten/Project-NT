@@ -1,5 +1,6 @@
 import type {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -535,70 +536,88 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    preresultstage: ReturnType<typeof convtoSerializable>[];
+    step: number;
+    srfiles: ReturnType<typeof convFileToSerializable>[];
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
-    return {
+    retOb = {
       redirect: {
         destination: "/search/projects",
         permanent: false,
       },
     };
   }
-
   const conn = await getMongoClient();
-  const stages = await stagesFindAll(conn, {
-    projId: new ObjectId(webquery["pid"]),
-  });
-
-  stages.sort((a, b) => {
-    return a.order < b.order ? -1 : 1;
-  });
-
-  let activestep = 0;
-  let isComplete = true;
-  if (!webquery["step"]) {
-    activestep = parseInt(webquery["step"]);
-    for (let index = 0; index < stages.length; index++) {
-      const element = stages[index];
-      if (element.status === StagesProgress.OnGoing) {
-        activestep = element.order;
-        isComplete = false;
-        break;
+  try {
+    const stages = await stagesFindAll(conn, {
+      projId: new ObjectId(webquery["pid"]),
+    });
+    stages.sort((a, b) => {
+      return a.order < b.order ? -1 : 1;
+    });
+    let activestep = 0;
+    let isComplete = true;
+    if (!webquery["step"]) {
+      activestep = parseInt(webquery["step"]);
+      for (let index = 0; index < stages.length; index++) {
+        const element = stages[index];
+        if (element.status === StagesProgress.OnGoing) {
+          activestep = element.order;
+          isComplete = false;
+          break;
+        }
+      }
+      if (isComplete) {
+        activestep = stages.length - 1;
+      }
+    } else {
+      const step = parseInt(webquery["step"]);
+      if (step > 0 && step < stages.length) {
+        activestep = step;
       }
     }
-    if (isComplete) {
-      activestep = stages.length - 1;
+    const preresultstage = stages.map((stage) => {
+      return convtoSerializable(stage);
+    });
+    const filesresult = await stageFilesFindAll(conn, {
+      stageId: stages[activestep]._id,
+    });
+    const files: ReturnType<typeof convFileToSerializable>[] = [];
+    for (let index = 0; index < filesresult.length; index++) {
+      const element = filesresult[index];
+      const file = await getFileMetadata({ _id: element.fileId });
+      if (file) {
+        files.push(convFileToSerializable(file));
+      }
     }
-  } else {
-    const step = parseInt(webquery["step"]);
-    if (step > 0 && step < stages.length) {
-      activestep = step;
-    }
+    retOb = {
+      props: {
+        pid: webquery.pid as string,
+        preresultstage: preresultstage,
+        step: activestep,
+        srfiles: files,
+      },
+    };
+  } catch (err) {
+    retOb = {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  } finally {
+    await conn.close();
+    return retOb;
   }
-
-  const preresultstage = stages.map((stage) => {
-    return convtoSerializable(stage);
-  });
-  const filesresult = await stageFilesFindAll(conn, {
-    stageId: stages[activestep]._id,
-  });
-  const files: ReturnType<typeof convFileToSerializable>[] = [];
-  for (let index = 0; index < filesresult.length; index++) {
-    const element = filesresult[index];
-    const file = await getFileMetadata({ _id: element.fileId });
-    if (file) {
-      files.push(convFileToSerializable(file));
-    }
-  }
-  await conn.close();
-  return {
-    props: {
-      pid: webquery.pid as string,
-      preresultstage: preresultstage,
-      step: activestep,
-      srfiles: files,
-    },
-  };
 };
 
 function convtoSerializable(data: stagesInt) {
