@@ -80,8 +80,6 @@ const ProjectFilesPage: NextPage<
           const formData = new FormData();
           formData.append("file", elm);
           const uploadRes = await uploadToServer(formData, (ld, tl) => {
-            // For upload progress bar
-            // console.log("progress: ", ld / tl);
           });
           fmids.push(uploadRes.fmid);
         }

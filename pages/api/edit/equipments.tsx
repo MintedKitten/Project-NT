@@ -35,7 +35,6 @@ const handler = nxcHandler().all(async (req, res) => {
       isEditSuccessful =
         isEditSuccessful && (await equipmentsInsertOne(conn, query));
     }
-    console.log(rows);
     res.status(200).json({ data: { isEditSuccessful: isEditSuccessful } });
   } catch (err) {
     res.status(400).end();

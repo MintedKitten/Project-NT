@@ -158,7 +158,6 @@ const ProjectEquipmentsPage: NextPage<
       width: 165,
       editable: false,
       renderCell: (params) => {
-        console.log(params.row.uPrice);
         const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
