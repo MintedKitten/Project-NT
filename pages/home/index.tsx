@@ -2,18 +2,33 @@ import type { NextPage } from "next";
 import { Backdrop, CircularProgress } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import PageAppbar from "../../src/components/PageAppbar";
+import PageContainer from "../../src/components/PageContainer";
+import PageNavbar from "../../src/components/PageNavbar";
+import { navInfo } from "../../src/local";
 
-const HomePage: NextPage = () => {
+const AlertPage: NextPage = () => {
   const session = useSession();
   const router = useRouter();
-  const { status } = session;
+  const { status, data } = session;
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {
-    router.push({ pathname: "/search/projects" });
+    return (
+      <>
+        <Head>
+          <title>Home Page</title>
+        </Head>
+        <PageAppbar>
+          <PageNavbar navlink={navInfo} currentTab={"Home"} session={data} />
+        </PageAppbar>
+        <PageContainer></PageContainer>
+      </>
+    );
   }
   return (
     <>
@@ -27,4 +42,4 @@ const HomePage: NextPage = () => {
   );
 };
 
-export default HomePage;
+export default AlertPage;
