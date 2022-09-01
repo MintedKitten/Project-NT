@@ -166,7 +166,7 @@ const ProjectsPage: NextPage<
             <Box sx={{ flexGrow: 1 }} />
             <Typography>Status:</Typography>
             <Typography sx={{ color: isComplete ? "Green" : "Red", ml: 1 }}>
-              {isComplete ? "Complete" : "On Going"}
+              {isComplete ? "Complete" : "In Progress"}
             </Typography>
           </Box>
           <Box

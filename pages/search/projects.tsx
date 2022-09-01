@@ -16,9 +16,13 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { Search as SearchIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  OpenInBrowser as OpenInBrowserIcon,
+} from "@mui/icons-material";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
@@ -211,7 +215,9 @@ const SearchProjectsPage: NextPage<
                 <TableRow>
                   <TableCell>รายการโครงการจัดซื้อจัดจ้าง</TableCell>
                   <TableCell align="center">ประเภทโครงการ</TableCell>
-                  <TableCell align="center">ปีที่ดำเนินการจัดซื้อจัดจ้าง</TableCell>
+                  <TableCell align="center">
+                    ปีที่ดำเนินการจัดซื้อจัดจ้าง
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -247,10 +253,12 @@ const SearchProjectsPage: NextPage<
                               <Typography
                                 sx={{
                                   fontWeight: "bold",
-                                  textDecoration: "underline",
                                 }}
                               >
                                 {name}
+                                <Tooltip title="Open Project" arrow>
+                                  <OpenInBrowserIcon fontSize="small" />
+                                </Tooltip>
                               </Typography>
                             </a>
                           </Link>
@@ -314,18 +322,17 @@ export const getServerSideProps: GetServerSideProps<{
   }
   const webquery = context.query as { [key: string]: any };
   const query: { [key in keyof projectsInt]?: any } = {};
-  if ("name" in webquery && webquery["projName"]) {
-    webquery["name"] = new RegExp(".*" + webquery["name"] + ".*");
-  }
-  if ("name" in webquery && webquery["name"]) {
-    query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
-  }
-  if (webquery["type"] && webquery["type"] !== "0") {
-    query["type"] = parseInt(webquery["type"]);
-  }
-  if (webquery["year"] && webquery["year"] !== "0") {
-    query["procurementYear"] = parseInt(webquery["year"]);
-  }
+  try {
+    if (webquery["name"]) {
+      query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
+    }
+    if (webquery["type"] && webquery["type"] !== "0") {
+      query["type"] = parseInt(webquery["type"]);
+    }
+    if (webquery["year"] && webquery["year"] !== "0") {
+      query["procurementYear"] = parseInt(webquery["year"]);
+    }
+  } catch (err) {}
   const conn = await getMongoClient();
   const presult = await projectFindAll(conn, query, {
     projection: {

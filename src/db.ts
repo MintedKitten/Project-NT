@@ -82,36 +82,6 @@ export interface itemObjectInt {
   unit: string;
 }
 
-// backend change
-// collProject
-// _id?
-// รายการโครงการจัดซื้อจัดจ้าง                 = projName
-// ประเภทโครงการ                          = type
-// จำนวนหน่วย                             = systemCount
-// "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)"    = budget // create stages ** stages * display stage type
-// "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)"      = budgetVat // Remove -> budget * 1.07
-// ประเภทงบประมาณ                         = budgetType
-// ปีที่ดำเนินการจัดซื้อจัดจ้าง_buddhist          = procurementYear
-// วันเริ่มสัญญา_buddhist                    = contractstartDate
-// "MA (ระยะเวลารับประกัน)"                  = maTime // Remove -> maendDate - mastartDate -> format as year month day
-// "วันเริ่ม MA_buddhist"                    = mastartDate
-// "วันหมดอายุ MA_buddhist"                = maendDate
-// หมายเหตุ                               = comments
-// createdby
-// lastupdate
-//                                       +? = contractendDate
-// ^Done
-// change to useState => [[data,type]]
-// and have the rest be figureout inside the display
-// ^Done
-
-// frontend change
-// confirmation -> dialog status then loading page
-// Navigation move to the side -> collapsible
-// wording On Going -> In Progress
-// Track wording from English to Thai
-// Project creation add more helper text and calculated fields
-
 // both
 // new page for tracking projects, devided into past deadline, within 3 months, within 1 year, and over 1 year
 // each one has name, type, progress status, due date

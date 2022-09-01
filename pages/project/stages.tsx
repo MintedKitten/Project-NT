@@ -225,7 +225,7 @@ const ProjectStagesPage: NextPage<
       return (
         <>
           <Typography sx={{ mr: 1 }}>Stage status: </Typography>
-          <Typography sx={{ color: "Red", mr: 1 }}>On Going</Typography>
+          <Typography sx={{ color: "Red", mr: 1 }}>In Progress</Typography>
           <Button
             variant="contained"
             startIcon={<CheckIcon />}
@@ -249,7 +249,7 @@ const ProjectStagesPage: NextPage<
               changeStageStatus(StagesProgress.OnGoing);
             }}
           >
-            Mark as On Going
+            Mark as In Progress
           </Button>
         </>
       );
