@@ -1,4 +1,16 @@
-import { Toolbar, Typography, Box, Button, Container } from "@mui/material";
+import {
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Drawer,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  DragHandle as DragHandleIcon,
+} from "@mui/icons-material";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -18,8 +30,31 @@ const PageNavbar: FunctionComponent<{
 
   return (
     <Container maxWidth="xl">
-      <Toolbar disableGutters sx={{ height: "40px", overflow: "auto" }}>
-        <Box sx={{ display: "flex" }}>
+      <Toolbar disableGutters sx={{ height: "40px" }}>
+        <IconButton
+          color="inherit"
+          sx={{
+            display: {
+              xs: "inline-flex",
+              md: "none",
+            },
+            alignItems: "center",
+            border: 1,
+            borderColor: "inherit",
+            borderRadius: 1,
+          }}
+        >
+          <DragHandleIcon fontSize="small" />
+        </IconButton>
+        <Drawer></Drawer>
+        <Box
+          sx={{
+            display: {
+              xs: "none",
+              md: "flex",
+            },
+          }}
+        >
           {navlink.map((navl, index) => {
             const { Header, Link, Icon } = navl;
             return (
@@ -63,6 +98,7 @@ const PageNavbar: FunctionComponent<{
             Hello! {session.user?.name}
           </Typography>
         </Box>
+
         <Button
           color="inherit"
           variant="outlined"

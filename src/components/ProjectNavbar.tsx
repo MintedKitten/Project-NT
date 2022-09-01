@@ -40,7 +40,10 @@ const ProjectNavbar: FunctionComponent<{
     <Container maxWidth="lg">
       <Box
         sx={{
-          display: "flex",
+          display: {
+            xs: "none",
+            md: "flex",
+          },
           overflow: "auto",
           justifyContent: { xs: "start", sm: "center" },
         }}
@@ -65,7 +68,6 @@ const ProjectNavbar: FunctionComponent<{
             >
               {navlink.map((page, index) => {
                 const { Header, Link } = page;
-                let ml = index !== 0 ? 6 : 0;
                 return (
                   <Tab
                     key={index}
@@ -73,11 +75,12 @@ const ProjectNavbar: FunctionComponent<{
                     value={Header}
                     {...a11yProps(index)}
                     sx={{
-                      marginLeft: ml,
+                      marginLeft: index !== 0 ? 6 : 0,
                       ":hover": {
                         boxShadow:
                           "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
                       },
+                      borderRadius: 1,
                     }}
                     onClick={(event) => {
                       reroute(Link);

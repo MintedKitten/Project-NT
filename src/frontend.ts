@@ -10,7 +10,7 @@ export async function rawfetcher(
   let response: any = null;
   xhr.responseType = "json";
 
-  const success = await new Promise((resolve) => {
+  const isSuccess = await new Promise<boolean>((resolve) => {
     xhr.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable) {
         cb(event.loaded, event.total);
@@ -24,7 +24,7 @@ export async function rawfetcher(
     xhr.open("POST", apiurl, true);
     xhr.send(body);
   });
-  return response;
+  return { reponse: response, isSuccess: isSuccess };
 }
 
 export async function fetcher(apiurl: string, body: object) {
