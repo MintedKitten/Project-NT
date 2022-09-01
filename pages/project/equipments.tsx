@@ -39,9 +39,21 @@ import Link from "next/link";
 import { ObjectId } from "bson";
 import Big from "big.js";
 import { randomId } from "@mui/x-data-grid-generator";
-import { GridColumns, DataGrid, GridCallbackDetails } from "@mui/x-data-grid";
+import {
+  GridColumns,
+  DataGrid,
+  GridCallbackDetails,
+  GridToolbar,
+  GridToolbarContainer,
+  GridToolbarExport,
+  GridToolbarDensitySelector,
+  GridToolbarQuickFilter,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { useState } from "react";
+import { equipmentsGroupDelete } from "../../src/edit/equipments";
+import { useConfirmDialog } from "react-mui-confirm";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -73,7 +85,6 @@ const ProjectEquipmentsPage: NextPage<
     totals.push(total);
     totalxPrice = totalxPrice.plus(total);
   });
-  console.log("Total price: " + totalxPrice.toNumber().toLocaleString());
 
   const TitleButtonElement = () => {
     return (
@@ -88,6 +99,31 @@ const ProjectEquipmentsPage: NextPage<
         </Button>
       </Link>
     );
+  };
+
+  const openConfirmDialog = useConfirmDialog();
+  const handleDelete = (name: string, eqgid: string) => {
+    openConfirmDialog({
+      title: "Are you sure you want to delete: " + name + " ?",
+      onConfirm: async () => {
+        const isDeleteSuccessful = await equipmentsGroupDelete(eqgid);
+        if (isDeleteSuccessful) {
+          setTimeout(() => {
+            router.push({
+              pathname: "/project/equipments",
+              query: { pid: pid },
+            });
+          }, 10);
+        }
+      },
+      cancelButtonProps: {
+        color: "primary",
+      },
+      confirmButtonProps: {
+        color: "warning",
+      },
+      confirmButtonText: "Delete",
+    });
   };
 
   const columns: GridColumns = [
@@ -146,6 +182,19 @@ const ProjectEquipmentsPage: NextPage<
     },
   ];
 
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarDensitySelector />
+        <GridToolbarFilterButton />
+        <GridToolbarExport
+          printOptions={{ disableToolbarButton: true }}
+          csvOptions={{ utf8WithBom: true }}
+        />
+      </GridToolbarContainer>
+    );
+  }
+
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -201,7 +250,25 @@ const ProjectEquipmentsPage: NextPage<
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       <Typography>{`${desc}`}</Typography>
                       <Box sx={{ flexGrow: 1 }} />
-                      <Button variant="contained">Edit</Button>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        sx={{ mr: 1 }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDelete(name, _id?.toHexString() + "");
+                        }}
+                      >
+                        Delete
+                      </Button>
+                      <Link
+                        href={{
+                          pathname: "/edit/equipments",
+                          query: { pid: pid, eqgid: _id?.toHexString() },
+                        }}
+                      >
+                        <Button variant="contained">Edit</Button>
+                      </Link>
                     </Box>
                     <Box sx={{ height: "60vh", mt: 1 }}>
                       <DataGrid
@@ -211,6 +278,7 @@ const ProjectEquipmentsPage: NextPage<
                         onPageSizeChange={handleChangeRowsPerPage}
                         rowsPerPageOptions={[10, 20, 50]}
                         disableColumnSelector
+                        components={{ Toolbar: CustomToolbar }}
                       />
                     </Box>
                   </AccordionDetails>
@@ -254,6 +322,15 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const webquery = context.query as { [key: string]: any };
+  if (!webquery["pid"]) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  }
   let retOb: GetServerSidePropsResult<{
     pid: string;
     peqGroups: ReturnType<typeof convToSerializable>[];
@@ -264,15 +341,6 @@ export const getServerSideProps: GetServerSideProps<{
       permanent: false,
     },
   };
-  const webquery = context.query as { [key: string]: any };
-  if (!webquery["pid"]) {
-    retOb = {
-      redirect: {
-        destination: "/search/projects",
-        permanent: false,
-      },
-    };
-  }
   const conn = await getMongoClient();
   try {
     const pid = new ObjectId(webquery["pid"]);
@@ -290,14 +358,13 @@ export const getServerSideProps: GetServerSideProps<{
       );
       eqmtsArray.push(result);
     }
-    const eqgSel = eqGroups.map((eqg) => {
+    const eqgSer = eqGroups.map((eqg) => {
       return convToSerializable(eqg);
     });
-
     retOb = {
       props: {
         pid: webquery.pid as string,
-        peqGroups: eqgSel,
+        peqGroups: eqgSer,
         pequipments: eqmtsArray,
       },
     };

@@ -6,7 +6,7 @@ import { fetcher } from "../frontend";
 
 export interface rowInt {
   id: string;
-  eqid: ObjectId;
+  eqid?: ObjectId;
   partNumber: string;
   desc: string;
   qty: number;
@@ -27,7 +27,7 @@ export async function addEquipmentGroupAndEquipments(
   eqgName: string,
   eqgDesc: string,
   eqgQty: number,
-  rows: rowInt[]
+  rows: Readonly<rowInt[]>
 ) {
   const data = (await fetcher("/api/create/equipmentsgroup", {
     pid: pid,

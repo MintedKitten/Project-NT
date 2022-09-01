@@ -536,6 +536,15 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const webquery = context.query as { [key: string]: any };
+  if (!webquery["pid"]) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  }
   let retOb: GetServerSidePropsResult<{
     pid: string;
     preresultstage: ReturnType<typeof convtoSerializable>[];
@@ -547,15 +556,6 @@ export const getServerSideProps: GetServerSideProps<{
       permanent: false,
     },
   };
-  const webquery = context.query as { [key: string]: any };
-  if (!webquery["pid"]) {
-    retOb = {
-      redirect: {
-        destination: "/search/projects",
-        permanent: false,
-      },
-    };
-  }
   const conn = await getMongoClient();
   try {
     const stages = await stagesFindAll(conn, {

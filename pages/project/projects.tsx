@@ -128,10 +128,7 @@ const ProjectsPage: NextPage<
 
   const TitleButtonElement = () => {
     return (
-      <Link
-        href={{ pathname: "/edit/projects", query: { pid: pid } }}
-        as={"/edit/projects"}
-      >
+      <Link href={{ pathname: "/edit/projects", query: { pid: pid } }}>
         <Button
           className="titleButton"
           variant="contained"
@@ -235,6 +232,15 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const webquery = context.query as { [key: string]: any };
+  if (!webquery["pid"]) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  }
   let retOb: GetServerSidePropsResult<{
     pid: string;
     preresult: ReturnType<typeof convtoSerializable>;
@@ -245,15 +251,6 @@ export const getServerSideProps: GetServerSideProps<{
       permanent: false,
     },
   };
-  const webquery = context.query as { [key: string]: any };
-  if (!webquery["pid"]) {
-    retOb = {
-      redirect: {
-        destination: "/search/projects",
-        permanent: false,
-      },
-    };
-  }
   const conn = await getMongoClient();
   try {
     const presult = await projectFindOne(conn, {

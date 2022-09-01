@@ -450,6 +450,18 @@ async function getEquipmentsGroupColl(conn: MongoClient) {
   return coll;
 }
 
+export async function equipmentsGroupFindOne(
+  conn: MongoClient,
+  query: Filter<equipmentsGroupInt>
+) {
+  const result = await (await getEquipmentsGroupColl(conn))
+    .findOne(query)
+    .then((res) => {
+      return res;
+    });
+  return result;
+}
+
 export async function equipmentsGroupFindAll(
   conn: MongoClient,
   query: Filter<equipmentsGroupInt>
@@ -484,6 +496,19 @@ export async function equipmentsGroupInsertOne(
   return result;
 }
 
+export async function equipmentsGroupUpdateOne(
+  conn: MongoClient,
+  filter: Partial<equipmentsGroupInt>,
+  upsert: UpdateFilter<equipmentsGroupInt>
+) {
+  const result = await (await getEquipmentsGroupColl(conn))
+    .updateOne(filter, upsert)
+    .then((value) => {
+      return value.acknowledged;
+    });
+  return result;
+}
+
 // When a group is deleted
 export async function equipmentsGroupDeleteOne(
   conn: MongoClient,
@@ -496,7 +521,7 @@ export async function equipmentsGroupDeleteOne(
 
 export async function equipmentsGroupUpdateMany(
   conn: MongoClient,
-  filter: Partial<equipmentsGroupInt>,
+  filter: Filter<equipmentsGroupInt>,
   upsert: UpdateFilter<equipmentsGroupInt>
 ) {
   const result = await (await getEquipmentsGroupColl(conn))
@@ -568,11 +593,11 @@ export async function equipmentsUpsertOne(
   return result;
 }
 
-export async function equipmentsDeleteOne(
+export async function equipmentsDeleteMany(
   conn: MongoClient,
   filter: Filter<equipmentsInt>
 ) {
-  const result = (await (await getEquipmentsColl(conn)).deleteOne(filter))
+  const result = (await (await getEquipmentsColl(conn)).deleteMany(filter))
     .acknowledged;
   return result;
 }

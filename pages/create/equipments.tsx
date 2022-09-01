@@ -365,20 +365,12 @@ const CreateEquipmentsGroup = () => {
       openConfirmDialog({
         title: "Are you sure you want to add new equipment group?",
         onConfirm: async () => {
-          console.log(eqGroup);
-          const rowsToUpdate: rowInt[] = [];
-          rows.forEach((row) => {
-            if (row.isToSave) {
-              rowsToUpdate.push(row);
-            }
-          });
-          console.log(rowsToUpdate);
           const isSuccessful = await addEquipmentGroupAndEquipments(
             pid,
             eqGroup.name + "",
             eqGroup.desc + "",
             parseInt(eqGroup.qty + ""),
-            rowsToUpdate
+            rows
           );
           if (isSuccessful) {
             setSuccess(true);

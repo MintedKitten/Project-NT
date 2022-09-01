@@ -21,7 +21,13 @@ import {
   GridCallbackDetails,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
-import { Alert, TextField, useMediaQuery } from "@mui/material";
+import {
+  Alert,
+  Backdrop,
+  CircularProgress,
+  TextField,
+  useMediaQuery,
+} from "@mui/material";
 import { isMobile } from "react-device-detect";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
@@ -35,16 +41,25 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { navInfo, projectNavInfo } from "../../src/local";
-import {
-  rowInt,
-  rowCSVInt,
-  addEquipmentGroupAndEquipments,
-} from "../../src/create/equipments";
+import { rowInt, rowCSVInt } from "../../src/create/equipments";
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
 import Big from "big.js";
-import { GetServerSideProps } from "next";
-import { equipmentsGroupInt } from "../../src/db";
+import {
+  GetServerSideProps,
+  GetServerSidePropsResult,
+  InferGetServerSidePropsType,
+  NextPage,
+} from "next";
+import {
+  equipmentsFindAll,
+  equipmentsGroupFindOne,
+  equipmentsGroupInt,
+  equipmentsInt,
+  getMongoClient,
+} from "../../src/db";
+import { getToken } from "next-auth/jwt";
+import { editEquipmentGroupAndEquipments } from "../../src/edit/equipments";
 
 interface EditToolbarProps {
   setRows: (
@@ -161,19 +176,27 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
-const CreateEquipmentsGroup = () => {
+const EditEquipmentsGroup: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ pid, peqGroup, pequipments }) => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
-  const pid = router.query.pid as string;
   const { status, data } = session;
+
+  const eqg = convBack(peqGroup);
 
   const [nameError, setNameError] = useState("");
   const [amountError, setAmountError] = useState("");
 
   const [success, setSuccess] = useState(false);
 
-  const [rows, setRows] = useState<GridRowsProp<rowInt>>([]);
+  const [rows, setRows] = useState<GridRowsProp<rowInt>>(
+    pequipments.map((eqmt) => {
+      const { unitPrice, ...r } = eqmt;
+      return { ...r, id: randomId(), uPrice: Big(unitPrice), eqid: eqg._id };
+    })
+  );
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -365,22 +388,15 @@ const CreateEquipmentsGroup = () => {
     }
     if (isFilled) {
       openConfirmDialog({
-        title: "Are you sure you want to add new equipment group?",
+        title: "Are you sure you want to save equipment group?",
         onConfirm: async () => {
-          console.log(eqGroup);
-          const rowsToUpdate: rowInt[] = [];
-          rows.forEach((row) => {
-            if (row.isToSave) {
-              rowsToUpdate.push(row);
-            }
-          });
-          console.log(rowsToUpdate);
-          const isSuccessful = await addEquipmentGroupAndEquipments(
+          const isSuccessful = await editEquipmentGroupAndEquipments(
             pid,
+            eqg._id?.toHexString() + "",
             eqGroup.name + "",
             eqGroup.desc + "",
             parseInt(eqGroup.qty + ""),
-            rowsToUpdate
+            rows
           );
           if (isSuccessful) {
             setSuccess(true);
@@ -398,7 +414,7 @@ const CreateEquipmentsGroup = () => {
         confirmButtonProps: {
           color: "primary",
         },
-        confirmButtonText: "Create",
+        confirmButtonText: "Save",
       });
     }
   };
@@ -430,7 +446,7 @@ const CreateEquipmentsGroup = () => {
             }}
           >
             <Alert severity="success">
-              New Equipment Group Added. Redirecting...
+              Equipment Group Saved. Redirecting...
             </Alert>
           </Box>
           <Box component={"form"} noValidate onSubmit={handleSubmit}>
@@ -441,7 +457,7 @@ const CreateEquipmentsGroup = () => {
                 startIcon={<SaveIcon />}
                 type="submit"
               >
-                Add Equipment Group
+                Save Equipment Group
               </Button>
             </Box>
             <Box sx={{ mt: 1 }}>
@@ -450,6 +466,7 @@ const CreateEquipmentsGroup = () => {
                   name="name"
                   label="Group Name"
                   required
+                  defaultValue={eqg.name}
                   error={nameError !== ""}
                   helperText={nameError}
                 />
@@ -459,12 +476,18 @@ const CreateEquipmentsGroup = () => {
                   label="Amount"
                   type="number"
                   required
+                  defaultValue={eqg.qty}
                   error={amountError !== ""}
                   helperText={amountError}
                 />
               </Box>
               <Space size={10} direction="row" />
-              <TextField name="desc" label="Group Description" fullWidth />
+              <TextField
+                name="desc"
+                label="Group Description"
+                defaultValue={eqg.desc}
+                fullWidth
+              />
             </Box>
           </Box>
           <Box
@@ -521,18 +544,106 @@ const CreateEquipmentsGroup = () => {
       </>
     );
   }
+  return (
+    <>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={status === "loading"}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
+  );
 };
 
-export default CreateEquipmentsGroup;
+export default EditEquipmentsGroup;
 
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
-//   peqGroup: ReturnType<typeof convToSerializable>;
+  peqGroup: ReturnType<typeof convtoSerializable>;
+  pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[];
 }> = async (context) => {
-  return { props: { pid: "" } };
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.secret}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  const webquery = context.query as { [key: string]: any };
+  if (!webquery["pid"]) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  }
+  if (!webquery["eqgid"]) {
+    return {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  }
+  let retOb: GetServerSidePropsResult<{
+    pid: string;
+    peqGroup: ReturnType<typeof convtoSerializable>;
+    pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[];
+  }> = {
+    redirect: {
+      destination: "/search/projects",
+      permanent: false,
+    },
+  };
+  const conn = await getMongoClient();
+  try {
+    const presult = await equipmentsGroupFindOne(conn, {
+      _id: new ObjectId(webquery["eqgid"] as string),
+    });
+    if (!presult) {
+      retOb = {
+        redirect: {
+          destination: "/search/projects",
+          permanent: false,
+        },
+      };
+    } else {
+      const eqmts: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[] =
+        await equipmentsFindAll(
+          conn,
+          { eqgId: presult._id },
+          { projection: { projId: 0, eqgId: 0, _id: 0 } }
+        );
+      const eqgSer = convtoSerializable(presult);
+      retOb = {
+        props: {
+          pid: webquery["pid"] as string,
+          peqGroup: eqgSer,
+          pequipments: eqmts,
+        },
+      };
+    }
+  } catch (err) {
+    retOb = {
+      redirect: {
+        destination: "/search/projects",
+        permanent: false,
+      },
+    };
+  } finally {
+    await conn.close();
+    return retOb;
+  }
 };
 
-function convToSerializable(data: equipmentsGroupInt) {
+function convtoSerializable(data: equipmentsGroupInt) {
   const { _id, projId, ...r } = data;
   return {
     _id: _id?.toHexString(),
@@ -542,7 +653,7 @@ function convToSerializable(data: equipmentsGroupInt) {
 }
 
 function convBack(
-  data: ReturnType<typeof convToSerializable>
+  data: ReturnType<typeof convtoSerializable>
 ): equipmentsGroupInt {
   const { _id: s_id, projId: sprojId, ...r } = data;
   return {

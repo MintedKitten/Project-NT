@@ -15,7 +15,6 @@ const handler = nxcHandler().all(async (req, res) => {
     const eqgDesc = body.eqgDesc;
     const eqgQty = body.eqgQty;
     const retOrder = await equipmentsGroupLastOrderInProject(conn, { projId: pid });
-    console.log(retOrder);
     let order = 0;
     if (retOrder.length > 0) {
       order = retOrder[0].order + 1;
