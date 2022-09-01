@@ -308,7 +308,7 @@ const CreateProjectsPage: NextPage<
     return (
       <>
         <Head>
-          <title>Update Project</title>
+          <title>Update Project Details</title>
         </Head>
         <PageAppbar>
           <PageNavbar navlink={navInfo} currentTab={""} session={data} />

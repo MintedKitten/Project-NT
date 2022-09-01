@@ -593,7 +593,7 @@ export const getServerSideProps: GetServerSideProps<{
     const files: ReturnType<typeof convFileToSerializable>[] = [];
     for (let index = 0; index < filesresult.length; index++) {
       const element = filesresult[index];
-      const file = await getFileMetadata({ _id: element.fileId });
+      const file = await getFileMetadata(conn, { _id: element.fileId });
       if (file) {
         files.push(convFileToSerializable(file));
       }

@@ -123,6 +123,11 @@ export interface NavbarProjNavlink {
 
 export const navInfo: NavbarNavlink[] = [
   {
+    Header: "Home",
+    Link: "/search/projects",
+    Icon: () => <></>,
+  },
+  {
     Header: "Search Projects",
     Link: "/search/projects",
     Icon: () => <SearchIcon />,

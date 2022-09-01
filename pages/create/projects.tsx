@@ -345,7 +345,7 @@ const CreateProjectsPage = () => {
     return (
       <>
         <Head>
-          <title>Add New Project</title>
+          <title>Create New Project</title>
         </Head>
         <PageAppbar>
           <PageNavbar

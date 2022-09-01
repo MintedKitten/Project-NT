@@ -395,7 +395,7 @@ const CreateEquipmentsGroup = () => {
     return (
       <>
         <Head>
-          <title>Update Project</title>
+          <title>Create New Equipment Group</title>
         </Head>
         <PageAppbar>
           <PageNavbar navlink={navInfo} currentTab={""} session={data} />

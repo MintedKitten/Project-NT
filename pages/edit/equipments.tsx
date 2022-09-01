@@ -420,7 +420,7 @@ const EditEquipmentsGroup: NextPage<
     return (
       <>
         <Head>
-          <title>Update Project</title>
+          <title>Update Project Equipments</title>
         </Head>
         <PageAppbar>
           <PageNavbar navlink={navInfo} currentTab={""} session={data} />
