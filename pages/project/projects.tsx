@@ -213,6 +213,7 @@ const ProjectsPage: NextPage<
     </>
   );
 };
+
 export default ProjectsPage;
 
 export const getServerSideProps: GetServerSideProps<{

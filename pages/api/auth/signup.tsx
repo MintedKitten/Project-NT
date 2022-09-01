@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { createNewUser, hashPassword } from "../../../src/auth";
-import { sha256 } from "../../../src/db";
 
 export type retDatasignup = {
   isComplete: boolean;

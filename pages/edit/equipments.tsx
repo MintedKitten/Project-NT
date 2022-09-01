@@ -18,7 +18,6 @@ import {
   GridEventListener,
   GridRowId,
   GridRowModel,
-  GridCallbackDetails,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
 import {
@@ -26,9 +25,7 @@ import {
   Backdrop,
   CircularProgress,
   TextField,
-  useMediaQuery,
 } from "@mui/material";
-import { isMobile } from "react-device-detect";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
@@ -179,7 +176,6 @@ function EditToolbar(props: EditToolbarProps) {
 const EditEquipmentsGroup: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, peqGroup, pequipments }) => {
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -202,9 +198,7 @@ const EditEquipmentsGroup: NextPage<
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleChangeRowsPerPage = (
-    pageSize: number,
-    event: GridCallbackDetails<any>
-  ) => {
+    pageSize: number  ) => {
     setRowsPerPage(pageSize);
   };
 
@@ -379,7 +373,6 @@ const EditEquipmentsGroup: NextPage<
       isFilled = false;
     } else {
       try {
-        const am = parseInt((eqGroup.qty + "").replace(/./g, ""));
         setAmountError("");
       } catch (err) {
         setAmountError("Please, enter a whole number");
@@ -430,7 +423,7 @@ const EditEquipmentsGroup: NextPage<
           <title>Update Project</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
+          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={false}

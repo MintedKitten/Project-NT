@@ -61,9 +61,7 @@ const ProjectEquipmentsPage: NextPage<
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleChangeRowsPerPage = (
-    pageSize: number,
-    event: GridCallbackDetails<any>
-  ) => {
+    pageSize: number  ) => {
     setRowsPerPage(pageSize);
   };
 
@@ -226,7 +224,7 @@ const ProjectEquipmentsPage: NextPage<
           </Box>
           <Box sx={{ mt: 1 }}>
             {eqGroups.map((eqg, index) => {
-              const { desc, name, order, projId, qty, _id } = eqg;
+              const { desc, name, qty, _id } = eqg;
               const equipments = pequipments[index].map((eqmt) => {
                 const { unitPrice, ...r } = eqmt;
                 return { ...r, id: randomId(), uPrice: unitPrice };

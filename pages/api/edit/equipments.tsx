@@ -1,5 +1,4 @@
 import { ObjectId } from "bson";
-import { NextApiResponse } from "next";
 import { rowCSVInt } from "../../../src/create/equipments";
 import {
   equipmentsDeleteMany,

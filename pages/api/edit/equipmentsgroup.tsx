@@ -1,8 +1,5 @@
 import { ObjectId } from "bson";
 import {
-  equipmentsGroupInsertOne,
-  equipmentsGroupLastOrderInProject,
-  equipmentsGroupUpdateMany,
   equipmentsGroupUpdateOne,
   getMongoClient,
 } from "../../../src/db";

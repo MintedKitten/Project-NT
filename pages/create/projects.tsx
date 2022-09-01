@@ -51,22 +51,6 @@ const CreateProjectsPage = () => {
   const [tableData, setTableData] =
     useState<projectsTableInt>(projectsDefaultValue);
 
-  const tops = [
-    "รายการโครงการจัดซื้อจัดจ้าง", //0
-    "ประเภทโครงการ", //1
-    "จำนวนหน่วย", //2
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)", //3
-    "ประเภทขั้นตอน", // added
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)", // 4 Cal
-    "ประเภทงบประมาณ", //5
-    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)", //6
-    "วันเริ่มสัญญา (พ.ศ.)", //7
-    "วันหมดสัญญา (พ.ศ.)", //8
-    "วันเริ่ม MA (พ.ศ.)", //9
-    "วันหมดอายุ MA (พ.ศ.)", //10
-    "MA (ระยะเวลารับประกัน)", // 11 Cal
-    "หมายเหตุ", //12
-  ];
   const tableBody: () => ProjectDetailsInputType[] = () => {
     let temp = { ...tableData };
     const tBody: ProjectDetailsInputType[] = [

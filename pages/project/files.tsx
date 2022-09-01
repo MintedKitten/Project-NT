@@ -79,8 +79,7 @@ const ProjectFilesPage: NextPage<
           const elm = file[index];
           const formData = new FormData();
           formData.append("file", elm);
-          const uploadRes = await uploadToServer(formData, (ld, tl) => {
-          });
+          const uploadRes = await uploadToServer(formData, (_ld, _tl) => {});
           fmids.push(uploadRes.fmid);
         }
         const isAllSuccessful = await addFMidsToProject(pid, fmids);
@@ -199,9 +198,8 @@ const ProjectFilesPage: NextPage<
                   No file was found.
                 </Typography>
               ) : (
-                files.map((file, index) => {
-                  const { _id, filename, filetype, size, uploadDate, dir } =
-                    file;
+                files.map((file) => {
+                  const { _id, filename, filetype, size, uploadDate } = file;
                   return (
                     <>
                       <Grid

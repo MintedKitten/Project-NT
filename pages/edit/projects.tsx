@@ -30,7 +30,6 @@ import {
 import {
   projectsTableInt,
   valDate,
-  valFloat,
   valItem,
   valTypeList,
   valYear,
@@ -63,22 +62,7 @@ const CreateProjectsPage: NextPage<
   const [tableData, setTableData] = useState<projectsTableInt>(
     convtoTable(preresult)
   );
-  const tops = [
-    "รายการโครงการจัดซื้อจัดจ้าง", //0
-    "ประเภทโครงการ", //1
-    "จำนวนหน่วย", //2
-    "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)", //3
-    "ประเภทขั้นตอน", // added
-    "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)", // 4 Cal
-    "ประเภทงบประมาณ", //5
-    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)", //6
-    "วันเริ่มสัญญา (พ.ศ.)", //7
-    "วันหมดสัญญา (พ.ศ.)", //8
-    "วันเริ่ม MA (พ.ศ.)", //9
-    "วันหมดอายุ MA (พ.ศ.)", //10
-    "MA (ระยะเวลารับประกัน)", // 11 Cal
-    "หมายเหตุ", //12
-  ];
+
   const tableBody: () => ProjectDetailsInputType[] = () => {
     let temp = { ...tableData };
     const tBody: ProjectDetailsInputType[] = [
@@ -327,7 +311,7 @@ const CreateProjectsPage: NextPage<
           <title>Update Project</title>
         </Head>
         <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={-1} session={data} />
+          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
           <ProjectNavbar
             navlink={projectNavInfo}
             currentTab={false}
@@ -501,7 +485,7 @@ function convtoTable(
     procurementYear: sprocYear,
     ...r
   } = data;
-  const table: projectsTableInt = {
+  return {
     "วันเริ่มสัญญา (พ.ศ.)": thDate(scontractstartDate),
     "วันหมดสัญญา (พ.ศ.)": thDate(scontractendDate),
     "วันเริ่ม MA (พ.ศ.)": thDate(smastartDate),
@@ -516,7 +500,6 @@ function convtoTable(
     "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)": sbudget,
     "MA (ระยะเวลารับประกัน)": "",
   };
-  return table;
 }
 
 function calculateDiffTime(before: Date, after: Date) {

@@ -21,7 +21,6 @@ import {
   Stepper,
   styled,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";

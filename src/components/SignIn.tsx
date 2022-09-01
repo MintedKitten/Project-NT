@@ -32,12 +32,10 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
         setError("");
         setSignin(true);
         setTimeout(() => {
-          router.push(
-            {
-              pathname: "/search/projects",
-              query: { name: "", year: 0, type: 0 },
-            },
-          );
+          router.push({
+            pathname: "/search/projects",
+            query: { name: "", year: 0, type: 0 },
+          });
         }, 10);
       }
     }
@@ -100,18 +98,6 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
             </Grid>
             <Grid item xs={3} />
           </Grid>
-          {/* <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link href="#" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid> */}
         </Box>
       </Box>
     </Container>

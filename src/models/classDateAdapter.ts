@@ -65,7 +65,7 @@ const defaultFormats: newDateIOFormats = {
 class ThaiAdapterDayjs<
   TDate extends Dayjs = Dayjs
 > extends AdapterDayjs<Dayjs> {
-  constructor({ locale, formats, instance }: Opts = {}) {
+  constructor({ formats }: Opts = {}) {
     super({
       locale: "th",
       formats: Object.assign({}, defaultFormats, formats),

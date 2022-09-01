@@ -1,11 +1,9 @@
 import { ObjectId } from "bson";
-import { NextApiResponse } from "next";
 import { rowCSVInt } from "../../../src/create/equipments";
 import {
   equipmentsInsertOne,
   equipmentsInt,
   getMongoClient,
-  projectFindAll,
 } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 

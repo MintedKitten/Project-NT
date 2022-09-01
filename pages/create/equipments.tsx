@@ -18,11 +18,9 @@ import {
   GridEventListener,
   GridRowId,
   GridRowModel,
-  GridCallbackDetails,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
-import { Alert, TextField, useMediaQuery } from "@mui/material";
-import { isMobile } from "react-device-detect";
+import { Alert, TextField } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
@@ -160,7 +158,6 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const CreateEquipmentsGroup = () => {
-  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const session = useSession();
   const router = useRouter();
   const pid = router.query.pid as string;
@@ -177,21 +174,19 @@ const CreateEquipmentsGroup = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleChangeRowsPerPage = (
-    pageSize: number,
-    event: GridCallbackDetails<any>
-  ) => {
+    pageSize: number  ) => {
     setRowsPerPage(pageSize);
   };
 
   const handleRowEditStart = (
-    params: GridRowParams,
+    _params: GridRowParams,
     event: MuiEvent<React.SyntheticEvent>
   ) => {
     event.defaultMuiPrevented = true;
   };
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
-    params,
+    _params,
     event
   ) => {
     event.defaultMuiPrevented = true;
@@ -354,7 +349,6 @@ const CreateEquipmentsGroup = () => {
       isFilled = false;
     } else {
       try {
-        const am = parseInt((eqGroup.qty + "").replace(/./g, ""));
         setAmountError("");
       } catch (err) {
         setAmountError("Please, enter a whole number");
