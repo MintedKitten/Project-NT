@@ -317,7 +317,6 @@ const CreateProjectsPage = () => {
       });
       setTableData(convertRawCSVToData(parsedCSV.data[0]));
     };
-    // reader.readAsBinaryString(file);
     reader.readAsText(file);
   };
 
@@ -432,10 +431,20 @@ export default CreateProjectsPage;
 
 function calculateDiffTime(before: Date, after: Date) {
   const _days = -dayjs(before).diff(dayjs(after), "days");
+  const _months = -dayjs(before).diff(dayjs(after), "months");
+  const _years = -dayjs(before).diff(dayjs(after), "years");
   let days = _days;
-  let months = Math.floor(days / 30);
-  days %= 30;
-  let years = Math.floor(months / 12);
-  months %= 12;
-  return `${years} ปี ${months} เดือน(30) ${days} วัน (${_days})`;
+  let bd = dayjs(new Date(before.getFullYear(), 0));
+  let year1 = new Date(bd.year(), 0);
+  let year2 = new Date(bd.year() + 1, 0);
+  let _daysInYear = -dayjs(year1).diff(dayjs(year2), "days");
+  while (days >= _daysInYear) {
+    console.log(year1, year2, _daysInYear);
+    days -= _daysInYear;
+    bd = dayjs(bd.year() + 1);
+    year1 = new Date(bd.year(), 0);
+    year2 = new Date(bd.year() + 1, 0);
+    _daysInYear = -dayjs(year1).diff(dayjs(year2), "days");
+  }
+  return `${_years} ปี ${_months % 12} เดือน ${days} วัน (${_days} วัน)`;
 }

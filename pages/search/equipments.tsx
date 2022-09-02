@@ -34,7 +34,12 @@ import {
   NextPage,
 } from "next";
 import { getToken } from "next-auth/jwt";
-import { equipmentsFindAll, equipmentsInt, getMongoClient } from "../../src/db";
+import {
+  equipmentsFindAll,
+  equipmentsInt,
+  getMongoClient,
+  projectFindOne,
+} from "../../src/db";
 import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
@@ -397,9 +402,13 @@ export const getServerSideProps: GetServerSideProps<{
       query["$and"] = unitPrice["$and"];
     }
     const presult = await equipmentsFindAll(conn, query);
-    result = presult.map((res) => {
-      return convtoSerializable(res);
-    });
+    for (let index = 0; index < presult.length; index++) {
+      const eqmt = presult[index];
+      const proj = await projectFindOne(conn, { _id: eqmt.projId });
+      if (proj) {
+        result.push(convtoSerializable(eqmt, proj.projName));
+      }
+    }
   } catch (err) {
   } finally {
     await conn.close();
@@ -407,16 +416,19 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
-function convtoSerializable(data: equipmentsInt) {
+function convtoSerializable(data: equipmentsInt, projName: string) {
   const { _id, projId, eqgId, ...r } = data;
   return {
     _id: _id?.toHexString(),
     projId: projId.toHexString(),
     eqgId: eqgId.toHexString(),
+    projName: projName,
     ...r,
   };
 }
-function convBack(data: ReturnType<typeof convtoSerializable>): equipmentsInt {
+function convBack(
+  data: ReturnType<typeof convtoSerializable>
+): equipmentsInt & { projName: string } {
   const { _id: s_id, projId: sprojId, eqgId: seqgId, ...r } = data;
   return {
     _id: new ObjectId(s_id),
