@@ -5,11 +5,19 @@ import {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
+import Head from "next/head";
 
 const LoginPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ csrfToken }) => {
-  return <SignIn csrfToken={csrfToken} />;
+  return (
+    <>
+      <Head>
+        <title>Login</title>
+      </Head>
+      <SignIn csrfToken={csrfToken} />
+    </>
+  );
 };
 
 export default LoginPage;
