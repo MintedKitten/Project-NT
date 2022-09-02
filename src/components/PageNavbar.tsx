@@ -8,7 +8,6 @@ import {
   Drawer,
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
   DragHandle as DragHandleIcon,
 } from "@mui/icons-material";
 import { Session } from "next-auth";
