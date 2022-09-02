@@ -1,4 +1,8 @@
-import { Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  Add as AddIcon,
+  Home as HomeIcon,
+} from "@mui/icons-material";
 import { FunctionComponent } from "react";
 
 export enum InputEn {
@@ -125,7 +129,7 @@ export const navInfo: NavbarNavlink[] = [
   {
     Header: "Home",
     Link: "/home/",
-    Icon: () => <></>,
+    Icon: () => <HomeIcon />,
   },
   {
     Header: "Search Projects",

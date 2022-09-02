@@ -43,3 +43,5 @@ const AlertPage: NextPage = () => {
 };
 
 export default AlertPage;
+
+// export const getServerSideProps

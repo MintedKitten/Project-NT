@@ -437,5 +437,5 @@ function calculateDiffTime(before: Date, after: Date) {
   days %= 30;
   let years = Math.floor(months / 12);
   months %= 12;
-  return `${years} ปี ${months} เดือน(30) ${days} วัน`;
+  return `${years} ปี ${months} เดือน(30) ${days} วัน (${_days})`;
 }

@@ -1,4 +1,4 @@
-import { AppBar } from "@mui/material";
+import { AppBar, Box } from "@mui/material";
 import { ReactElement } from "react";
 
 const PageAppbar = ({
@@ -6,7 +6,12 @@ const PageAppbar = ({
 }: {
   children?: ReactElement | ReactElement[];
 }) => {
-  return <AppBar position="sticky">{children}</AppBar>;
+  return (
+    <AppBar position="sticky">
+      <Box>{children}</Box>
+      <Box></Box>
+    </AppBar>
+  );
 };
 
 export default PageAppbar;
