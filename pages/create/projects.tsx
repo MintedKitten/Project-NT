@@ -39,6 +39,7 @@ import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
 import dayjs from "dayjs";
 import Big from "big.js";
+import { calculateDiffTime } from "../../src/server";
 
 const CreateProjectsPage = () => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
@@ -428,23 +429,3 @@ const CreateProjectsPage = () => {
 };
 
 export default CreateProjectsPage;
-
-function calculateDiffTime(before: Date, after: Date) {
-  const _days = -dayjs(before).diff(dayjs(after), "days");
-  const _months = -dayjs(before).diff(dayjs(after), "months");
-  const _years = -dayjs(before).diff(dayjs(after), "years");
-  let days = _days;
-  let bd = dayjs(new Date(before.getFullYear(), 0));
-  let year1 = new Date(bd.year(), 0);
-  let year2 = new Date(bd.year() + 1, 0);
-  let _daysInYear = -dayjs(year1).diff(dayjs(year2), "days");
-  while (days >= _daysInYear) {
-    console.log(year1, year2, _daysInYear);
-    days -= _daysInYear;
-    bd = dayjs(bd.year() + 1);
-    year1 = new Date(bd.year(), 0);
-    year2 = new Date(bd.year() + 1, 0);
-    _daysInYear = -dayjs(year1).diff(dayjs(year2), "days");
-  }
-  return `${_years} ปี ${_months % 12} เดือน ${days} วัน (${_days} วัน)`;
-}

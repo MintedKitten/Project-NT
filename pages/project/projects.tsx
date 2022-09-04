@@ -40,6 +40,7 @@ import {
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
 import dayjs from "dayjs";
+import { calculateDiffTime } from "../../src/server";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -347,14 +348,4 @@ function convtoTable(data: ReturnType<typeof convtoSerializable>): projectsInt {
     budget: Big(sbudget),
     ...r,
   };
-}
-
-function calculateDiffTime(before: Date, after: Date) {
-  const _days = -dayjs(before).diff(dayjs(after), "days");
-  let days = _days;
-  let months = Math.floor(days / 30);
-  days %= 30;
-  let years = Math.floor(months / 12);
-  months %= 12;
-  return `${years} ปี ${months} เดือน(30) ${days} วัน`;
 }
