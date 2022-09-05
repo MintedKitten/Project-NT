@@ -175,5 +175,5 @@ export function calculateDiffTime(before: Date, after: Date) {
   if (diffyear < 0) {
     diffdt = diffmth = diffyear = 0;
   }
-  return `${_days} วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่มต้น)`;
+  return `${_days} วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่ม MA)`;
 }
