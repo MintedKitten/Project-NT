@@ -117,6 +117,9 @@ app
           const result = await getFileName(new ObjectId(req.params.fmid));
           if (result) {
             const { filename, dir } = result;
+            if (!dir || (dir && !existsSync(dir))) {
+              return res.status(404).end("Can't find that file, sorry!");
+            }
             console.log(`File downloading: ${filename}\nAt: ${dir}`);
             res.download(`${dir}`, `${filename}`, function (err) {
               if (!err) {

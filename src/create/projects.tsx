@@ -116,24 +116,44 @@ export const valDate = (v: string) => {
   }
 };
 
-export function convertRawCSVToData(data: {
-  [key in keyof projectsInt]: any;
-}): projectsTableInt {
-  let systemCount = parseio(data.systemCount);
-  let contractstartDate = parsedate(data.contractstartDate);
-  let contractendDate = parsedate(data.contractendDate);
-  let mastartDate = parsedate(data.mastartDate);
-  let maendDate = parsedate(data.maendDate);
-  let type: number = 1;
-  if (typeof data.type === "string") {
-    if (data.type.includes("ซื้อ")) {
-      type = 1;
-    } else if (data.type.includes("เช่า")) {
-      type = 3;
-    } else if (data.type.includes("จ้าง")) {
-      type = 2;
-    }
-  }
+export interface projectsCSVInt {
+  projName: string;
+  type: string | number;
+  systemCount: string;
+  budget: string;
+  budgetType: string;
+  procurementYear: number;
+  contractstartDate: string;
+  contractendDate: string;
+  mastartDate: string;
+  maendDate: string;
+  comments: string;
+}
+
+export class projectsCSVClass implements projectsCSVInt {
+  projName: string = "";
+  type: string | number = "";
+  systemCount: string = "";
+  budget: string = "";
+  budgetType: string = "";
+  procurementYear: number = 0;
+  contractstartDate: string = "";
+  contractendDate: string = "";
+  mastartDate: string = "";
+  maendDate: string = "";
+  comments: string = "";
+}
+
+export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
+  let systemCount = parseio(data.systemCount, "systemCount");
+  let contractstartDate = parsedate(
+    data.contractstartDate,
+    "contractstartDate"
+  );
+  let contractendDate = parsedate(data.contractendDate, "contractendDate");
+  let mastartDate = parsedate(data.mastartDate, "mastartDate");
+  let maendDate = parsedate(data.maendDate, "maendDate");
+  let type = parsetype(data.type, "type");
   const c: projectsTableInt = {
     รายการโครงการจัดซื้อจัดจ้าง: data.projName || "",
     ประเภทโครงการ: type,
@@ -156,40 +176,57 @@ export function convertRawCSVToData(data: {
   };
   return c;
 
-  function parseio(ob: any) {
-    let io: itemObjectInt = { amount: 0, unit: "" };
-    try {
-      if (ob && typeof ob === "string") {
-        let arr = ob.split(" ");
-        if (arr.length === 2) {
-          io = { amount: parseInt(arr[0]), unit: arr[1] };
-        }
-      } else if ("amount" in ob && "unit" in ob) {
-        io = { amount: ob.amount, unit: ob.unit };
+  function parsetype(type: number | string, column: string) {
+    if (typeof type === "string") {
+      if (type.includes("ซื้อ")) {
+        return 1;
+      } else if (type.includes("เช่า")) {
+        return 3;
+      } else if (type.includes("จ้าง")) {
+        return 2;
       }
-    } catch (err) {}
-    return io;
+    } else {
+      if (type > 0 && type < 4) {
+        return type;
+      }
+    }
+    throw new Error("Incorrect data on column " + column);
   }
 
-  function parsedate(ob: any) {
-    let d = new Date();
+  function parseio(ob: string, column: string) {
     try {
-      if (typeof ob === "string") {
-        let arr = ob.split("/");
-        if (arr.length === 3) {
-          d = new Date(
-            parseInt(arr[2]) - 543,
-            parseInt(arr[1]) - 1,
-            parseInt(arr[0])
-          );
-        }
-      } else {
-        if (Object.prototype.toString.call(ob) === "[object Date]") {
-          d = new Date(ob.getFullYear(), ob.getMonth(), ob.getDate());
+      const split = ob.indexOf(" ");
+      if (split > 0) {
+        if (
+          !isNaN(parseInt(ob.substring(0, split))) &&
+          ob.substring(split + 1).length > 0
+        ) {
+          return {
+            amount: parseInt(ob.substring(0, split)),
+            unit: ob.substring(split + 1),
+          } as itemObjectInt;
         }
       }
-    } catch (err) {}
-    return d;
+      throw new Error("Incorrect data on column " + column);
+    } catch (err) {
+      throw new Error("Incorrect data on column " + column);
+    }
+  }
+
+  function parsedate(ob: string, column: string) {
+    try {
+      let arr = ob.split("/");
+      if (arr.length === 3) {
+        return new Date(
+          parseInt(arr[2]) - 543,
+          parseInt(arr[1]) - 1,
+          parseInt(arr[0])
+        );
+      }
+      throw new Error("Incorrect data on column " + column);
+    } catch (err) {
+      throw new Error("Incorrect data on column " + column);
+    }
   }
 }
 

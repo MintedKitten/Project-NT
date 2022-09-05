@@ -29,6 +29,8 @@ import {
 import {
   convertRawCSVToData,
   createNewProject,
+  projectsCSVClass,
+  projectsCSVInt,
   projectsDefaultValue,
   projectsTableInt,
   valDate,
@@ -314,12 +316,31 @@ const CreateProjectsPage = () => {
         return;
       }
       const { result } = evt.target;
-      const parsedCSV = parsecsv<projectsInt>(result.toString(), {
+      const parsedCSV = parsecsv<projectsCSVInt>(result.toString(), {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
       });
-      setTableData(convertRawCSVToData(parsedCSV.data[0]));
+      try {
+        const columns = parsedCSV.meta.fields as NonNullable<string[]>;
+        const correctColumns = Object.keys(new projectsCSVClass());
+        // Check Column
+        correctColumns.forEach((rkey) => {
+          if (!columns.find((element) => element === rkey)) {
+            throw new Error("Column " + rkey + " is missing");
+          }
+        });
+        columns.forEach((rkey) => {
+          if (!correctColumns.find((element) => element === rkey)) {
+            throw new Error("Unknown column " + rkey);
+          }
+        });
+
+        setTableData(convertRawCSVToData(parsedCSV.data[0]));
+      } catch (err) {
+        reader.abort();
+        alert(err);
+      }
     };
     reader.readAsText(file);
   };

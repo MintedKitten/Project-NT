@@ -157,9 +157,6 @@ function EditToolbar(props: EditToolbarProps) {
         alert(err);
       }
     };
-    reader.onerror = (ev) => {
-      reader.abort();
-    };
     reader.readAsText(file);
   };
 
