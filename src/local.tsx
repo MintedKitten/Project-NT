@@ -130,7 +130,7 @@ export interface NavbarProjNavlink {
 export const navInfo: NavbarNavlink[] = [
   {
     Header: "Home",
-    Link: "/home/",
+    Link: "/home/alert",
     Icon: () => <HomeIcon />,
   },
   {
@@ -158,8 +158,22 @@ export const projectNavInfo: NavbarProjNavlink[] = [
 ];
 
 export function calculateDiffTime(before: Date, after: Date) {
-  const _days = -dayjs(before).diff(dayjs(after), "days");
-  return `${after.getFullYear() - before.getFullYear()} ปี ${
-    after.getMonth() - before.getMonth()
-  } เดือน ${after.getDate() - before.getDate()} วัน (${_days} วัน)`;
+  const _days = -dayjs(before).diff(dayjs(after), "days") + 1;
+  let diffyear = after.getFullYear() - before.getFullYear();
+  let diffmth = after.getMonth() - before.getMonth();
+  let diffdt = after.getDate() - before.getDate() + 1;
+  if (diffdt < 0) {
+    diffdt += dayjs(
+      new Date(after.getFullYear(), after.getMonth() - 1)
+    ).daysInMonth();
+    diffmth -= 1;
+  }
+  if (diffmth < 0) {
+    diffmth += 12;
+    diffyear -= 1;
+  }
+  if (diffyear < 0) {
+    diffdt = diffmth = diffyear = 0;
+  }
+  return `${_days} วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่มต้น)`;
 }

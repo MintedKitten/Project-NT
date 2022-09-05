@@ -7,9 +7,7 @@ import {
   IconButton,
   Drawer,
 } from "@mui/material";
-import {
-  DragHandle as DragHandleIcon,
-} from "@mui/icons-material";
+import { DragHandle as DragHandleIcon } from "@mui/icons-material";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -80,7 +78,7 @@ const PageNavbar: FunctionComponent<{
                     reroute(Link);
                   }}
                   sx={{
-                    fontWeight: currentTab === Header ? 600 : 300,
+                    fontWeight: window.location.pathname === Link ? 600 : 300,
                     fontSize: 16,
                     color: "inherit",
                   }}
