@@ -34,16 +34,12 @@ import {
   NextPage,
 } from "next";
 import { getToken } from "next-auth/jwt";
-import {
-  equipmentsFindAll,
-  equipmentsInt,
-  getMongoClient,
-  projectFindOne,
-} from "../../src/db";
+import { equipmentsInt, getMongoClient } from "../../src/db";
 import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
 import Link from "next/link";
+import { EquipmentWithProjectName } from "../../src/server";
 
 const SearchEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -199,10 +195,14 @@ const SearchEquipmentsPage: NextPage<
             <Table aria-label="result table">
               <TableHead color="secondary">
                 <TableRow>
+                  <TableCell align="left">
+                    รายการโครงการจัดซื้อจัดจ้าง
+                  </TableCell>
                   <TableCell align="left">Part Number</TableCell>
                   <TableCell align="left">Description</TableCell>
                   <TableCell align="right">Qty</TableCell>
-                  <TableCell align="right">Unit Price</TableCell>
+                  <TableCell align="left">Unit</TableCell>
+                  <TableCell align="right">Unit Price (บาท)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -211,12 +211,13 @@ const SearchEquipmentsPage: NextPage<
                   .map((row, index) => {
                     const {
                       desc,
-                      eqgId,
                       partNumber,
                       projId,
                       qty,
                       unitPrice,
                       _id,
+                      projName,
+                      unit,
                     } = row;
                     return (
                       <TableRow hover key={index}>
@@ -249,7 +250,7 @@ const SearchEquipmentsPage: NextPage<
                                   fontWeight: "bold",
                                 }}
                               >
-                                {partNumber}
+                                {projName}
                                 <Tooltip title="Open Project" arrow>
                                   <OpenInBrowserIcon fontSize="small" />
                                 </Tooltip>
@@ -257,42 +258,17 @@ const SearchEquipmentsPage: NextPage<
                             </a>
                           </Link>
                         </TableCell>
-                        <TableCell scope="row" sx={{ cursor: "pointer" }}>
-                          <Link
-                            href={{
-                              pathname: "/project/projects",
-                              query: { pid: projId.toHexString() },
-                            }}
-                            passHref
-                          >
-                            <a
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(event) => {
-                                event.preventDefault();
-                                window.open(
-                                  "/project/projects?pid=" +
-                                    projId.toHexString(),
-                                  "_blank"
-                                );
-                              }}
-                              style={{
-                                font: "inherit",
-                                color: "rgba(0, 0, 0, 0.87)",
-                              }}
-                            >
-                              <Typography
-                                sx={{
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {desc}
-                              </Typography>
-                            </a>
-                          </Link>
+                        <TableCell scope="row">
+                          <Typography>{partNumber}</Typography>
+                        </TableCell>
+                        <TableCell scope="row">
+                          <Typography>{desc}</Typography>
                         </TableCell>
                         <TableCell align="right" scope="row">
                           <Typography>{qty}</Typography>
+                        </TableCell>
+                        <TableCell align="left" scope="row">
+                          <Typography>{unit}</Typography>
                         </TableCell>
                         <TableCell align="right" scope="row">
                           <Typography>{unitPrice}</Typography>
@@ -331,7 +307,7 @@ const SearchEquipmentsPage: NextPage<
 export default SearchEquipmentsPage;
 
 export const getServerSideProps: GetServerSideProps<{
-  presult: ReturnType<typeof convtoSerializable>[];
+  presult: ReturnType<typeof convToSerializable>[];
 }> = async (context) => {
   const token = await getToken({
     req: context.req,
@@ -347,7 +323,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
   const webquery = context.query as { [key: string]: any };
   const query: Filter<equipmentsInt> = {};
-  let result: ReturnType<typeof convtoSerializable>[] = [];
+  let result: ReturnType<typeof convToSerializable>[] = [];
   const conn = await getMongoClient();
   try {
     if (webquery["partNumber"]) {
@@ -401,39 +377,40 @@ export const getServerSideProps: GetServerSideProps<{
       // @ts-ignore
       query["$and"] = unitPrice["$and"];
     }
-    const presult = await equipmentsFindAll(conn, query);
-    for (let index = 0; index < presult.length; index++) {
-      const eqmt = presult[index];
-      const proj = await projectFindOne(conn, { _id: eqmt.projId });
-      if (proj) {
-        result.push(convtoSerializable(eqmt, proj.projName));
+    const presult = await EquipmentWithProjectName(query);
+    if (presult) {
+      for (let index = 0; index < presult.length; index++) {
+        const eqmt = presult[index];
+        result.push(convToSerializable(eqmt));
       }
     }
   } catch (err) {
   } finally {
     await conn.close();
+    console.log(result);
     return { props: { presult: result } };
   }
 };
 
-function convtoSerializable(data: equipmentsInt, projName: string) {
-  const { _id, projId, eqgId, ...r } = data;
+function convToSerializable(
+  data: NonNullable<
+    Awaited<ReturnType<typeof EquipmentWithProjectName>>
+  >[number]
+) {
+  const { _id, projId, ...r } = data;
   return {
     _id: _id?.toHexString(),
+    partNumber: r.partNumber,
+    desc: r.desc,
+    qty: r.qty,
+    unitPrice: r.unitPrice,
+    projName: r.projName,
     projId: projId.toHexString(),
-    eqgId: eqgId.toHexString(),
-    projName: projName,
-    ...r,
+    unit: r.unit,
   };
 }
-function convBack(
-  data: ReturnType<typeof convtoSerializable>
-): equipmentsInt & { projName: string } {
-  const { _id: s_id, projId: sprojId, eqgId: seqgId, ...r } = data;
-  return {
-    _id: new ObjectId(s_id),
-    projId: new ObjectId(sprojId),
-    eqgId: new ObjectId(seqgId),
-    ...r,
-  };
+
+function convBack(data: ReturnType<typeof convToSerializable>) {
+  const { _id: s_id, projId: sprojId, ...r } = data;
+  return { _id: new ObjectId(s_id), projId: new ObjectId(sprojId), ...r };
 }

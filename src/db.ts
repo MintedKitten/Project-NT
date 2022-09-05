@@ -522,6 +522,7 @@ export interface equipmentsInt {
   partNumber: string;
   desc: string;
   qty: number;
+  unit: string;
   unitPrice: string;
 }
 
@@ -574,5 +575,27 @@ export async function equipmentsDeleteMany(
 ) {
   const result = (await (await getEquipmentsColl(conn)).deleteMany(filter))
     .acknowledged;
+  return result;
+}
+
+export async function eqJoinProj(conn: MongoClient, query: object) {
+  const result = (await getEquipmentsColl(conn)).aggregate([
+    { $match: query },
+    {
+      $lookup: {
+        from: `${process.env.projectsCollection}`,
+        localField: "projId",
+        foreignField: "_id",
+        as: "proj_docs",
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: [{ $arrayElemAt: ["$proj_docs", 0] }, "$$ROOT"],
+        },
+      },
+    },
+  ]);
   return result;
 }

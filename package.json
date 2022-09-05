@@ -1,6 +1,6 @@
 {
   "name": "nv-procurement-project",
-  "version": "0.0.2",
+  "version": "0.6.4",
   "private": true,
   "type": "module",
   "scripts": {

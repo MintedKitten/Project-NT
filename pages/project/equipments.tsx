@@ -60,8 +60,7 @@ const ProjectEquipmentsPage: NextPage<
   const { status, data } = session;
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const handleChangeRowsPerPage = (
-    pageSize: number  ) => {
+  const handleChangeRowsPerPage = (pageSize: number) => {
     setRowsPerPage(pageSize);
   };
 
@@ -145,6 +144,12 @@ const ProjectEquipmentsPage: NextPage<
         const qty = valInteger(params.row.qty);
         return qty > 0 ? qty : 0;
       },
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      width: 100,
+      editable: false,
     },
     {
       field: "uPrice",

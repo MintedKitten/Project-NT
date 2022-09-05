@@ -37,6 +37,7 @@ import {
   rowInt,
   rowCSVInt,
   addEquipmentGroupAndEquipments,
+  rowCSVClass,
 } from "../../src/create/equipments";
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
@@ -61,12 +62,11 @@ function EditToolbar(props: EditToolbarProps) {
       {
         id,
         eqid: new ObjectId(),
-        name: "",
-        age: "",
         partNumber: "",
         desc: "",
         uPrice: Big(0),
         qty: 0,
+        unit: "",
         isNew: true,
       },
     ]);
@@ -86,8 +86,7 @@ function EditToolbar(props: EditToolbarProps) {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (!event.target?.result) {
-        alert("Can't read file");
-        return;
+        throw new Error("Can't read file");
       }
       const { result } = event.target;
       const parsedCSV = parsecsv<rowCSVInt>(result.toString(), {
@@ -95,31 +94,71 @@ function EditToolbar(props: EditToolbarProps) {
         dynamicTyping: true,
         skipEmptyLines: true,
       });
-      const newRows = parsedCSV.data;
-      const withIdNewRows: rowInt[] = [];
-      const withIdModel: GridRowModesModel = {};
-      newRows.forEach((nrow) => {
-        const id = randomId();
-        const { uPrice, ...r } = nrow;
-        withIdNewRows.push({
-          ...r,
-          uPrice: Big((uPrice + "").replace(/,/g, "")),
-          id: id,
-          isNew: false,
-          isToSave: true,
-          eqid: new ObjectId(),
-        });
-        withIdModel[id] = {
-          mode: GridRowModes.View,
-        };
-      });
+      try {
+        const newRows = parsedCSV.data;
+        const columns = parsedCSV.meta.fields as NonNullable<string[]>;
+        const correctColumns = Object.keys(new rowCSVClass());
+        const withIdNewRows: rowInt[] = [];
+        const withIdModel: GridRowModesModel = {};
+        newRows.forEach((nrow, rowindex) => {
+          // Check Column
+          correctColumns.forEach((rkey) => {
+            if (!columns.find((element) => element === rkey)) {
+              throw new Error("Column " + rkey + " is missing");
+            }
+          });
+          columns.forEach((rkey) => {
+            if (!correctColumns.find((element) => element === rkey)) {
+              throw new Error("Unknown column " + rkey);
+            }
+          });
+          // Check entries
+          Object.entries(nrow).forEach(([key, value]) => {
+            if (!value) {
+              throw new Error(`row ${rowindex + 1} has empty on column ${key}`);
+            }
+            if (key === "qty") {
+              if (isNaN(parseInt(value))) {
+                throw new Error(`row ${rowindex + 1} qty is not Integer`);
+              }
+            }
+            if (key === "uPrice") {
+              try {
+                Big(value.replace(/,/g, ""));
+              } catch (err) {
+                throw new Error(`row ${rowindex + 1} uPrice is not Number`);
+              }
+            }
+          });
 
-      setRows((oldRows) => {
-        return [...oldRows, ...withIdNewRows];
-      });
-      setRowModesModel((oldModel) => {
-        return { ...oldModel, ...withIdModel };
-      });
+          const id = randomId();
+          const { uPrice, ...r } = nrow;
+          withIdNewRows.push({
+            ...r,
+            uPrice: Big((uPrice + "").replace(/,/g, "")),
+            id: id,
+            isNew: false,
+            isToSave: true,
+            eqid: new ObjectId(),
+          });
+          withIdModel[id] = {
+            mode: GridRowModes.View,
+          };
+        });
+
+        setRows((oldRows) => {
+          return [...oldRows, ...withIdNewRows];
+        });
+        setRowModesModel((oldModel) => {
+          return { ...oldModel, ...withIdModel };
+        });
+      } catch (err) {
+        reader.abort();
+        alert(err);
+      }
+    };
+    reader.onerror = (ev) => {
+      reader.abort();
     };
     reader.readAsText(file);
   };
@@ -173,8 +212,7 @@ const CreateEquipmentsGroup = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleChangeRowsPerPage = (
-    pageSize: number  ) => {
+  const handleChangeRowsPerPage = (pageSize: number) => {
     setRowsPerPage(pageSize);
   };
 
@@ -250,6 +288,12 @@ const CreateEquipmentsGroup = () => {
         const qty = valInteger(params.row.qty);
         return qty > 0 ? qty : 0;
       },
+    },
+    {
+      field: "unit",
+      headerName: "Unit",
+      width: 100,
+      editable: true,
     },
     {
       field: "uPrice",

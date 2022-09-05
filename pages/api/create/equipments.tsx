@@ -28,6 +28,7 @@ const handler = nxcHandler().all(async (req, res) => {
         desc: row.desc,
         qty: row.qty,
         unitPrice: row.uPrice,
+        unit: row.unit,
       };
       isCreateSuccessful =
         isCreateSuccessful && (await equipmentsInsertOne(conn, query));

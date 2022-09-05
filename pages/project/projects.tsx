@@ -31,6 +31,7 @@ import {
 } from "../../src/db";
 import {
   budgetThreshold,
+  calculateDiffTime,
   InputEn,
   navInfo,
   projectNavInfo,
@@ -39,8 +40,6 @@ import {
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
-import dayjs from "dayjs";
-import { calculateDiffTime } from "../../src/server";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>

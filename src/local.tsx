@@ -3,7 +3,9 @@ import {
   Add as AddIcon,
   Home as HomeIcon,
 } from "@mui/icons-material";
+import dayjs from "dayjs";
 import { FunctionComponent } from "react";
+import { rowCSVInt } from "./create/equipments";
 
 export enum InputEn {
   String,
@@ -154,3 +156,10 @@ export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Equipments", Link: "/project/equipments" },
   { Header: "Stages", Link: "/project/stages" },
 ];
+
+export function calculateDiffTime(before: Date, after: Date) {
+  const _days = -dayjs(before).diff(dayjs(after), "days");
+  return `${after.getFullYear() - before.getFullYear()} ปี ${
+    after.getMonth() - before.getMonth()
+  } เดือน ${after.getDate() - before.getDate()} วัน (${_days} วัน)`;
+}

@@ -10,16 +10,38 @@ export interface rowInt {
   partNumber: string;
   desc: string;
   qty: number;
+  unit: string;
   uPrice: Big;
   isNew?: boolean;
   isToSave?: boolean;
+}
+
+export class rowClass implements rowInt {
+  id: string = "";
+  eqid?: ObjectId | undefined;
+  partNumber!: string;
+  desc: string = "";
+  qty: number = 0;
+  unit: string = "";
+  uPrice: Big = Big(0);
+  isNew?: boolean | undefined;
+  isToSave?: boolean | undefined;
 }
 
 export interface rowCSVInt {
   partNumber: string;
   desc: string;
   qty: number;
+  unit: string;
   uPrice: string;
+}
+
+export class rowCSVClass implements rowCSVInt {
+  partNumber: string = "";
+  desc: string = "";
+  qty: number = 0;
+  unit: string = "";
+  uPrice: string = "";
 }
 
 export async function addEquipmentGroupAndEquipments(
@@ -52,6 +74,7 @@ function rowToqrow(row: rowInt) {
     partNumber: row.partNumber,
     desc: row.desc,
     qty: row.qty,
+    unit: row.unit,
     uPrice: row.uPrice.toString(),
   };
   return ret;
