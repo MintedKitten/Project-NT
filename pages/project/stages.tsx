@@ -405,7 +405,9 @@ const ProjectStagesPage: NextPage<
       return (
         <>
           <Typography sx={{ mr: 1 }}>Stage status:</Typography>
-          <Typography sx={{ color: "Green", mr: 1 }}>Complete</Typography>
+          <Typography sx={{ color: "Green", mr: 1 }}>
+            Complete {formatDateDMY(stages[step].completeDate)}
+          </Typography>
           <Button
             variant="contained"
             startIcon={<CancelIcon />}
