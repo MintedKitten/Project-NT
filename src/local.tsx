@@ -26,6 +26,7 @@ export enum DateDeadlineStatus {
   YellowAlert,
   RedAlert,
   Passed,
+  PastDue,
 }
 
 export const budgetThreshold = 100000000;

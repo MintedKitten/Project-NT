@@ -239,7 +239,7 @@ const ProjectEquipmentsPage: NextPage<
                 return { ...r, id: randomId(), uPrice: unitPrice };
               });
               return (
-                <Accordion key={name}>
+                <Accordion key={name} TransitionProps={{ unmountOnExit: true }}>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Box sx={{ display: "flex", width: "100%" }}>
                       <Typography>{`${name}`}</Typography>

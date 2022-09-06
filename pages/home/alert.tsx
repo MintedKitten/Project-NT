@@ -5,6 +5,7 @@ import type {
   NextPage,
 } from "next";
 import {
+  Accordion,
   Backdrop,
   CircularProgress,
   Typography,
@@ -21,6 +22,7 @@ import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
 import { ProjectWithInProgressStage } from "../../src/server";
 import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
+import dayjs from "dayjs";
 
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   result,
@@ -48,6 +50,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           )}
         </PageAppbar>
         <PageContainer>
+          <Accordion TransitionProps={{ unmountOnExit: true }}></Accordion>
           <Typography></Typography>
         </PageContainer>
       </>
@@ -67,6 +70,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
 
 export default AlertPage;
 
+let _today = dayjs(new Date());
 export const getStaticProps: GetStaticProps<{
   result: ReturnType<typeof compileStatus>[];
 }> = async (context) => {
@@ -75,6 +79,7 @@ export const getStaticProps: GetStaticProps<{
   }> = {
     props: { result: [] },
   };
+  _today = dayjs(new Date());
   const conn = await getMongoClient();
   const cres = await ProjectWithInProgressStage(conn, {});
   if (cres) {
@@ -88,21 +93,16 @@ export const getStaticProps: GetStaticProps<{
   return retOb;
 };
 
-const _today = new Date();
 function calAlertLevel(date: Date, isComplete: boolean): DateDeadlineStatus {
-  if (date.getTime() - _today.getTime() < 0) {
-    return DateDeadlineStatus.Passed;
+  const mths = -_today.diff(dayjs(date), "months");
+  if (mths > 3) {
+    return DateDeadlineStatus.Normal;
+  } else if (mths >= 0) {
+    return isComplete
+      ? DateDeadlineStatus.YellowAlert
+      : DateDeadlineStatus.RedAlert;
   } else {
-    if (
-      _today.getMonth() - date.getMonth() <= 3 &&
-      _today.getFullYear() - date.getFullYear() === 0
-    ) {
-      return isComplete
-        ? DateDeadlineStatus.YellowAlert
-        : DateDeadlineStatus.RedAlert;
-    } else {
-      return DateDeadlineStatus.Normal;
-    }
+    return isComplete ? DateDeadlineStatus.Passed : DateDeadlineStatus.PastDue;
   }
 }
 
@@ -123,7 +123,7 @@ function compileStatus(
     project: convtoSerializable(presult),
     isComplete: isComplete,
     contractAlertLevel: calAlertLevel(presult.contractendDate, isComplete),
-    maAlertLevel: calAlertLevel(presult.maendDate, isComplete),
+    maAlertLevel: calAlertLevel(presult.maendDate, false),
   };
 }
 
@@ -149,26 +149,3 @@ function convtoSerializable(
     ...r,
   };
 }
-
-// function convtoTable(
-//   data: ReturnType<typeof convtoSerializable>
-// ): Omit<projectsInt, "createdby" | "lastupdate"> {
-//   const {
-//     _id: s_id,
-//     budget: sbudget,
-//     contractstartDate: scontractstartDate,
-//     contractendDate: scontractendDate,
-//     mastartDate: smastartDate,
-//     maendDate: smaendDate,
-//     ...r
-//   } = data;
-//   return {
-//     _id: new ObjectId(s_id),
-//     contractstartDate: thDate(scontractstartDate),
-//     contractendDate: thDate(scontractendDate),
-//     mastartDate: thDate(smastartDate),
-//     maendDate: thDate(smaendDate),
-//     budget: Big(sbudget),
-//     ...r,
-//   };
-// }
