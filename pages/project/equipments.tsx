@@ -41,7 +41,6 @@ import { randomId } from "@mui/x-data-grid-generator";
 import {
   GridColumns,
   DataGrid,
-  GridCallbackDetails,
   GridToolbarContainer,
   GridToolbarExport,
   GridToolbarDensitySelector,
@@ -204,13 +203,9 @@ const ProjectEquipmentsPage: NextPage<
         <Head>
           <title>Project Equipments</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={"Equipments"}
-            pid={pid}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
         </PageAppbar>
 
         <PageContainer>

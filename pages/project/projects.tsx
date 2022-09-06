@@ -153,13 +153,9 @@ const ProjectsPage: NextPage<
         <Head>
           <title>Project Details</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={"Details"}
-            pid={pid}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
         </PageAppbar>
 
         <PageContainer>
@@ -256,7 +252,7 @@ export const getServerSideProps: GetServerSideProps<{
   };
   const conn = await getMongoClient();
   try {
-    const cres = await ProjectWithInProgressStage({
+    const cres = await ProjectWithInProgressStage(conn, {
       _id: new ObjectId(webquery["pid"] as string),
     });
     if (cres) {
@@ -269,7 +265,8 @@ export const getServerSideProps: GetServerSideProps<{
           },
         };
       } else {
-        const { stages_docs, ...presult } = arresult[0];
+        const { stages_docs, ...dresult } = arresult[0];
+        const presult = dresult as projectsInt;
         const conv = convtoSerializable(presult);
         retOb = {
           props: {
@@ -293,11 +290,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
-function convtoSerializable(data: projectsInt) {
+function convtoSerializable(
+  data: Omit<projectsInt, "createdby" | "lastupdate">
+) {
   const {
     _id,
-    createdby,
-    lastupdate,
     budget,
     contractstartDate,
     contractendDate,
@@ -307,8 +304,6 @@ function convtoSerializable(data: projectsInt) {
   } = data;
   return {
     _id: (_id as ObjectId).toHexString(),
-    createdby: createdby.toHexString(),
-    lastupdate: lastupdate.toString(),
     contractstartDate: contractstartDate.toString(),
     contractendDate: contractendDate.toString(),
     mastartDate: mastartDate.toString(),
@@ -318,11 +313,11 @@ function convtoSerializable(data: projectsInt) {
   };
 }
 
-function convtoTable(data: ReturnType<typeof convtoSerializable>): projectsInt {
+function convtoTable(
+  data: ReturnType<typeof convtoSerializable>
+): Omit<projectsInt, "createdby" | "lastupdate"> {
   const {
     _id: s_id,
-    createdby: screatedby,
-    lastupdate: slastupdate,
     budget: sbudget,
     contractstartDate: scontractstartDate,
     contractendDate: scontractendDate,
@@ -332,8 +327,6 @@ function convtoTable(data: ReturnType<typeof convtoSerializable>): projectsInt {
   } = data;
   return {
     _id: new ObjectId(s_id),
-    createdby: new ObjectId(screatedby),
-    lastupdate: thDate(slastupdate),
     contractstartDate: thDate(scontractstartDate),
     contractendDate: thDate(scontractendDate),
     mastartDate: thDate(smastartDate),

@@ -34,8 +34,8 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <Head>
           <title>Home Page</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={"Home"} session={data} />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
         </PageAppbar>
         <PageContainer>
           <Typography></Typography>

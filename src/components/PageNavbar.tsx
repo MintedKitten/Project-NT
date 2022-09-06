@@ -7,6 +7,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Divider,
 } from "@mui/material";
 import { DragHandle as DragHandleIcon } from "@mui/icons-material";
 import { Session } from "next-auth";
@@ -17,7 +18,6 @@ import { NavbarNavlink } from "../local";
 
 const PageNavbar: FunctionComponent<{
   navlink: NavbarNavlink[];
-  currentTab: string;
   session: Session;
 }> = ({ navlink, session }) => {
   const router = useRouter();
@@ -89,6 +89,7 @@ const PageNavbar: FunctionComponent<{
               </MenuItem>
             );
           })}
+          <Divider />
         </Menu>
         <Box
           sx={{

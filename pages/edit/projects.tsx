@@ -310,13 +310,9 @@ const CreateProjectsPage: NextPage<
         <Head>
           <title>Update Project Details</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={false}
-            pid={pid}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
         </PageAppbar>
         <PageContainer>
           <Box

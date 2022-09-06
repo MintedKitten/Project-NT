@@ -438,13 +438,9 @@ const CreateEquipmentsGroup = () => {
         <Head>
           <title>Create New Equipment Group</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={false}
-            pid={pid as string}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid as string} />
         </PageAppbar>
         <PageContainer>
           <Box

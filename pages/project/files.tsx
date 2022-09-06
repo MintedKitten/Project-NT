@@ -127,13 +127,9 @@ const ProjectFilesPage: NextPage<
         <Head>
           <title>Project Files</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={"Files"}
-            pid={pid}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
         </PageAppbar>
 
         <PageContainer>
@@ -253,6 +249,7 @@ const ProjectFilesPage: NextPage<
                         }}
                       >
                         <a
+                          // eslint-disable-next-line react/no-unknown-property
                           download={filename}
                           href={`/files/${_id?.toHexString()}`}
                         >

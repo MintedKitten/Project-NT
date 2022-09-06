@@ -457,13 +457,9 @@ const EditEquipmentsGroup: NextPage<
         <Head>
           <title>Update Project Equipments</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={false}
-            pid={pid as string}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid as string} />
         </PageAppbar>
         <PageContainer>
           <Box

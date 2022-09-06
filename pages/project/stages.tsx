@@ -265,13 +265,9 @@ const ProjectStagesPage: NextPage<
         <Head>
           <title>Project Stages</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar navlink={navInfo} currentTab={""} session={data} />
-          <ProjectNavbar
-            navlink={projectNavInfo}
-            currentTab={"Stages"}
-            pid={pid}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
+          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
         </PageAppbar>
         <Container maxWidth="xl">
           <Box

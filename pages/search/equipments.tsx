@@ -98,12 +98,8 @@ const SearchEquipmentsPage: NextPage<
         <Head>
           <title>Search Equipments</title>
         </Head>
-        <PageAppbar>
-          <PageNavbar
-            navlink={navInfo}
-            currentTab={"Search Equipments"}
-            session={data}
-          />
+        <PageAppbar session={data}>
+          <PageNavbar navlink={navInfo} session={data} />
         </PageAppbar>
         <PageContainer>
           <Box

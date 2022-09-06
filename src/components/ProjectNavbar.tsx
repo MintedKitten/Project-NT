@@ -1,6 +1,7 @@
 import { Box, Container, Tab, Tabs, Toolbar, Typography } from "@mui/material";
+import { TabContext, TabList } from "@mui/lab";
 import { useRouter } from "next/router";
-import { FunctionComponent } from "react";
+import { FunctionComponent, SyntheticEvent, useState } from "react";
 import { NavbarProjNavlink } from "../local";
 
 function a11yProps(index: number) {
@@ -27,10 +28,15 @@ const tabLabel = (label: string) => {
 
 const ProjectNavbar: FunctionComponent<{
   navlink: NavbarProjNavlink[];
-  currentTab: string | boolean;
   pid: string;
-}> = ({ navlink, currentTab, pid }) => {
+}> = ({ navlink, pid }) => {
   const router = useRouter();
+
+  const [value, setValue] = useState(window.location.pathname);
+
+  const handleChange = (event: SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
 
   const reroute = (route: string) => {
     router.push({ pathname: route, query: { pid: pid } });
@@ -49,47 +55,49 @@ const ProjectNavbar: FunctionComponent<{
         }}
       >
         <Toolbar disableGutters sx={{ height: "40px" }}>
-          <Box
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-            }}
-          >
-            <Tabs
-              value={currentTab}
-              variant="fullWidth"
-              textColor="inherit"
-              indicatorColor="primary"
-              TabIndicatorProps={{
-                style: {
-                  backgroundColor: "#fff",
-                },
+          <TabContext value={value}>
+            <Box
+              sx={{
+                borderBottom: 1,
+                borderColor: "divider",
               }}
             >
-              {navlink.map((page, index) => {
-                const { Header, Link } = page;
-                return (
-                  <Tab
-                    key={index}
-                    label={tabLabel(Header)}
-                    value={Header}
-                    {...a11yProps(index)}
-                    sx={{
-                      marginLeft: index !== 0 ? 6 : 0,
-                      ":hover": {
-                        boxShadow:
-                          "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                      },
-                      borderRadius: 1,
-                    }}
-                    onClick={(event) => {
-                      reroute(Link);
-                    }}
-                  />
-                );
-              })}
-            </Tabs>
-          </Box>
+              <TabList
+                variant="fullWidth"
+                textColor="inherit"
+                indicatorColor="primary"
+                TabIndicatorProps={{
+                  style: {
+                    backgroundColor: "#fff",
+                  },
+                }}
+                onChange={handleChange}
+              >
+                {navlink.map((page, index) => {
+                  const { Header, Link } = page;
+                  return (
+                    <Tab
+                      key={index}
+                      label={tabLabel(Header)}
+                      value={Link}
+                      {...a11yProps(index)}
+                      sx={{
+                        marginLeft: index !== 0 ? 6 : 0,
+                        ":hover": {
+                          boxShadow:
+                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                        },
+                        borderRadius: 1,
+                      }}
+                      onClick={(event) => {
+                        reroute(Link);
+                      }}
+                    />
+                  );
+                })}
+              </TabList>
+            </Box>
+          </TabContext>
         </Toolbar>
       </Box>
     </Container>
