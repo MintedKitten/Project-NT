@@ -10,6 +10,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync } from "fs";
 import { createHash } from "crypto";
 
 import { fileMetadataInt } from "./src/db";
+import { getToken } from "next-auth/jwt";
 
 /**
  * SHA256 Hashing
@@ -113,6 +114,13 @@ app
     fileserver
       // Download a file
       .get("/files/:fmid", async (req, res, next) => {
+        const token = await getToken({
+          req: req,
+          secret: `${process.env.JWT_SECRET}`,
+        });
+        if (!token) {
+          return res.status(401).end();
+        }
         try {
           const result = await getFileName(new ObjectId(req.params.fmid));
           if (result) {
@@ -140,6 +148,13 @@ app
         }
       })
       .post("/files/", async (req, res, next) => {
+        const token = await getToken({
+          req: req,
+          secret: `${process.env.JWT_SECRET}`,
+        });
+        if (!token) {
+          return res.status(401).end();
+        }
         const form = formidable();
         const getDataFromBody = new Promise<{ fields: Fields; files: Files }>(
           (resolve, reject) => {
