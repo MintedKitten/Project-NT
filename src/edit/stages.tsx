@@ -3,10 +3,15 @@ import { retDataeditstages } from "../../pages/api/edit/stages";
 import { fetcher } from "../frontend";
 import { StagesProgress } from "../local";
 
-export async function editStageStatus(stid: string, status: StagesProgress) {
+export async function editStageStatus(
+  stid: string,
+  status: StagesProgress,
+  date: Date
+) {
   const data = (await fetcher("/api/edit/stages", {
     stid: stid,
     status: status,
+    date: date.toString(),
   })) as retDataeditstages;
   return data.isUpdateSuccesful;
 }

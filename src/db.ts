@@ -242,6 +242,7 @@ export interface stagesInt {
   name: string;
   status: StagesProgress;
   order: number;
+  completeDate: Date;
 }
 
 async function getStagesColl(conn: MongoClient) {
@@ -299,6 +300,7 @@ export async function initProject(
       order: index,
       status: StagesProgress.OnGoing,
       name: element,
+      completeDate: new Date(),
     };
     await stagesInsertOne(conn, newstage);
   }

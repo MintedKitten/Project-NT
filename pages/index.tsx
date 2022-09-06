@@ -13,7 +13,7 @@ const HomePage: NextPage = () => {
   }
 
   if (status === "authenticated") {
-    router.push({ pathname: "/search/projects" });
+    router.push({ pathname: "/home/alert" });
   }
   return (
     <>

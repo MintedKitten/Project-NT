@@ -13,9 +13,6 @@ import "dayjs/locale/th";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateIOFormats } from "@date-io/core/IUtils";
 
-// Export
-export { ThaiAdapterDayjs };
-
 interface newDateIOFormats<TLibFormatToken = string>
   extends DateIOFormats<TLibFormatToken> {
   keyboardDateBuddhist: TLibFormatToken;
@@ -62,9 +59,9 @@ const defaultFormats: newDateIOFormats = {
 };
 
 // Class
-class ThaiAdapterDayjs<
+export class ThaiAdapterDayjs<
   TDate extends Dayjs = Dayjs
-> extends AdapterDayjs<Dayjs> {
+> extends AdapterDayjs {
   constructor({ formats }: Opts = {}) {
     super({
       locale: "th",

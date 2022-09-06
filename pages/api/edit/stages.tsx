@@ -11,11 +11,12 @@ const handler = nxcHandler().all(async (req, res) => {
     const body = JSON.parse(req.body);
     const stid = new ObjectId(body.stid);
     const newstatus = body.status;
+    const completeDate = new Date(body.date);
     const conn = await getMongoClient();
     const isUpdateSuccesful = await stagesUpdateOne(
       conn,
       { _id: stid },
-      { $set: { status: newstatus } }
+      { $set: { status: newstatus, completeDate: completeDate } }
     );
     await conn.close();
     return res

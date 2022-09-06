@@ -50,7 +50,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           )}
         </PageAppbar>
         <PageContainer>
-          <Accordion TransitionProps={{ unmountOnExit: true }}></Accordion>
+          {/* <Accordion TransitionProps={{ unmountOnExit: true }}></Accordion> */}
           <Typography></Typography>
         </PageContainer>
       </>

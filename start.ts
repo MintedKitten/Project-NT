@@ -99,6 +99,20 @@ async function insoDir2FileMetadata(
   await conn.close();
   return id;
 }
+
+//cookieformat as key1=value1; key2=value2; key3=value3
+function getCookies(cookies: string = ""): { [key: string]: string } {
+  const keyvaluepair = cookies.split("; ");
+  const cookiesOb: { [key: string]: string } = {};
+  keyvaluepair.forEach((pair) => {
+    const splitindex = pair.indexOf("=");
+    const key = pair.substring(0, splitindex);
+    const value = pair.substring(splitindex + 1);
+    cookiesOb[key] = decodeURIComponent(value);
+  });
+  return cookiesOb;
+}
+
 const dirfilepath = "./files/";
 
 // declare module "express-serve-static-core" {
@@ -114,6 +128,7 @@ app
     fileserver
       // Download a file
       .get("/files/:fmid", async (req, res, next) => {
+        req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
           req: req,
           secret: `${process.env.JWT_SECRET}`,
@@ -148,6 +163,7 @@ app
         }
       })
       .post("/files/", async (req, res, next) => {
+        req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
           req: req,
           secret: `${process.env.JWT_SECRET}`,

@@ -29,7 +29,7 @@ export default function MyApp(props: MyAppProps) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <SessionProvider>
-          <NextNProgress />
+          <NextNProgress color="#CFE8A9" />
           {/* @ts-ignore */}
           <ConfirmDialogProvider preventDuplicate>
             <Component {...pageProps} />

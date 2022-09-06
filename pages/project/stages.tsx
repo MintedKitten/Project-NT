@@ -20,6 +20,7 @@ import {
   StepLabel,
   Stepper,
   styled,
+  TextField,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -46,9 +47,9 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
-import { navInfo, projectNavInfo, StagesProgress } from "../../src/local";
+import { formatDateDMY, StagesProgress } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import fileSize from "filesize";
 import { uploadToServer } from "../../src/create/files";
 import { useConfirmDialog } from "react-mui-confirm";
@@ -56,6 +57,13 @@ import { addFMidsToStage } from "../../src/create/stages";
 import { deleteStageFile, editStageStatus } from "../../src/edit/stages";
 import { getToken } from "next-auth/jwt";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import {
+  LocalizationProvider,
+  MobileDatePicker,
+  DesktopDatePicker,
+} from "@mui/x-date-pickers";
+import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
+import { isMobile } from "react-device-detect";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -108,18 +116,25 @@ function StageStepIcon(props: StepIconProps) {
 const ProjectStagesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, preresultstage, step, srfiles }) => {
+  const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
   const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
 
-  let stages = preresultstage.map((res) => {
+  const stages = preresultstage.map((res) => {
     return convBack(res);
   });
 
   const files = srfiles.map((sfile) => {
     return convFileToTable(sfile);
   });
+
+  const [completeDate, setCompleteDate] = useState(
+    stages[step].status === StagesProgress.OnGoing
+      ? new Date()
+      : stages[step].completeDate
+  );
 
   useEffect(() => {
     const actstep = document.getElementById(
@@ -142,7 +157,6 @@ const ProjectStagesPage: NextPage<
   };
 
   const openConfirmDialog = useConfirmDialog();
-
   function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     if (!e.target.files) {
@@ -172,10 +186,6 @@ const ProjectStagesPage: NextPage<
         if (isAllSuccessful) {
           pagereload(step);
         }
-        // const isAllSuccessful = await addFMidsToProject(pid, fmids);
-        // if (isAllSuccessful) {
-        //   router.push({ pathname: "/project/files", query: { pid: pid } });
-        // }
       },
       cancelButtonProps: {
         color: "primary",
@@ -208,10 +218,11 @@ const ProjectStagesPage: NextPage<
     );
   };
 
-  const changeStageStatus = async (status: StagesProgress) => {
+  const changeStageStatus = async (status: StagesProgress, date: Date) => {
     const isUpdateSuccessful = await editStageStatus(
       stages[step]._id?.toHexString() + "",
-      status
+      status,
+      date
     );
     if (isUpdateSuccessful) {
       if (status === StagesProgress.Complete) {
@@ -226,17 +237,168 @@ const ProjectStagesPage: NextPage<
     if (stages[step].status === StagesProgress.OnGoing) {
       return (
         <>
-          <Typography sx={{ mr: 1 }}>Stage status: </Typography>
-          <Typography sx={{ color: "Red", mr: 1 }}>In Progress</Typography>
-          <Button
-            variant="contained"
-            startIcon={<CheckIcon />}
-            onClick={() => {
-              changeStageStatus(StagesProgress.Complete);
-            }}
-          >
-            Mark as Complete
-          </Button>
+          <Box>
+            <Box sx={{ display: "flex" }}>
+              <Box sx={{ flexGrow: 1 }} />
+              <LocalizationProvider
+                dateAdapter={ThaiAdapterDayjs}
+                dateFormats={{
+                  monthAndYear: "MMMM(MM) BBBB",
+                  monthShort: "MMM(MM)",
+                  year: "BBBB",
+                }}
+              >
+                {isDisplayMobile ? (
+                  <MobileDatePicker
+                    value={completeDate}
+                    views={["year", "month", "day"]}
+                    onChange={(e: any | null) => {
+                      if (e) {
+                        setCompleteDate(new Date(e["$y"], e["$M"], e["$D"]));
+                      }
+                    }}
+                    inputFormat="DD/MM/BBBB"
+                    showDaysOutsideCurrentMonth
+                    renderInput={(params) => (
+                      <TextField size="small" {...params} disabled />
+                    )}
+                  />
+                ) : (
+                  <>
+                    <TextField
+                      sx={{ width: "72px", marginTop: { xs: 1, lg: 0 } }}
+                      placeholder="00"
+                      value={completeDate.getDate()}
+                      size="small"
+                      inputProps={{}}
+                      label="วัน"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setCompleteDate(
+                            new Date(
+                              completeDate.getFullYear(),
+                              completeDate.getMonth(),
+                              parseInt(e.target.value)
+                            )
+                          );
+                        } else {
+                          setCompleteDate(
+                            new Date(
+                              completeDate.getFullYear(),
+                              completeDate.getMonth(),
+                              1
+                            )
+                          );
+                        }
+                      }}
+                      type="number"
+                    />
+                    <TextField
+                      sx={{ width: "72px", marginTop: { xs: 1, lg: 0 } }}
+                      placeholder="00"
+                      value={completeDate.getMonth() + 1}
+                      size="small"
+                      label="เดือน"
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setCompleteDate(
+                            new Date(
+                              completeDate.getFullYear(),
+                              parseInt(e.target.value) - 1,
+                              completeDate.getDate()
+                            )
+                          );
+                        } else {
+                          setCompleteDate(
+                            new Date(
+                              completeDate.getFullYear(),
+                              0,
+                              completeDate.getDate()
+                            )
+                          );
+                        }
+                      }}
+                      type="number"
+                    />
+                    <TextField
+                      sx={{ width: "90px", marginTop: { xs: 1, lg: 0 } }}
+                      placeholder="0000"
+                      value={completeDate.getFullYear() + 543}
+                      size="small"
+                      label="ปี"
+                      onChange={(e) => {
+                        if (e.target.value.length > 0) {
+                          let t = e.target.value;
+                          if (t.length > 4) {
+                            t = t.slice(-4);
+                          }
+                          setCompleteDate(
+                            new Date(
+                              parseInt(t) - 543,
+                              completeDate.getMonth(),
+                              completeDate.getDate()
+                            )
+                          );
+                        } else {
+                          setCompleteDate(
+                            new Date(
+                              -543,
+                              completeDate.getMonth(),
+                              completeDate.getDate()
+                            )
+                          );
+                        }
+                      }}
+                      type="number"
+                    />
+                    <DesktopDatePicker
+                      value={completeDate}
+                      views={["year", "month", "day"]}
+                      onChange={(e: any | null) => {
+                        if (e) {
+                          setCompleteDate(new Date(e["$y"], e["$M"], e["$D"]));
+                        }
+                      }}
+                      inputFormat="DD/MM/BBBB"
+                      showDaysOutsideCurrentMonth
+                      renderInput={(params) => {
+                        let pr = { ...params };
+                        if (pr.inputProps) {
+                          pr.inputProps.readOnly = true;
+                        }
+                        return (
+                          <TextField
+                            size="small"
+                            sx={{
+                              width: 150,
+                              marginTop: { xs: 1, lg: 0 },
+                              marginBottom: { xs: 1, lg: 0 },
+                            }}
+                            {...pr}
+                            disabled
+                          />
+                        );
+                      }}
+                    />
+                  </>
+                )}
+              </LocalizationProvider>
+            </Box>
+            <Box sx={{ display: "flex", mt: 1 }}>
+              <Box sx={{ flexGrow: 1 }} />
+              <Typography sx={{ mr: 1 }}>Stage status: </Typography>
+              <Typography sx={{ color: "Red", mr: 1 }}>In Progress</Typography>
+              <Button
+                variant="contained"
+                startIcon={<CheckIcon />}
+                onClick={() => {
+                  changeStageStatus(StagesProgress.Complete, completeDate);
+                }}
+              >
+                Mark as Complete
+              </Button>
+            </Box>
+          </Box>
         </>
       );
     } else {
@@ -248,7 +410,8 @@ const ProjectStagesPage: NextPage<
             variant="contained"
             startIcon={<CancelIcon />}
             onClick={() => {
-              changeStageStatus(StagesProgress.OnGoing);
+              changeStageStatus(StagesProgress.OnGoing, completeDate);
+              setCompleteDate(new Date());
             }}
           >
             Mark as In Progress
@@ -303,7 +466,7 @@ const ProjectStagesPage: NextPage<
                         completed={status === StagesProgress.Complete}
                         id={_id?.toHexString()}
                         sx={{
-                          minHeight: "120px",
+                          minHeight: "160px",
                         }}
                       >
                         <StepButton
@@ -312,7 +475,15 @@ const ProjectStagesPage: NextPage<
                           }}
                         >
                           <StepLabel StepIconComponent={StageStepIcon}>
-                            {name}
+                            <Typography>{name}</Typography>
+                            {stages[index].status ===
+                            StagesProgress.Complete ? (
+                              <Typography sx={{ fontWeight: "bold" }}>
+                                {formatDateDMY(stages[index].completeDate)}
+                              </Typography>
+                            ) : (
+                              <></>
+                            )}
                           </StepLabel>
                         </StepButton>
                       </Step>
@@ -333,7 +504,7 @@ const ProjectStagesPage: NextPage<
             </Typography>
             <Typography variant={"h5"}>{stages[step].name}</Typography>
           </Box>
-          <Box sx={{ display: "flex", mt: 1, alignItems: "center" }}>
+          <Box sx={{ display: { md: "flex" }, mt: 1, alignItems: "center" }}>
             <TitleButtonElement />
             <Box sx={{ flexGrow: 1 }} />
             <StatusElement />
@@ -626,19 +797,26 @@ export const getServerSideProps: GetServerSideProps<{
 };
 
 function convtoSerializable(data: stagesInt) {
-  const { _id, projId, ...r } = data;
+  const { _id, projId, completeDate, ...r } = data;
   return {
     _id: _id?.toHexString(),
     projId: projId.toHexString(),
+    completeDate: completeDate.toString(),
     ...r,
   };
 }
 
 function convBack(data: ReturnType<typeof convtoSerializable>): stagesInt {
-  const { _id: s_id, projId: sprojId, ...r } = data;
+  const {
+    _id: s_id,
+    projId: sprojId,
+    completeDate: scompleteDate,
+    ...r
+  } = data;
   return {
     _id: new ObjectId(s_id),
     projId: new ObjectId(sprojId),
+    completeDate: new Date(scompleteDate),
     ...r,
   };
 }

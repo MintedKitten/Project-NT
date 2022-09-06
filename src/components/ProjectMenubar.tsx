@@ -82,10 +82,6 @@ const ProjectMenubar: FunctionComponent<{
                 <Typography
                   variant="h5"
                   noWrap
-                  // onClick={(event) => {
-                  //   event.preventDefault();
-                  //   reroute(Link);
-                  // }}
                   sx={{
                     fontWeight: window.location.pathname === Link ? 600 : 300,
                     fontSize: 16,

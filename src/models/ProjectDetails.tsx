@@ -1,7 +1,7 @@
 import { Grid, Typography, Box } from "@mui/material";
 import Big from "big.js";
 import { itemObjectInt } from "../db";
-import { InputEn } from "../local";
+import { formatDateDMY, InputEn } from "../local";
 import { typeArray } from "../search/projects";
 
 interface ProjectDetailsProps {
@@ -19,11 +19,9 @@ export const ProjectDetails = ({ topic, value, type }: ProjectDetailsProps) => {
           <Typography sx={{ fontWeight: "bold" }}>{topic}</Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Typography sx={{ fontWeight: "Medium" }}>{`${(
-            date.getDate() + ""
-          ).padStart(2, "0")}/${(date.getMonth() + 1 + "").padStart(2, "0")}/${
-            date.getFullYear() + 543
-          }`}</Typography>
+          <Typography sx={{ fontWeight: "Medium" }}>{`${formatDateDMY(
+            date
+          )}`}</Typography>
         </Grid>
       </>
     );
