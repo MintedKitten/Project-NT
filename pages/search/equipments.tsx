@@ -15,6 +15,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -23,7 +24,6 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import Space from "../../src/components/Space";
-import { navInfo } from "../../src/local";
 import {
   Search as SearchIcon,
   OpenInBrowser as OpenInBrowserIcon,
@@ -35,15 +35,17 @@ import {
 } from "next";
 import { getToken } from "next-auth/jwt";
 import { equipmentsInt, getMongoClient, projectsInt } from "../../src/db";
-import { AggregationCursor, Condition, Filter } from "mongodb";
+import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
 import Link from "next/link";
 import { EquipmentWithProjectName } from "../../src/server";
+import PageMenubar from "../../src/components/PageMenubar";
 
 const SearchEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ presult }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -98,8 +100,12 @@ const SearchEquipmentsPage: NextPage<
         <Head>
           <title>Search Equipments</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
+        <PageAppbar>
+          {isNavbar ? (
+            <PageNavbar session={data} />
+          ) : (
+            <PageMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box

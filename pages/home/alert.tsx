@@ -4,22 +4,28 @@ import type {
   InferGetStaticPropsType,
   NextPage,
 } from "next";
-import { Backdrop, CircularProgress, Typography } from "@mui/material";
+import {
+  Backdrop,
+  CircularProgress,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
-import { DateDeadlineStatus, navInfo, thDate } from "../../src/local";
+import { DateDeadlineStatus } from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
 import { ProjectWithInProgressStage } from "../../src/server";
-import Big from "big.js";
 import { ObjectId } from "bson";
+import PageMenubar from "../../src/components/PageMenubar";
 
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   result,
 }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -34,8 +40,12 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <Head>
           <title>Home Page</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
+        <PageAppbar>
+          {isNavbar ? (
+            <PageNavbar session={data} />
+          ) : (
+            <PageMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Typography></Typography>

@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Grid,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Download as DownloadIcon,
@@ -42,10 +43,12 @@ import { ObjectId } from "bson";
 import { navInfo, projectNavInfo } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { getToken } from "next-auth/jwt";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, srfiles }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -127,9 +130,15 @@ const ProjectFilesPage: NextPage<
         <Head>
           <title>Project Files</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
-          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
+        <PageAppbar>
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
 
         <PageContainer>

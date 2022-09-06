@@ -21,6 +21,7 @@ import {
   Stepper,
   styled,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -54,6 +55,7 @@ import { useConfirmDialog } from "react-mui-confirm";
 import { addFMidsToStage } from "../../src/create/stages";
 import { deleteStageFile, editStageStatus } from "../../src/edit/stages";
 import { getToken } from "next-auth/jwt";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -106,6 +108,7 @@ function StageStepIcon(props: StepIconProps) {
 const ProjectStagesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, preresultstage, step, srfiles }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -265,9 +268,15 @@ const ProjectStagesPage: NextPage<
         <Head>
           <title>Project Stages</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
-          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
+        <PageAppbar>
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
         <Container maxWidth="xl">
           <Box

@@ -5,6 +5,7 @@ import {
   CircularProgress,
   Grid,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { Edit as EditIcon } from "@mui/icons-material";
 import Big from "big.js";
@@ -23,29 +24,24 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import {
-  getMongoClient,
-  projectFindOne,
-  projectsInt,
-  projJoinStage,
-  stagesFindAll,
-} from "../../src/db";
+import { getMongoClient, projectsInt } from "../../src/db";
 import {
   budgetThreshold,
   calculateDiffTime,
   InputEn,
   navInfo,
   projectNavInfo,
-  StagesProgress,
   thDate,
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
 import { ProjectWithInProgressStage } from "../../src/server";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, preresult, isComplete }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -153,9 +149,15 @@ const ProjectsPage: NextPage<
         <Head>
           <title>Project Details</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
-          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
+        <PageAppbar>
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
 
         <PageContainer>

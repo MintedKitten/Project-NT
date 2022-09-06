@@ -45,9 +45,11 @@ import { useConfirmDialog } from "react-mui-confirm";
 import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
 import Big from "big.js";
+import PageMenubar from "../../src/components/PageMenubar";
 
 const CreateProjectsPage = () => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -371,8 +373,12 @@ const CreateProjectsPage = () => {
         <Head>
           <title>Create New Project</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
+        <PageAppbar>
+          {isNavbar ? (
+            <PageNavbar session={data} />
+          ) : (
+            <PageMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box

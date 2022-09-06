@@ -13,6 +13,7 @@ import {
   Button,
   CircularProgress,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -50,10 +51,12 @@ import { valFloat, valInteger } from "../../src/create/projects";
 import { useState } from "react";
 import { equipmentsGroupDelete } from "../../src/edit/equipments";
 import { useConfirmDialog } from "react-mui-confirm";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, peqGroups, pequipments }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -203,9 +206,15 @@ const ProjectEquipmentsPage: NextPage<
         <Head>
           <title>Project Equipments</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
-          <ProjectNavbar navlink={projectNavInfo} pid={pid} />
+        <PageAppbar>
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
 
         <PageContainer>

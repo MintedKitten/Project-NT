@@ -18,6 +18,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -48,10 +49,12 @@ import {
 import { ObjectId } from "bson";
 import { navInfo } from "../../src/local";
 import { getToken } from "next-auth/jwt";
+import PageMenubar from "../../src/components/PageMenubar";
 
 const SearchProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ result, filterSelectionYear }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -122,8 +125,12 @@ const SearchProjectsPage: NextPage<
         <Head>
           <title>Search Projects</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
+        <PageAppbar>
+          {isNavbar ? (
+            <PageNavbar session={data} />
+          ) : (
+            <PageMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box

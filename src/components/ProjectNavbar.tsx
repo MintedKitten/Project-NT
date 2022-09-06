@@ -2,7 +2,7 @@ import { Box, Container, Tab, Tabs, Toolbar, Typography } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import { useRouter } from "next/router";
 import { FunctionComponent, SyntheticEvent, useState } from "react";
-import { NavbarProjNavlink } from "../local";
+import { NavbarProjNavlink, projectNavInfo } from "../local";
 
 function a11yProps(index: number) {
   return {
@@ -27,9 +27,8 @@ const tabLabel = (label: string) => {
 };
 
 const ProjectNavbar: FunctionComponent<{
-  navlink: NavbarProjNavlink[];
   pid: string;
-}> = ({ navlink, pid }) => {
+}> = ({ pid }) => {
   const router = useRouter();
 
   const [value, setValue] = useState(window.location.pathname);
@@ -42,14 +41,13 @@ const ProjectNavbar: FunctionComponent<{
     router.push({ pathname: route, query: { pid: pid } });
   };
 
+  const navlinkProject = projectNavInfo;
+
   return (
     <Container maxWidth="lg">
       <Box
         sx={{
-          display: {
-            xs: "none",
-            md: "flex",
-          },
+          display: "flex",
           overflow: "auto",
           justifyContent: { xs: "start", sm: "center" },
         }}
@@ -73,7 +71,7 @@ const ProjectNavbar: FunctionComponent<{
                 }}
                 onChange={handleChange}
               >
-                {navlink.map((page, index) => {
+                {navlinkProject.map((page, index) => {
                   const { Header, Link } = page;
                   return (
                     <Tab

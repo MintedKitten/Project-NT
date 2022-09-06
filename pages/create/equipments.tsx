@@ -20,7 +20,7 @@ import {
   GridRowModel,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
-import { Alert, TextField } from "@mui/material";
+import { Alert, TextField, useMediaQuery } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
@@ -194,6 +194,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const CreateEquipmentsGroup = () => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const pid = router.query.pid as string;
@@ -438,9 +439,9 @@ const CreateEquipmentsGroup = () => {
         <Head>
           <title>Create New Equipment Group</title>
         </Head>
-        <PageAppbar session={data}>
-          <PageNavbar navlink={navInfo} session={data} />
-          <ProjectNavbar navlink={projectNavInfo} pid={pid as string} />
+        <PageAppbar>
+          <PageNavbar   session={data} />
+          <ProjectNavbar   pid={pid as string} />
         </PageAppbar>
         <PageContainer>
           <Box
