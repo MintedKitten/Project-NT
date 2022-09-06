@@ -345,7 +345,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };
@@ -355,7 +355,7 @@ export const getServerSideProps: GetServerSideProps<{
     srfiles: ReturnType<typeof convToSerializable>[];
   }> = {
     redirect: {
-      destination: "/search/projects",
+      destination: "/home/alert",
       permanent: false,
     },
   };
@@ -376,7 +376,7 @@ export const getServerSideProps: GetServerSideProps<{
   } catch (err) {
     retOb = {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };

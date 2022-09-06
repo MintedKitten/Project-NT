@@ -34,8 +34,8 @@ import {
   NextPage,
 } from "next";
 import { getToken } from "next-auth/jwt";
-import { equipmentsInt, getMongoClient } from "../../src/db";
-import { Condition, Filter } from "mongodb";
+import { equipmentsInt, getMongoClient, projectsInt } from "../../src/db";
+import { AggregationCursor, Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
 import Link from "next/link";
@@ -115,8 +115,14 @@ const SearchEquipmentsPage: NextPage<
             <Typography variant="h6" sx={{ opacity: 0.5, height: "100%" }}>
               Filter
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <Box sx={{ width: { xs: "50%", sm: "30%" } }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                width: "100%",
+              }}
+            >
+              <Box sx={{ width: { xs: "100%", sm: "30%" } }}>
                 <InputLabel id="labelSearchName">Part Number</InputLabel>
                 <TextField
                   margin="dense"
@@ -126,13 +132,19 @@ const SearchEquipmentsPage: NextPage<
                 />
               </Box>
               <Space size={15} direction="column" />
-              <Box sx={{ width: { xs: "50%", sm: "70%" } }}>
+              <Box sx={{ width: { xs: "100%", sm: "70%" } }}>
                 <InputLabel id="labelSearchName">Description</InputLabel>
                 <TextField margin="dense" fullWidth id="desc" name="desc" />
               </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <Box sx={{ width: "40%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                width: "100%",
+              }}
+            >
+              <Box sx={{ width: { xs: "100%", sm: "40%" } }}>
                 <InputLabel id="labelSearchName">Qty</InputLabel>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <TextField
@@ -155,7 +167,7 @@ const SearchEquipmentsPage: NextPage<
                 </Box>
               </Box>
               <Space size={15} direction="column" />
-              <Box sx={{ width: "60%" }}>
+              <Box sx={{ width: { xs: "100%", sm: "60%" } }}>
                 <InputLabel id="labelSearchName">Unit Price</InputLabel>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <TextField
@@ -377,26 +389,25 @@ export const getServerSideProps: GetServerSideProps<{
       // @ts-ignore
       query["$and"] = unitPrice["$and"];
     }
-    const presult = await EquipmentWithProjectName(query);
-    if (presult) {
-      for (let index = 0; index < presult.length; index++) {
-        const eqmt = presult[index];
-        result.push(convToSerializable(eqmt));
+    const cres = await EquipmentWithProjectName(conn, query);
+    if (cres) {
+      const presult = await cres.toArray();
+      if (presult) {
+        for (let index = 0; index < presult.length; index++) {
+          const eqmt = presult[index];
+          result.push(convToSerializable(eqmt));
+        }
       }
     }
   } catch (err) {
+    console.log(err);
   } finally {
     await conn.close();
-    console.log(result);
     return { props: { presult: result } };
   }
 };
 
-function convToSerializable(
-  data: NonNullable<
-    Awaited<ReturnType<typeof EquipmentWithProjectName>>
-  >[number]
-) {
+function convToSerializable(data: Partial<equipmentsInt & projectsInt>) {
   const { _id, projId, ...r } = data;
   return {
     _id: _id?.toHexString(),
@@ -405,7 +416,7 @@ function convToSerializable(
     qty: r.qty,
     unitPrice: r.unitPrice,
     projName: r.projName,
-    projId: projId.toHexString(),
+    projId: projId?.toHexString(),
     unit: r.unit,
   };
 }

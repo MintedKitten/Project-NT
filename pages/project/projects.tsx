@@ -27,6 +27,7 @@ import {
   getMongoClient,
   projectFindOne,
   projectsInt,
+  projJoinStage,
   stagesFindAll,
 } from "../../src/db";
 import {
@@ -40,6 +41,7 @@ import {
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
+import { ProjectWithInProgressStage } from "../../src/server";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -237,7 +239,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };
@@ -248,48 +250,40 @@ export const getServerSideProps: GetServerSideProps<{
     isComplete: boolean;
   }> = {
     redirect: {
-      destination: "/search/projects",
+      destination: "/home/alert",
       permanent: false,
     },
   };
   const conn = await getMongoClient();
   try {
-    const presult = await projectFindOne(conn, {
+    const cres = await ProjectWithInProgressStage({
       _id: new ObjectId(webquery["pid"] as string),
     });
-    const stages = await stagesFindAll(conn, {
-      projId: new ObjectId(webquery["pid"]),
-    });
-    let isComplete = true;
-    for (let index = 0; index < stages.length; index++) {
-      const element = stages[index];
-      if (element.status === StagesProgress.OnGoing) {
-        isComplete = false;
-        break;
+    if (cres) {
+      const arresult = await cres.toArray();
+      if (arresult.length !== 1) {
+        retOb = {
+          redirect: {
+            destination: "/home/alert",
+            permanent: false,
+          },
+        };
+      } else {
+        const { stages_docs, ...presult } = arresult[0];
+        const conv = convtoSerializable(presult);
+        retOb = {
+          props: {
+            pid: webquery.pid as string,
+            preresult: conv,
+            isComplete: stages_docs.length === 0,
+          },
+        };
       }
-    }
-
-    if (!presult) {
-      retOb = {
-        redirect: {
-          destination: "/search/projects",
-          permanent: false,
-        },
-      };
-    } else {
-      const conv = convtoSerializable(presult);
-      retOb = {
-        props: {
-          pid: webquery.pid as string,
-          preresult: conv,
-          isComplete: isComplete,
-        },
-      };
     }
   } catch (err) {
     retOb = {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };

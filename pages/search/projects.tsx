@@ -35,6 +35,7 @@ import Space from "../../src/components/Space";
 import { typeArray } from "../../src/search/projects";
 import {
   GetServerSideProps,
+  GetServerSidePropsResult,
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
@@ -326,36 +327,49 @@ export const getServerSideProps: GetServerSideProps<{
   }
   const webquery = context.query as { [key: string]: any };
   const query: { [key in keyof projectsInt]?: any } = {};
-  try {
-    if (webquery["name"]) {
-      query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
-    }
-    if (webquery["type"] && webquery["type"] !== "0") {
-      query["type"] = parseInt(webquery["type"]);
-    }
-    if (webquery["year"] && webquery["year"] !== "0") {
-      query["procurementYear"] = parseInt(webquery["year"]);
-    }
-  } catch (err) {}
-  const conn = await getMongoClient();
-  const presult = await projectFindAll(conn, query, {
-    projection: {
-      projName: 1,
-      type: 1,
-      procurementYear: 1,
-    },
-  });
-  const pyear = await projectDistinct(conn, "procurementYear", {});
-  await conn.close();
-  const convresult = presult.map((res) => {
-    return convtoTable(res);
-  });
-  return {
-    props: {
-      result: convresult,
-      filterSelectionYear: pyear as number[],
+  if (webquery["name"]) {
+    query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
+  }
+  if (webquery["type"] && webquery["type"] !== "0") {
+    query["type"] = parseInt(webquery["type"]);
+  }
+  if (webquery["year"] && webquery["year"] !== "0") {
+    query["procurementYear"] = parseInt(webquery["year"]);
+  }
+  let retOb: GetServerSidePropsResult<{
+    result: ReturnType<typeof convtoTable>[];
+    filterSelectionYear: number[];
+  }> = {
+    redirect: {
+      destination: "/home/alert",
+      permanent: false,
     },
   };
+  const conn = await getMongoClient();
+  try {
+    const presult = await projectFindAll(conn, query, {
+      projection: {
+        projName: 1,
+        type: 1,
+        procurementYear: 1,
+      },
+    });
+    const pyear = await projectDistinct(conn, "procurementYear", {});
+    const convresult = presult.map((res) => {
+      return convtoTable(res);
+    });
+    retOb = {
+      props: {
+        result: convresult,
+        filterSelectionYear: pyear as number[],
+      },
+    };
+  } catch (err) {
+    console.log(err);
+  } finally {
+    await conn.close();
+    return retOb;
+  }
 };
 
 function convtoTable(data: projectsInt) {

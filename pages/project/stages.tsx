@@ -447,6 +447,7 @@ const ProjectStagesPage: NextPage<
                           }}
                         >
                           <a
+                            // eslint-disable-next-line react/no-unknown-property
                             download={filename}
                             href={`/files/${_id?.toHexString()}`}
                           >
@@ -539,7 +540,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };
@@ -551,7 +552,7 @@ export const getServerSideProps: GetServerSideProps<{
     srfiles: ReturnType<typeof convFileToSerializable>[];
   }> = {
     redirect: {
-      destination: "/search/projects",
+      destination: "/home/alert",
       permanent: false,
     },
   };
@@ -609,7 +610,7 @@ export const getServerSideProps: GetServerSideProps<{
   } catch (err) {
     retOb = {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };

@@ -84,14 +84,6 @@ export interface itemObjectInt {
   unit: string;
 }
 
-// both
-// new page for tracking projects, devided into past deadline, within 3 months, within 1 year, and over 1 year
-// each one has name, type, progress status, due date
-
-// thoughts
-// way to edit the stages? no idea how but will be really useful
-// exporting data, no idea about any of these but i just want something else to think
-
 interface projectsInsertInt {
   _id?: ObjectId;
   projName: string;
@@ -594,6 +586,24 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
         newRoot: {
           $mergeObjects: [{ $arrayElemAt: ["$proj_docs", 0] }, "$$ROOT"],
         },
+      },
+    },
+  ]);
+  return result;
+}
+
+export async function projJoinStage(conn: MongoClient, query: object) {
+  const result = (await getProjectColl(conn)).aggregate([
+    {
+      $match: query,
+    },
+    {
+      $lookup: {
+        from: `${process.env.stagesCollection}`,
+        localField: "_id",
+        foreignField: "projId",
+        pipeline: [{ $match: { status: StagesProgress.OnGoing } }],
+        as: "stages_docs",
       },
     },
   ]);

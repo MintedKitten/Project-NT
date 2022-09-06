@@ -9,7 +9,6 @@ const PageAppbar = ({
   return (
     <AppBar position="sticky">
       <Box>{children}</Box>
-      <Box></Box>
     </AppBar>
   );
 };

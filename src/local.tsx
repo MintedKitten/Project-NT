@@ -5,7 +5,6 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { FunctionComponent } from "react";
-import { rowCSVInt } from "./create/equipments";
 
 export enum InputEn {
   String,
@@ -21,6 +20,12 @@ export enum InputEn {
 export enum StagesProgress {
   OnGoing,
   Complete,
+}
+export enum DateDeadlineStatus {
+  Normal,
+  YellowAlert,
+  RedAlert,
+  Passed,
 }
 
 export const budgetThreshold = 100000000;

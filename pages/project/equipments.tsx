@@ -325,7 +325,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };
@@ -336,7 +336,7 @@ export const getServerSideProps: GetServerSideProps<{
     pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][];
   }> = {
     redirect: {
-      destination: "/search/projects",
+      destination: "/home/alert",
       permanent: false,
     },
   };
@@ -370,7 +370,7 @@ export const getServerSideProps: GetServerSideProps<{
   } catch (err) {
     retOb = {
       redirect: {
-        destination: "/search/projects",
+        destination: "/home/alert",
         permanent: false,
       },
     };
