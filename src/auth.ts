@@ -3,7 +3,9 @@ import seedrandom from "seedrandom";
 
 export function hashPassword(username: string, password: string) {
   const hashed = sha256(
-    username + password + seedrandom(username + password + process.env.secret)()
+    username +
+      password +
+      seedrandom(username + password + process.env.AUTH_SECRET)()
   );
   return hashed;
 }

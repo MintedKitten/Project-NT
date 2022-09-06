@@ -89,7 +89,6 @@ export const getStaticProps: GetStaticProps<{ test: string }> = (context) => {
 // }> = async (context) => {
 //   const token = await getToken({
 //     req: context.req,
-//     secret: `${process.env.secret}`,
 //   });
 //   if (!token) {
 //     return {

@@ -590,7 +590,7 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (context) => {
   const token = await getToken({
     req: context.req,
-    secret: `${process.env.secret}`,
+    secret: `${process.env.JWT_SECRET}`,
   });
   if (!token) {
     return {
