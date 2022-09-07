@@ -32,9 +32,7 @@ import {
   formatDateYYYYMM,
 } from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
-import {
-  ProjectWithInProgressStage,
-} from "../../src/server";
+import { ProjectWithInProgressStage } from "../../src/server";
 import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
@@ -64,7 +62,7 @@ const AlertAccordionSummary = styled((props: AccordionSummaryProps) => (
   "& .MuiAccordionSummary-content": {
     marginLeft: theme.spacing(0),
   },
-  pointerEvents: "none",
+  pointerEvents: "inherit",
 }));
 
 const AlertAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
@@ -279,7 +277,7 @@ export const getStaticProps: GetStaticProps<{
       const result = arresult.map((result) => {
         return compileStatus(result);
       });
-      retOb = { props: { presult: result }, revalidate: 1};
+      retOb = { props: { presult: result }, revalidate: 1 };
     }
   } catch (err) {
     alert(err);
