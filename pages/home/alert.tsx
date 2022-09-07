@@ -281,7 +281,7 @@ export const getStaticProps: GetStaticProps<{
       const result = arresult.map((result) => {
         return compileStatus(result);
       });
-      retOb = { props: { presult: result }, revalidate: 10 };
+      retOb = { props: { presult: result }, revalidate: 1};
     }
   } catch (err) {
     alert(err);
