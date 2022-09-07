@@ -14,6 +14,7 @@ import {
   Backdrop,
   Box,
   CircularProgress,
+  Grid,
   Snackbar,
   styled,
   Typography,
@@ -146,53 +147,123 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
             }
           }}
         />
-        <PageContainer maxWidth="md">
-          <Box sx={{ mt: 1 }}>
-            {Object.entries(groupbyMMYY).map(([key, resarray]) => {
-              return (
-                <AlertAccordion key={key} expanded={true}>
-                  <AlertAccordionSummary id={key}>
-                    <Typography>{`${formatDateYYYYMM(
-                      new Date(key)
-                    )}`}</Typography>
-                  </AlertAccordionSummary>
-                  <AlertAccordionDetails>
-                    {resarray.map((row) => {
-                      const { project } = row;
+        <PageContainer maxWidth="xl">
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={6}>
+              <Grid container sx={{ maxHeight: "60vh", overflow: "auto" }}>
+                <Grid item xs={12}>
+                  <Box sx={{ mt: 1 }}>
+                    {Object.entries(groupbyMMYY).map(([key, resarray]) => {
+                      const [dd, mm, yy] = key.split("/").map((r) => {
+                        return parseInt(r);
+                      });
                       return (
-                        <Link
-                          key={project._id}
-                          href={{
-                            pathname: "/project/projects",
-                            query: { pid: project._id },
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              cursor: "pointer",
-                              border: 1,
-                              borderColor: "whitesmoke",
-                              borderRadius: 2,
-                              bgcolor: getBGColorFromStatus(row[keyAlert]),
-                              paddingY: 3,
-                              paddingX: 1,
-                            }}
-                          >
-                            <Typography>{`${project.projName}`}</Typography>
-                            <Box sx={{ flexGrow: 1 }} />
-                            <Typography>{`${formatDateDDMMYY(
-                              row[keyDate]
+                        <AlertAccordion key={key} expanded={true}>
+                          <AlertAccordionSummary id={key}>
+                            <Typography>{`${formatDateYYYYMM(
+                              new Date(yy, mm, dd)
                             )}`}</Typography>
-                          </Box>
-                        </Link>
+                          </AlertAccordionSummary>
+                          <AlertAccordionDetails>
+                            {resarray.map((row) => {
+                              const { project } = row;
+                              return (
+                                <Link
+                                  key={project._id}
+                                  href={{
+                                    pathname: "/project/projects",
+                                    query: { pid: project._id },
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      cursor: "pointer",
+                                      border: 1,
+                                      borderColor: "whitesmoke",
+                                      borderRadius: 2,
+                                      bgcolor: getBGColorFromStatus(
+                                        row[keyAlert]
+                                      ),
+                                      paddingY: 3,
+                                      paddingX: 1,
+                                    }}
+                                  >
+                                    <Typography>{`${project.projName}`}</Typography>
+                                    <Box sx={{ flexGrow: 1 }} />
+                                    <Typography>{`${formatDateDDMMYY(
+                                      row[keyDate]
+                                    )}`}</Typography>
+                                  </Box>
+                                </Link>
+                              );
+                            })}
+                          </AlertAccordionDetails>
+                        </AlertAccordion>
                       );
                     })}
-                  </AlertAccordionDetails>
-                </AlertAccordion>
-              );
-            })}
-          </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Grid container sx={{ maxHeight: "85vh", overflow: "auto" }}>
+                <Grid item xs={12}>
+                  <Box sx={{ mt: 1 }}>
+                    {Object.entries(groupbyMMYY).map(([key, resarray]) => {
+                      const [dd, mm, yy] = key.split("/").map((r) => {
+                        return parseInt(r);
+                      });
+                      return (
+                        <AlertAccordion key={key} expanded={true}>
+                          <AlertAccordionSummary id={key}>
+                            <Typography>{`${formatDateYYYYMM(
+                              new Date(yy, mm, dd)
+                            )}`}</Typography>
+                          </AlertAccordionSummary>
+                          <AlertAccordionDetails>
+                            {resarray.map((row) => {
+                              const { project } = row;
+                              return (
+                                <Link
+                                  key={project._id}
+                                  href={{
+                                    pathname: "/project/projects",
+                                    query: { pid: project._id },
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      cursor: "pointer",
+                                      border: 1,
+                                      borderColor: "whitesmoke",
+                                      borderRadius: 2,
+                                      bgcolor: getBGColorFromStatus(
+                                        row[keyAlert]
+                                      ),
+                                      paddingY: 3,
+                                      paddingX: 1,
+                                    }}
+                                  >
+                                    <Typography>{`${project.projName}`}</Typography>
+                                    <Box sx={{ flexGrow: 1 }} />
+                                    <Typography>{`${formatDateDDMMYY(
+                                      row[keyDate]
+                                    )}`}</Typography>
+                                  </Box>
+                                </Link>
+                              );
+                            })}
+                          </AlertAccordionDetails>
+                        </AlertAccordion>
+                      );
+                    })}
+                  </Box>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
         </PageContainer>
       </>
     );

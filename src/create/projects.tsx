@@ -171,7 +171,7 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
     หมายเหตุ: data.comments || "",
     "วันหมดสัญญา (พ.ศ.)": contractendDate,
     "งบประมาณ (ไม่รวมภาษีมูลค่าเพิ่ม) (บาท)":
-      Big(data.budget.replace(/,/g, "")).toNumber() + "",
+      Big((data.budget + "").replace(/,/g, "")).toNumber() + "",
     "MA (ระยะเวลารับประกัน)": "",
   };
   return c;
