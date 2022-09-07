@@ -2,11 +2,12 @@ import { AggregationCursor, Filter, MongoClient } from "mongodb";
 import {
   eqJoinProj,
   equipmentsInt,
-  getMongoClient,
   projectsInt,
   projJoinStage,
   stagesInt,
 } from "./db";
+import { Socket } from "net";
+import { lookup, LookupOptions, resolve } from "dns";
 
 export async function EquipmentWithProjectName(
   conn: MongoClient,
@@ -57,4 +58,51 @@ export async function ProjectWithInProgressStage(
   });
   ret = result;
   return ret;
+}
+
+// Ping the database
+let isPinging = false;
+
+const host = "icanhazip.com";
+const port = 0; //?
+
+// Ping Database, currently hardcoding path
+export async function isDatabaseReachable() {
+  // return await testConnection();
+  const options: LookupOptions = { all: true };
+  resolve(host, (err, addresses) => {
+    console.log(addresses);
+  });
+  lookup(host, options, (err, addresses) => {
+    console.log(addresses);
+  });
+}
+
+async function testConnection(host: string, port: number) {
+  if (!isPinging) {
+    isPinging = true;
+    const isUp = await new Promise<boolean>((resolve) => {
+      const socket = new Socket();
+      socket.setTimeout(3000);
+      socket
+        .on("connect", () => {
+          console.log(`${host}:${port} - is up`);
+          socket.destroy();
+          resolve(true);
+        })
+        .on("error", (err) => {
+          console.log(`${host}:${port} - is down: ${err}`);
+          resolve(false);
+        })
+        .on("timeout", () => {
+          console.log(`${host}:${port} - is down: timeout`);
+          resolve(false);
+        });
+      socket.connect({ port: port, host: host });
+    });
+    isPinging = false;
+    return isUp;
+  } else {
+    return null;
+  }
 }

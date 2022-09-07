@@ -1,13 +1,15 @@
-import { Container, Box } from "@mui/material";
+import { Container, Box, Breakpoint } from "@mui/material";
 import { ReactElement } from "react";
 
 const PageContainer = ({
   children,
+  maxWidth = "lg",
 }: {
   children?: ReactElement | ReactElement[];
+  maxWidth?: Breakpoint;
 }) => {
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth={maxWidth}>
       <Box
         sx={{
           my: 3,

@@ -47,7 +47,7 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
-import { formatDateDMY, StagesProgress } from "../../src/local";
+import { formatDateDDMMYY, StagesProgress } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { ChangeEvent, useEffect, useState } from "react";
 import fileSize from "filesize";
@@ -406,7 +406,7 @@ const ProjectStagesPage: NextPage<
         <>
           <Typography sx={{ mr: 1 }}>Stage status:</Typography>
           <Typography sx={{ color: "Green", mr: 1 }}>
-            Complete {formatDateDMY(stages[step].completeDate)}
+            Complete {formatDateDDMMYY(stages[step].completeDate)}
           </Typography>
           <Button
             variant="contained"
@@ -481,7 +481,7 @@ const ProjectStagesPage: NextPage<
                             {stages[index].status ===
                             StagesProgress.Complete ? (
                               <Typography sx={{ fontWeight: "bold" }}>
-                                {formatDateDMY(stages[index].completeDate)}
+                                {formatDateDDMMYY(stages[index].completeDate)}
                               </Typography>
                             ) : (
                               <></>

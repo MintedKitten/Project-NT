@@ -44,7 +44,7 @@ const ProjectNavbar: FunctionComponent<{
   const navlinkProject = projectNavInfo;
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" sx={{ bgcolor: "white" }}>
       <Box
         sx={{
           display: "flex",
@@ -62,13 +62,13 @@ const ProjectNavbar: FunctionComponent<{
             >
               <TabList
                 variant="fullWidth"
-                textColor="inherit"
-                indicatorColor="primary"
-                TabIndicatorProps={{
-                  style: {
-                    backgroundColor: "#fff",
-                  },
-                }}
+                // textColor="inherit"
+                // indicatorColor="primary"
+                // TabIndicatorProps={{
+                //   style: {
+                //     backgroundColor: "#fff",
+                //   },
+                // }}
                 onChange={handleChange}
               >
                 {navlinkProject.map((page, index) => {

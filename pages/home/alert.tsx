@@ -10,10 +10,13 @@ import {
   AccordionProps,
   AccordionSummary,
   AccordionSummaryProps,
+  Alert,
   Backdrop,
   Box,
   CircularProgress,
+  Snackbar,
   styled,
+  Tab,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -23,13 +26,23 @@ import Head from "next/head";
 import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
-import { DateDeadlineStatus, formatDateDMY } from "../../src/local";
+import {
+  DateDeadlineStatus,
+  formatDateDDMMYY,
+  formatDateYYYYMM,
+} from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
-import { ProjectWithInProgressStage } from "../../src/server";
+import {
+  isDatabaseReachable,
+  ProjectWithInProgressStage,
+} from "../../src/server";
 import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
 import Link from "next/link";
+import { useState } from "react";
+import { TabContext, TabList } from "@mui/lab";
+import { Detector } from "react-detect-offline";
 
 const AlertAccordion = styled((props: AccordionProps) => (
   <Accordion disableGutters elevation={0} square {...props} />
@@ -60,6 +73,28 @@ const AlertAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
   borderTop: "1px solid rgba(0, 0, 0, .125)",
 }));
 
+function a11yProps(index: number) {
+  return {
+    id: `full-width-tab-${index}`,
+    "aria-controls": `full-width-tabpanel-${index}`,
+  };
+}
+
+const tabLabel = (label: string) => {
+  return (
+    <Typography
+      sx={{
+        color: "inherit",
+        fontWeight: 500,
+        fontSize: "1rem",
+        mx: 2,
+      }}
+    >
+      {label}
+    </Typography>
+  );
+};
+
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   presult,
 }) => {
@@ -72,17 +107,37 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     return compileBackStatus(res);
   });
 
-  const sortByContract = () => {
-    result.sort(
-      (a, b) => b.contractendDate.getTime() - a.contractendDate.getTime()
-    );
+  const [keyDate, setKeyDate] = useState<"contractendDate" | "maendDate">(
+    "contractendDate"
+  );
+
+  const [keyAlert, setKeyAlert] = useState<
+    "contractAlertLevel" | "maAlertLevel"
+  >("contractAlertLevel");
+
+  const sortRes = () => {
+    result.sort((a, b) => b[keyDate].getTime() - a[keyDate].getTime());
   };
 
-  const sortByMA = () => {
-    result.sort((a, b) => b.maendDate.getTime() - a.maendDate.getTime());
-  };
+  sortRes();
 
-  sortByContract();
+  const groupbyMMYY: { [key: string]: ReturnType<typeof compileBackStatus>[] } =
+    {};
+  result.forEach((res) => {
+    const date = dayjs(res[keyDate]).format("01/MM/YYYY");
+    if (!groupbyMMYY[date]) {
+      groupbyMMYY[date] = [];
+    }
+    groupbyMMYY[date].push(res);
+  });
+
+  const handleChange = (
+    event: React.SyntheticEvent,
+    newValue: "contractendDate" | "maendDate"
+  ) => {
+    setKeyDate(newValue);
+    setKeyAlert(newValue ? "contractAlertLevel" : "maAlertLevel");
+  };
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
@@ -100,67 +155,95 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           ) : (
             <PageMenubar session={data} />
           )}
+          <Box position="sticky" sx={{ bgcolor: "white" }} width={"100%"}>
+            <TabContext value={keyDate}>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  display: "flex",
+                  overflow: "auto",
+                  justifyContent: { xs: "start", sm: "center" },
+                }}
+              >
+                <TabList onChange={handleChange}>
+                  <Tab
+                    label={tabLabel("Contract Status")}
+                    value="contractendDate"
+                    {...a11yProps(0)}
+                  />
+                  <Tab
+                    label={tabLabel("MA Status")}
+                    value="maendDate"
+                    {...a11yProps(1)}
+                  />
+                </TabList>
+              </Box>
+            </TabContext>
+          </Box>
         </PageAppbar>
-        <PageContainer>
-          {/* <Accordion TransitionProps={{ unmountOnExit: true }}></Accordion> */}
-          {/* <Typography></Typography> */}
-          {result.map((row, index) => {
-            const {
-              project,
-              isComplete,
-              contractAlertLevel,
-              maAlertLevel,
-              contractendDate,
-              maendDate,
-            } = row;
-            const thedate = dayjs(contractendDate);
-            let bgcolor = "";
-            switch (contractAlertLevel) {
-              case DateDeadlineStatus.Normal:
-                bgcolor = "";
-                break;
-              case DateDeadlineStatus.Passed:
-                bgcolor = "#B7C4CF";
-                break;
-              case DateDeadlineStatus.PastDue:
-                bgcolor = "#66BFBF";
-                break;
-              case DateDeadlineStatus.RedAlert:
-                bgcolor = "#FF4A4A";
-                break;
-              case DateDeadlineStatus.YellowAlert:
-                bgcolor = "#FFAE6D";
-                break;
+        <Detector
+          render={({ online }) => {
+            if (!online) {
+              return (
+                <Snackbar open={true}>
+                  <Alert severity="error" sx={{ width: "100%" }}>
+                    No Internet Connection
+                  </Alert>
+                </Snackbar>
+              );
+            } else {
+              return <></>;
             }
-            return (
-              // <Box key={index} sx={{ border: 1 }}>
-              //   <Typography>{`${
-              //     project.projName
-              //   } - ${isComplete} | ${contractendDate.toString()} - ${contractAlertLevel} | ${maendDate.toString()} - ${maAlertLevel}`}</Typography>
-              // </Box>
-              <AlertAccordion key={index} expanded={true}>
-                <AlertAccordionSummary id={contractendDate.toString()}>
-                  <Typography>{`${thedate.format("MMMM YYYY")}`}</Typography>
-                </AlertAccordionSummary>
-                <AlertAccordionDetails sx={{ bgcolor: bgcolor }}>
-                  <Link
-                    href={{
-                      pathname: "/project/projects",
-                      query: { pid: project._id },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", cursor: "pointer" }}>
-                      <Typography>{`${project.projName}`}</Typography>
-                      <Box sx={{ flexGrow: 1 }} />
-                      <Typography>{`${formatDateDMY(
-                        contractendDate
-                      )}`}</Typography>
-                    </Box>
-                  </Link>
-                </AlertAccordionDetails>
-              </AlertAccordion>
-            );
-          })}
+          }}
+        />
+        <PageContainer maxWidth="md">
+          <Box sx={{ mt: 1 }}>
+            {Object.entries(groupbyMMYY).map(([key, resarray]) => {
+              return (
+                <AlertAccordion key={key} expanded={true}>
+                  <AlertAccordionSummary id={key}>
+                    <Typography>{`${formatDateYYYYMM(
+                      new Date(key)
+                    )}`}</Typography>
+                  </AlertAccordionSummary>
+                  <AlertAccordionDetails>
+                    {resarray.map((row) => {
+                      const { project } = row;
+                      return (
+                        <Link
+                          key={project._id}
+                          href={{
+                            pathname: "/project/projects",
+                            query: { pid: project._id },
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              cursor: "pointer",
+                              border: 1,
+                              borderColor: "whitesmoke",
+                              borderRadius: 2,
+                              bgcolor: getBGColorFromStatus(row[keyAlert]),
+                              paddingY: 3,
+                              paddingX: 1,
+                            }}
+                          >
+                            <Typography>{`${project.projName}`}</Typography>
+                            <Box sx={{ flexGrow: 1 }} />
+                            <Typography>{`${formatDateDDMMYY(
+                              row[keyDate]
+                            )}`}</Typography>
+                          </Box>
+                        </Link>
+                      );
+                    })}
+                  </AlertAccordionDetails>
+                </AlertAccordion>
+              );
+            })}
+          </Box>
         </PageContainer>
       </>
     );
@@ -182,7 +265,8 @@ export default AlertPage;
 let _today = dayjs(new Date());
 export const getStaticProps: GetStaticProps<{
   presult: ReturnType<typeof compileStatus>[];
-}> = async (context) => {
+}> = async () => {
+  isDatabaseReachable();
   let retOb: GetStaticPropsResult<{
     presult: ReturnType<typeof compileStatus>[];
   }> = {
@@ -190,13 +274,17 @@ export const getStaticProps: GetStaticProps<{
   };
   _today = dayjs(new Date());
   const conn = await getMongoClient();
-  const cres = await ProjectWithInProgressStage(conn, {});
-  if (cres) {
-    const arresult = await cres.toArray();
-    const result = arresult.map((result) => {
-      return compileStatus(result);
-    });
-    retOb = { props: { presult: result }, revalidate: 10 };
+  try {
+    const cres = await ProjectWithInProgressStage(conn, {});
+    if (cres) {
+      const arresult = await cres.toArray();
+      const result = arresult.map((result) => {
+        return compileStatus(result);
+      });
+      retOb = { props: { presult: result }, revalidate: 10 };
+    }
+  } catch (err) {
+    alert(err);
   }
   await conn.close();
   return retOb;
@@ -205,10 +293,10 @@ export const getStaticProps: GetStaticProps<{
 function calAlertLevel(date: Date, isComplete: boolean): DateDeadlineStatus {
   const mths = -_today.diff(dayjs(date), "months");
   if (mths > 3) {
-    return DateDeadlineStatus.Normal;
+    return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Normal;
   } else if (mths >= 0) {
     return isComplete
-      ? DateDeadlineStatus.YellowAlert
+      ? DateDeadlineStatus.Complete
       : DateDeadlineStatus.RedAlert;
   } else {
     return isComplete ? DateDeadlineStatus.Passed : DateDeadlineStatus.PastDue;
@@ -281,4 +369,19 @@ function convtoSerializable(
     budget: budget.toString(),
     ...r,
   };
+}
+
+function getBGColorFromStatus(status: DateDeadlineStatus) {
+  switch (status) {
+    case DateDeadlineStatus.Normal:
+      return "";
+    case DateDeadlineStatus.Passed:
+      return "#B7C4CF";
+    case DateDeadlineStatus.PastDue:
+      return "#FF1E00";
+    case DateDeadlineStatus.RedAlert:
+      return "#EC7272";
+    case DateDeadlineStatus.Complete:
+      return "#59CE8F";
+  }
 }

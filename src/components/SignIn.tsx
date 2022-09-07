@@ -32,10 +32,7 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
         setError("");
         setSignin(true);
         setTimeout(() => {
-          router.push({
-            pathname: "/search/projects",
-            query: { name: "", year: 0, type: 0 },
-          });
+          router.push({ pathname: "/" });
         }, 10);
       }
     }

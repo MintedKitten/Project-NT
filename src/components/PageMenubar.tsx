@@ -1,14 +1,17 @@
 import {
   Toolbar,
   Typography,
-  Box,
-  Button,
   Container,
   IconButton,
   Menu,
   MenuItem,
+  Divider,
+  ListItemIcon,
 } from "@mui/material";
-import { DragHandle as DragHandleIcon } from "@mui/icons-material";
+import {
+  DragHandle as DragHandleIcon,
+  Logout as LogoutIcon,
+} from "@mui/icons-material";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -36,7 +39,7 @@ const PageMenubar: FunctionComponent<{
   const navlinkPage = navInfo;
 
   return (
-    <Container maxWidth="xl">
+    <Container maxWidth="xl" sx={{ bgcolor: "primary.main" }}>
       <Toolbar disableGutters sx={{ height: "40px" }}>
         <IconButton
           color="inherit"
@@ -88,24 +91,39 @@ const PageMenubar: FunctionComponent<{
               </MenuItem>
             );
           })}
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              handleClose();
+            }}
+          >
+            <Typography sx={{ mx: 2 }} noWrap>
+              Hello! {session.user?.name}
+            </Typography>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              handleClose();
+            }}
+          >
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography
+              sx={{ mx: 2, overflow: "auto", width: "10rem" }}
+              noWrap
+              onClick={() => {
+                signOut({
+                  redirect: false,
+                  callbackUrl: window.location.origin,
+                });
+              }}
+            >
+              Logout
+            </Typography>
+          </MenuItem>
         </Menu>
-
-        <Box sx={{ flexGrow: 1 }} />
-        <Box>
-          <Typography sx={{ mx: 2, width: "100%" }} noWrap>
-            Hello! {session.user?.name}
-          </Typography>
-        </Box>
-
-        <Button
-          color="inherit"
-          variant="outlined"
-          onClick={() => {
-            signOut({ redirect: false, callbackUrl: window.location.origin });
-          }}
-        >
-          Logout
-        </Button>
       </Toolbar>
     </Container>
   );

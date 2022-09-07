@@ -5,6 +5,9 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { FunctionComponent } from "react";
+import buddhistEra from "dayjs/plugin/buddhistEra";
+import "dayjs/locale/th";
+dayjs.extend(buddhistEra);
 
 export enum InputEn {
   String,
@@ -23,7 +26,7 @@ export enum StagesProgress {
 }
 export enum DateDeadlineStatus {
   Normal,
-  YellowAlert,
+  Complete,
   RedAlert,
   Passed,
   PastDue,
@@ -168,10 +171,15 @@ export function calculateDiffTime(before: Date, after: Date) {
   return `${_days} วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่ม MA)`;
 }
 
-export function formatDateDMY(date: Date) {
+export function formatDateDDMMYY(date: Date) {
   return `${(date.getDate() + "").padStart(2, "0")}/${(
     date.getMonth() +
     1 +
     ""
   ).padStart(2, "0")}/${date.getFullYear() + 543}`;
+}
+
+export function formatDateYYYYMM(date: Date) {
+  const dt = dayjs(date).locale("th");
+  return dt.format("MMMM(MM) BBBB");
 }

@@ -38,7 +38,7 @@ export default function SignUp() {
         );
         if (signupComplete) {
           setError("");
-          router.push("/");
+          router.push({ pathname: "/" });
         } else {
           setError("Signup failed. Please, try again.");
         }
