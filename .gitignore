@@ -38,3 +38,5 @@ next.config.*
 *.tsbuildinfo
 
 /files/*
+start.js
+start.mjs
