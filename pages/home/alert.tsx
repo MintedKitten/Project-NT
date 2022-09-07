@@ -33,7 +33,6 @@ import {
 } from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
 import {
-  isDatabaseReachable,
   ProjectWithInProgressStage,
 } from "../../src/server";
 import { ObjectId } from "bson";
@@ -266,7 +265,6 @@ let _today = dayjs(new Date());
 export const getStaticProps: GetStaticProps<{
   presult: ReturnType<typeof compileStatus>[];
 }> = async () => {
-  isDatabaseReachable();
   let retOb: GetStaticPropsResult<{
     presult: ReturnType<typeof compileStatus>[];
   }> = {
