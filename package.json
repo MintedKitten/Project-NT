@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run prerun && npm run dev:real",
+    "build_start": "npm run build && npm run start",
     "build": "npm run prerun && npm run build:real",
     "start": "npm run start:real",
     "lint": "npm run prerun && npm run lint:real",

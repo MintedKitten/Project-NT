@@ -40,109 +40,111 @@ const PageNavbar: FunctionComponent<{
   const navlinkPage = navInfo;
 
   return (
-    <Container maxWidth="xl" sx={{ bgcolor: "primary.main" }}>
-      <Toolbar disableGutters sx={{ height: "40px" }}>
-        <Box
-          sx={{
-            display: "flex",
-          }}
-        >
-          {navlinkPage.map((navl, index) => {
-            const { Header, Link, Icon } = navl;
-            return (
-              <Box
-                key={index}
-                sx={{
-                  ml: 1,
-                  cursor: "pointer",
-                  borderRadius: 1,
-                  padding: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  ":hover": {
-                    boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                  },
-                }}
-              >
-                <Icon />
-                <Typography
-                  variant="h5"
-                  noWrap
-                  onClick={(event) => {
-                    event.preventDefault();
-                    reroute(Link);
-                  }}
+    <Box sx={{ bgcolor: "primary.main" }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ height: "40px" }}>
+          <Box
+            sx={{
+              display: "flex",
+            }}
+          >
+            {navlinkPage.map((navl, index) => {
+              const { Header, Link, Icon } = navl;
+              return (
+                <Box
+                  key={index}
                   sx={{
-                    fontWeight: window.location.pathname === Link ? 600 : 300,
-                    fontSize: 16,
-                    color: "inherit",
+                    ml: 1,
+                    cursor: "pointer",
+                    borderRadius: 1,
+                    padding: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    ":hover": {
+                      boxShadow:
+                        "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                    },
                   }}
                 >
-                  {Header}
-                </Typography>
-              </Box>
-            );
-          })}
-        </Box>
-        <Box sx={{ flexGrow: 1 }} />
-        <IconButton
-          color="inherit"
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            border: 1,
-            borderColor: "inherit",
-            borderRadius: 1,
-            ":hover": {
-              boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-            },
-          }}
-          onClick={handleClick}
-        >
-          <SettingsIcon fontSize="medium" />
-        </IconButton>
-        <Menu
-          id="basic-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          MenuListProps={{
-            "aria-labelledby": "basic-button",
-          }}
-        >
-          <MenuItem
-            onClick={() => {
-              handleClose();
+                  <Icon />
+                  <Typography
+                    variant="h5"
+                    noWrap
+                    onClick={(event) => {
+                      event.preventDefault();
+                      reroute(Link);
+                    }}
+                    sx={{
+                      fontWeight: window.location.pathname === Link ? 600 : 300,
+                      fontSize: 16,
+                      color: "inherit",
+                    }}
+                  >
+                    {Header}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton
+            color="inherit"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              border: 1,
+              borderColor: "inherit",
+              borderRadius: 1,
+              ":hover": {
+                boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+              },
+            }}
+            onClick={handleClick}
+          >
+            <SettingsIcon fontSize="medium" />
+          </IconButton>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
             }}
           >
-            <Typography sx={{ mx: 2 }} noWrap>
-              Hello! {session.user?.name}
-            </Typography>
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={() => {
-              handleClose();
-            }}
-          >
-            <ListItemIcon>
-              <LogoutIcon fontSize="small" />
-            </ListItemIcon>
-            <Typography
-              sx={{ mx: 2, overflow: "auto", width: "10rem" }}
-              noWrap
+            <MenuItem
               onClick={() => {
-                signOut({
-                  redirect: false,
-                  callbackUrl: window.location.origin,
-                });
+                handleClose();
               }}
             >
-              Logout
-            </Typography>
-          </MenuItem>
-        </Menu>
-        {/* <Button
+              <Typography sx={{ mx: 2 }} noWrap>
+                Hello! {session.user?.name}
+              </Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                handleClose();
+              }}
+            >
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              <Typography
+                sx={{ mx: 2, overflow: "auto", width: "10rem" }}
+                noWrap
+                onClick={() => {
+                  signOut({
+                    redirect: false,
+                    callbackUrl: window.location.origin,
+                  });
+                }}
+              >
+                Logout
+              </Typography>
+            </MenuItem>
+          </Menu>
+          {/* <Button
           color="inherit"
           variant="outlined"
           onClick={() => {
@@ -151,8 +153,9 @@ const PageNavbar: FunctionComponent<{
         >
           Logout
         </Button> */}
-      </Toolbar>
-    </Container>
+        </Toolbar>
+      </Container>
+    </Box>
   );
 };
 

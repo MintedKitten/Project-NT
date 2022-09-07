@@ -49,7 +49,7 @@ const ProjectNavbar: FunctionComponent<{
         sx={{
           display: "flex",
           overflow: "auto",
-          justifyContent: { xs: "start", sm: "center" },
+          justifyContent: "center",
         }}
       >
         <Toolbar disableGutters sx={{ height: "40px" }}>
@@ -60,17 +60,7 @@ const ProjectNavbar: FunctionComponent<{
                 borderColor: "divider",
               }}
             >
-              <TabList
-                variant="fullWidth"
-                // textColor="inherit"
-                // indicatorColor="primary"
-                // TabIndicatorProps={{
-                //   style: {
-                //     backgroundColor: "#fff",
-                //   },
-                // }}
-                onChange={handleChange}
-              >
+              <TabList variant="fullWidth" onChange={handleChange}>
                 {navlinkProject.map((page, index) => {
                   const { Header, Link } = page;
                   return (

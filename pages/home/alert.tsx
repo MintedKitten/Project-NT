@@ -16,7 +16,6 @@ import {
   CircularProgress,
   Snackbar,
   styled,
-  Tab,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -38,8 +37,8 @@ import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useState } from "react";
-import { TabContext, TabList } from "@mui/lab";
 import { Detector } from "react-detect-offline";
+import AlertNavbar from "../../src/components/AlertNavbar";
 
 const AlertAccordion = styled((props: AccordionProps) => (
   <Accordion disableGutters elevation={0} square {...props} />
@@ -69,28 +68,6 @@ const AlertAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: "1px solid rgba(0, 0, 0, .125)",
 }));
-
-function a11yProps(index: number) {
-  return {
-    id: `full-width-tab-${index}`,
-    "aria-controls": `full-width-tabpanel-${index}`,
-  };
-}
-
-const tabLabel = (label: string) => {
-  return (
-    <Typography
-      sx={{
-        color: "inherit",
-        fontWeight: 500,
-        fontSize: "1rem",
-        mx: 2,
-      }}
-    >
-      {label}
-    </Typography>
-  );
-};
 
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   presult,
@@ -152,32 +129,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           ) : (
             <PageMenubar session={data} />
           )}
-          <Box position="sticky" sx={{ bgcolor: "white" }} width={"100%"}>
-            <TabContext value={keyDate}>
-              <Box
-                sx={{
-                  borderBottom: 1,
-                  borderColor: "divider",
-                  display: "flex",
-                  overflow: "auto",
-                  justifyContent: { xs: "start", sm: "center" },
-                }}
-              >
-                <TabList onChange={handleChange}>
-                  <Tab
-                    label={tabLabel("Contract Status")}
-                    value="contractendDate"
-                    {...a11yProps(0)}
-                  />
-                  <Tab
-                    label={tabLabel("MA Status")}
-                    value="maendDate"
-                    {...a11yProps(1)}
-                  />
-                </TabList>
-              </Box>
-            </TabContext>
-          </Box>
+          <AlertNavbar keyDate={keyDate} handleChange={handleChange} />
         </PageAppbar>
         <Detector
           render={({ online }) => {
