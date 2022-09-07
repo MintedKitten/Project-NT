@@ -37,5 +37,5 @@ yarn-error.log*
 *.tsbuildinfo
 
 /files/*
-start.js
+next.config.mjs
 start.mjs
