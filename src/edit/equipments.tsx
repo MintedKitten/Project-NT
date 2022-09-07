@@ -38,6 +38,7 @@ function rowToqrow(row: rowInt) {
     desc: row.desc,
     qty: row.qty,
     uPrice: row.uPrice.toString(),
+    unit: row.unit,
   };
   return ret;
 }
