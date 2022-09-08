@@ -22,7 +22,7 @@ const handler = nxcHandler().all(async (req, res) => {
       mastartDate: thDate(body.mastartDate),
       maendDate: thDate(body.maendDate),
       comments: body.comments,
-      createdby: new ObjectId(),
+      createdby: new ObjectId(body.createdby),
       lastupdate: thDate(new Date()),
     };
     const result = await projectInsertOne(conn, query);
