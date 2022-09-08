@@ -51,12 +51,12 @@ export const projectsDefaultValue: projectsTableInt = {
 };
 
 export function valInteger(v: string) {
-  try {
-    const num = parseInt(v);
-    return num > 0 ? num : 0;
-  } catch (err) {
+  const num = parseInt(v);
+  console.log(v, num);
+  if (isNaN(num)) {
     return -1;
   }
+  return num > 0 ? num : 0;
 }
 
 export function valTypeList(v: string) {

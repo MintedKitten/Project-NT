@@ -275,11 +275,12 @@ const CreateEquipmentsGroup = () => {
     {
       field: "qty",
       headerName: "Qty.",
-      type: "number",
+      type: "string",
       width: 100,
       editable: true,
       preProcessEditCellProps: (params) => {
-        const hasError = valInteger(params.row.qty) === -1;
+        const hasError = valInteger(params.props.value) === -1;
+        console.log(hasError);
         return { ...params.props, error: hasError };
       },
       valueGetter: (params) => {
@@ -296,9 +297,13 @@ const CreateEquipmentsGroup = () => {
     {
       field: "uPrice",
       headerName: "Unit Price (บาท)",
-      type: "number",
+      type: "string",
       width: 165,
       editable: true,
+      valueGetter: (params) => {
+        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+        return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
+      },
       renderCell: (params) => {
         const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
@@ -311,10 +316,10 @@ const CreateEquipmentsGroup = () => {
       width: 200,
       editable: false,
       valueGetter: (params) => {
-        const xpr = valFloat((params.row.uPrice + "").replace(/,/g, "")).mul(
-          params.row.qty
-        );
-        return !xpr.lt(0) ? xpr : Big(0);
+        const unitPrice = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+        const error = unitPrice.lte(0) || parseInt(params.row.qty + "") <= 0;
+        const xpr = unitPrice.mul(params.row.qty);
+        return !xpr.lt(0) && !error ? xpr : Big(0);
       },
       renderCell: (params) => {
         const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
@@ -440,8 +445,8 @@ const CreateEquipmentsGroup = () => {
           <title>Create New Equipment Group</title>
         </Head>
         <PageAppbar>
-          <PageNavbar   session={data} />
-          <ProjectNavbar   pid={pid as string} />
+          <PageNavbar session={data} />
+          <ProjectNavbar pid={pid as string} />
         </PageAppbar>
         <PageContainer>
           <Box

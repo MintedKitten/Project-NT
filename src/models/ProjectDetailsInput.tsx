@@ -370,7 +370,6 @@ export const ProjectDetailsInput = ({
   }
   if (type === InputEn.Item) {
     const { amount: samount, unit }: itemObjectInt = JSON.parse(value);
-    console.log(samount);
     const amount = parseInt(samount + "");
     return (
       <>
