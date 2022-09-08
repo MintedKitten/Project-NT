@@ -205,7 +205,11 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <PageContainer maxWidth="xl">
           <Grid container spacing={1}>
             <Grid item xs={12} md={6}>
-              <Typography>Red Alert</Typography>
+              <Box sx={{ display: "flex", my: 1 }}>
+                <Box sx={{ flexGrow: 1 }} />
+                <Typography variant="h3">Alert</Typography>
+                <Box sx={{ flexGrow: 1 }} />
+              </Box>
               <Grid container sx={{ maxHeight: "60vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
@@ -267,39 +271,44 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                       }
                     )}
                   </Box>
-                  <Box
-                    id="alert_today"
-                    sx={{
-                      display: "flex",
-                      // border: 1,
-                      // borderRadius: 5,
-                      justifyItems: "center",
-                      alignItems: "center",
-                      // borderColor: "rgba(0, 0, 0, 0.25)",
-                      mt: 1,
-                      // bgcolor: "whitesmoke",
-                    }}
-                  >
+                  {Object.keys(groupbyMMYYAlertFuture).length > 0 ||
+                  Object.keys(groupbyMMYYAlertPast).length > 0 ? (
                     <Box
+                      id="alert_today"
                       sx={{
-                        flexGrow: 1,
-                        mx: 1,
-                        border: 1,
-                        borderColor: "rgba(0, 0, 0, 0.25)",
+                        display: "flex",
+                        // border: 1,
+                        // borderRadius: 5,
+                        justifyItems: "center",
+                        alignItems: "center",
+                        // borderColor: "rgba(0, 0, 0, 0.25)",
+                        my: 6,
+                        // bgcolor: "whitesmoke",
                       }}
-                    />
-                    <Typography>
-                      Today: {formatDateDDMMYY(today.toDate())}
-                    </Typography>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        mx: 1,
-                        border: 1,
-                        borderColor: "rgba(0, 0, 0, 0.25)",
-                      }}
-                    />
-                  </Box>
+                    >
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          mx: 1,
+                          border: 1,
+                          borderColor: "rgba(0, 0, 0, 0.25)",
+                        }}
+                      />
+                      <Typography>
+                        Today: {formatDateDDMMYY(today.toDate())}
+                      </Typography>
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          mx: 1,
+                          border: 1,
+                          borderColor: "rgba(0, 0, 0, 0.25)",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <></>
+                  )}
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYAlertPast).map(
                       ([key, resarray]) => {
@@ -363,7 +372,11 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
               </Grid>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Typography>All</Typography>
+              <Box sx={{ display: "flex", my: 1 }}>
+                <Box sx={{ flexGrow: 1 }} />
+                <Typography variant="h3">All Status</Typography>
+                <Box sx={{ flexGrow: 1 }} />
+              </Box>
               <Grid container sx={{ maxHeight: "75vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
@@ -425,39 +438,45 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                       }
                     )}
                   </Box>
-                  <Box
-                    id="status_today"
-                    sx={{
-                      display: "flex",
-                      // border: 1,
-                      // borderRadius: 5,
-                      justifyItems: "center",
-                      alignItems: "center",
-                      // borderColor: "rgba(0, 0, 0, 0.25)",
-                      mt: 1,
-                      // bgcolor: "whitesmoke",
-                    }}
-                  >
+                  {Object.keys(groupbyMMYYFuture).length > 0 ||
+                  Object.keys(groupbyMMYYPast).length > 0 ? (
                     <Box
+                      id="status_today"
                       sx={{
-                        flexGrow: 1,
-                        mx: 1,
-                        border: 1,
-                        borderColor: "rgba(0, 0, 0, 0.25)",
+                        display: "flex",
+                        // border: 1,
+                        // borderRadius: 5,
+                        justifyItems: "center",
+                        alignItems: "center",
+                        // borderColor: "rgba(0, 0, 0, 0.25)",
+                        my: 6,
+                        // bgcolor: "whitesmoke",
                       }}
-                    />
-                    <Typography>
-                      Today: {formatDateDDMMYY(today.toDate())}
-                    </Typography>
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        mx: 1,
-                        border: 1,
-                        borderColor: "rgba(0, 0, 0, 0.25)",
-                      }}
-                    />
-                  </Box>
+                    >
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          mx: 1,
+                          border: 1,
+                          borderColor: "rgba(0, 0, 0, 0.25)",
+                        }}
+                      />
+                      <Typography>
+                        Today: {formatDateDDMMYY(today.toDate())}
+                      </Typography>
+                      <Box
+                        sx={{
+                          flexGrow: 1,
+                          mx: 1,
+                          border: 1,
+                          borderColor: "rgba(0, 0, 0, 0.25)",
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <></>
+                  )}
+
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYPast).map(([key, resarray]) => {
                       const [dd, mm, yy] = key.split("/").map((r) => {
@@ -566,9 +585,10 @@ export const getStaticProps: GetStaticProps<{
 
 function calAlertLevel(date: Date, isComplete: boolean): DateDeadlineStatus {
   const mths = -_today.diff(dayjs(date), "months");
+  const days = -_today.diff(dayjs(date), "days");
   if (mths > 3) {
     return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Normal;
-  } else if (mths >= 0) {
+  } else if (mths >= 0 && days > 0) {
     return isComplete
       ? DateDeadlineStatus.Complete
       : DateDeadlineStatus.RedAlert;
