@@ -48,7 +48,7 @@ export const ProjectDetailsInput = ({
             size="small"
             value={value}
             label={header}
-            type="number"
+            type="text"
             onChange={(e) => {
               if (e) {
                 onChange(e.target.value);
@@ -156,7 +156,7 @@ export const ProjectDetailsInput = ({
                       );
                     }
                   }}
-                  type="number"
+                  type="text"
                 />
                 <TextField
                   sx={{ width: "72px", marginTop: { xs: 1, lg: 0 } }}
@@ -183,7 +183,7 @@ export const ProjectDetailsInput = ({
                       );
                     }
                   }}
-                  type="number"
+                  type="text"
                 />
                 <TextField
                   sx={{ width: "90px", marginTop: { xs: 1, lg: 0 } }}
@@ -214,7 +214,7 @@ export const ProjectDetailsInput = ({
                       );
                     }
                   }}
-                  type="number"
+                  type="text"
                 />
                 <DesktopDatePicker
                   minDate={minD}
@@ -328,7 +328,7 @@ export const ProjectDetailsInput = ({
                       );
                     }
                   }}
-                  type="number"
+                  type="text"
                 />
                 <DesktopDatePicker
                   minDate={minD}
@@ -369,7 +369,9 @@ export const ProjectDetailsInput = ({
     );
   }
   if (type === InputEn.Item) {
-    const { amount, unit }: itemObjectInt = JSON.parse(value);
+    const { amount: samount, unit }: itemObjectInt = JSON.parse(value);
+    console.log(samount);
+    const amount = parseInt(samount + "");
     return (
       <>
         <Grid item xs={12} sm={4}>
@@ -383,12 +385,14 @@ export const ProjectDetailsInput = ({
               size="small"
               value={amount}
               label="จำนวน"
-              type="number"
+              type="text"
               onChange={(e) => {
-                if (e) {
+                if (e.target.value) {
                   onChange(
                     JSON.stringify({ amount: e.target.value, unit: unit })
                   );
+                } else {
+                  onChange(JSON.stringify({ amount: 0 + "", unit: unit }));
                 }
               }}
             />
@@ -401,7 +405,7 @@ export const ProjectDetailsInput = ({
               label="หน่วย"
               type="text"
               onChange={(e) => {
-                if (e) {
+                if (e.target.value) {
                   onChange(
                     JSON.stringify({ amount: amount, unit: e.target.value })
                   );

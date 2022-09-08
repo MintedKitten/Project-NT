@@ -88,7 +88,7 @@ export function valItem(v: string): itemObjectInt {
     if (vnum < 0) {
       return { amount: -1, unit: unit };
     } else {
-      return { amount: amount, unit: unit };
+      return { amount: vnum, unit: unit };
     }
   } catch (err) {
     return { amount: -1, unit: "" };

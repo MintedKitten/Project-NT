@@ -37,7 +37,7 @@ import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Detector } from "react-detect-offline";
 import AlertNavbar from "../../src/components/AlertNavbar";
 
@@ -82,6 +82,8 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
+  const containerAlertRef = useRef(null);
+  const containerAllRef = useRef(null);
 
   const result = presult.map((res) => {
     return compileBackStatus(res);
@@ -204,7 +206,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         />
         <PageContainer maxWidth="xl">
           <Grid container spacing={1}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} ref={containerAlertRef}>
               <Box sx={{ display: "flex", my: 1 }}>
                 <Box sx={{ flexGrow: 1 }} />
                 <Typography variant="h3">Alert</Typography>
@@ -371,7 +373,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={6} ref={containerAllRef}>
               <Box sx={{ display: "flex", my: 1 }}>
                 <Box sx={{ flexGrow: 1 }} />
                 <Typography variant="h3">All Status</Typography>
