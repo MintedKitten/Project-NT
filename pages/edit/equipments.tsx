@@ -128,7 +128,7 @@ function EditToolbar(props: EditToolbarProps) {
               throw new Error(`row ${rowindex + 1} has empty on column ${key}`);
             }
             if (key === "qty") {
-              if (isNaN(parseInt(value))) {
+              if (isNaN(Number(value))) {
                 throw new Error(`row ${rowindex + 1} qty is not Integer`);
               }
             }
@@ -424,7 +424,7 @@ const EditEquipmentsGroup: NextPage<
             eqg._id?.toHexString() + "",
             eqGroup.name + "",
             eqGroup.desc + "",
-            parseInt(eqGroup.qty + ""),
+            Number(eqGroup.qty + ""),
             rows
           );
           if (isSuccessful) {

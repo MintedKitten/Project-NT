@@ -51,7 +51,7 @@ export const projectsDefaultValue: projectsTableInt = {
 };
 
 export function valInteger(v: string) {
-  const num = parseInt(v);
+  const num = Number(v);
   console.log(v, num);
   if (isNaN(num)) {
     return -1;
@@ -161,7 +161,7 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
     "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": "",
     ประเภทงบประมาณ: data.budgetType,
     "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": new Date(
-      parseInt(data.procurementYear + "") - 543,
+      Number(data.procurementYear + "") - 543,
       0,
       1
     ),
@@ -198,11 +198,11 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
       const split = ob.indexOf(" ");
       if (split > 0) {
         if (
-          !isNaN(parseInt(ob.substring(0, split))) &&
+          !isNaN(Number(ob.substring(0, split))) &&
           ob.substring(split + 1).length > 0
         ) {
           return {
-            amount: parseInt(ob.substring(0, split)),
+            amount: Number(ob.substring(0, split)),
             unit: ob.substring(split + 1),
           } as itemObjectInt;
         }
@@ -218,9 +218,9 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
       let arr = ob.split("/");
       if (arr.length === 3) {
         return new Date(
-          parseInt(arr[2]) - 543,
-          parseInt(arr[1]) - 1,
-          parseInt(arr[0])
+          Number(arr[2]) - 543,
+          Number(arr[1]) - 1,
+          Number(arr[0])
         );
       }
       throw new Error("Incorrect data on column " + column);

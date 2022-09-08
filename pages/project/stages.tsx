@@ -278,7 +278,7 @@ const ProjectStagesPage: NextPage<
                             new Date(
                               completeDate.getFullYear(),
                               completeDate.getMonth(),
-                              parseInt(e.target.value)
+                              Number(e.target.value)
                             )
                           );
                         } else {
@@ -304,7 +304,7 @@ const ProjectStagesPage: NextPage<
                           setCompleteDate(
                             new Date(
                               completeDate.getFullYear(),
-                              parseInt(e.target.value) - 1,
+                              Number(e.target.value) - 1,
                               completeDate.getDate()
                             )
                           );
@@ -334,7 +334,7 @@ const ProjectStagesPage: NextPage<
                           }
                           setCompleteDate(
                             new Date(
-                              parseInt(t) - 543,
+                              Number(t) - 543,
                               completeDate.getMonth(),
                               completeDate.getDate()
                             )
@@ -745,7 +745,7 @@ export const getServerSideProps: GetServerSideProps<{
     let activestep = 0;
     let isComplete = true;
     if (!webquery["step"]) {
-      activestep = parseInt(webquery["step"]);
+      activestep = Number(webquery["step"]);
       for (let index = 0; index < stages.length; index++) {
         const element = stages[index];
         if (element.status === StagesProgress.OnGoing) {
@@ -758,7 +758,7 @@ export const getServerSideProps: GetServerSideProps<{
         activestep = stages.length - 1;
       }
     } else {
-      const step = parseInt(webquery["step"]);
+      const step = Number(webquery["step"]);
       if (step > 0 && step < stages.length) {
         activestep = step;
       }

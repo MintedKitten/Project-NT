@@ -218,7 +218,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                     {Object.entries(groupbyMMYYAlertFuture).map(
                       ([key, resarray]) => {
                         const [dd, mm, yy] = key.split("/").map((r) => {
-                          return parseInt(r);
+                          return Number(r);
                         });
                         return (
                           <AlertAccordion key={key} expanded={true}>
@@ -315,7 +315,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                     {Object.entries(groupbyMMYYAlertPast).map(
                       ([key, resarray]) => {
                         const [dd, mm, yy] = key.split("/").map((r) => {
-                          return parseInt(r);
+                          return Number(r);
                         });
                         return (
                           <AlertAccordion key={key} expanded={true}>
@@ -385,7 +385,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                     {Object.entries(groupbyMMYYFuture).map(
                       ([key, resarray]) => {
                         const [dd, mm, yy] = key.split("/").map((r) => {
-                          return parseInt(r);
+                          return Number(r);
                         });
                         return (
                           <AlertAccordion key={key} expanded={true}>
@@ -482,7 +482,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYPast).map(([key, resarray]) => {
                       const [dd, mm, yy] = key.split("/").map((r) => {
-                        return parseInt(r);
+                        return Number(r);
                       });
                       return (
                         <AlertAccordion key={key} expanded={true}>

@@ -66,10 +66,10 @@ const SearchProjectsPage: NextPage<
   };
 
   const [filteryear, setFilteryear] = useState(
-    parseInt(router.query.year ? "" + router.query.year : "0")
+    Number(router.query.year ? "" + router.query.year : "0")
   );
   const [filtertype, setFiltertype] = useState(
-    parseInt(router.query.type ? "" + router.query.type : "0")
+    Number(router.query.type ? "" + router.query.type : "0")
   );
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -95,12 +95,12 @@ const SearchProjectsPage: NextPage<
     if (selectYear === "All") {
       setFilteryear(0);
     }
-    setFilteryear(parseInt(selectYear));
+    setFilteryear(Number(selectYear));
   };
 
   const handleTypeChange = (event: SelectChangeEvent) => {
     let selectType = event.target.value;
-    setFiltertype(parseInt(selectType));
+    setFiltertype(Number(selectType));
   };
 
   const [page, setPage] = useState(0);
@@ -334,10 +334,10 @@ export const getServerSideProps: GetServerSideProps<{
     query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
   }
   if (webquery["type"] && webquery["type"] !== "0") {
-    query["type"] = parseInt(webquery["type"]);
+    query["type"] = Number(webquery["type"]);
   }
   if (webquery["year"] && webquery["year"] !== "0") {
-    query["procurementYear"] = parseInt(webquery["year"]);
+    query["procurementYear"] = Number(webquery["year"]);
   }
   let retOb: GetServerSidePropsResult<{
     result: ReturnType<typeof convtoTable>[];

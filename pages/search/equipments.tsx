@@ -349,11 +349,11 @@ export const getServerSideProps: GetServerSideProps<{
     let qqty = false;
     const qty: Condition<number> = {};
     if (webquery["qtylb"]) {
-      qty["$gte"] = parseInt(webquery["qtylb"]);
+      qty["$gte"] = Number(webquery["qtylb"]);
       qqty = true;
     }
     if (webquery["qtyub"]) {
-      qty["$lte"] = parseInt(webquery["qtyub"]);
+      qty["$lte"] = Number(webquery["qtyub"]);
       qqty = true;
     }
     if (qqty) {

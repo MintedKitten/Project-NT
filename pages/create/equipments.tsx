@@ -118,7 +118,7 @@ function EditToolbar(props: EditToolbarProps) {
               throw new Error(`row ${rowindex + 1} has empty on column ${key}`);
             }
             if (key === "qty") {
-              if (isNaN(parseInt(value))) {
+              if (isNaN(Number(value))) {
                 throw new Error(`row ${rowindex + 1} qty is not Integer`);
               }
             }
@@ -317,7 +317,7 @@ const CreateEquipmentsGroup = () => {
       editable: false,
       valueGetter: (params) => {
         const unitPrice = valFloat((params.row.uPrice + "").replace(/,/g, ""));
-        const error = unitPrice.lte(0) || parseInt(params.row.qty + "") <= 0;
+        const error = unitPrice.lte(0) || Number(params.row.qty + "") <= 0;
         const xpr = unitPrice.mul(params.row.qty);
         return !xpr.lt(0) && !error ? xpr : Big(0);
       },
@@ -395,11 +395,17 @@ const CreateEquipmentsGroup = () => {
       setAmountError("Please, enter the amount");
       isFilled = false;
     } else {
-      try {
-        setAmountError("");
-      } catch (err) {
+      const temp = Number(eqGroup.qty);
+      if (isNaN(temp)) {
         setAmountError("Please, enter a whole number");
         isFilled = false;
+      } else {
+        if (temp < 1) {
+          setAmountError("Amount can't be less than 1");
+          isFilled = false;
+        } else {
+          setAmountError("");
+        }
       }
     }
     if (isFilled) {
@@ -410,7 +416,7 @@ const CreateEquipmentsGroup = () => {
             pid,
             eqGroup.name + "",
             eqGroup.desc + "",
-            parseInt(eqGroup.qty + ""),
+            Number(eqGroup.qty + ""),
             rows
           );
           if (isSuccessful) {

@@ -143,7 +143,7 @@ export const ProjectDetailsInput = ({
                         new Date(
                           date.getFullYear(),
                           date.getMonth(),
-                          parseInt(e.target.value)
+                          Number(e.target.value)
                         ).toString()
                       );
                     } else {
@@ -169,7 +169,7 @@ export const ProjectDetailsInput = ({
                       onChange(
                         new Date(
                           date.getFullYear(),
-                          parseInt(e.target.value) - 1,
+                          Number(e.target.value) - 1,
                           date.getDate()
                         ).toString()
                       );
@@ -199,7 +199,7 @@ export const ProjectDetailsInput = ({
                       }
                       onChange(
                         new Date(
-                          parseInt(t) - 543,
+                          Number(t) - 543,
                           date.getMonth(),
                           date.getDate()
                         ).toString()
@@ -313,7 +313,7 @@ export const ProjectDetailsInput = ({
                       }
                       onChange(
                         new Date(
-                          parseInt(t) - 543,
+                          Number(t) - 543,
                           date.getMonth(),
                           date.getDate()
                         ).toString()
@@ -370,7 +370,7 @@ export const ProjectDetailsInput = ({
   }
   if (type === InputEn.Item) {
     const { amount: samount, unit }: itemObjectInt = JSON.parse(value);
-    const amount = parseInt(samount + "");
+    const amount = Number(samount + "");
     return (
       <>
         <Grid item xs={12} sm={4}>
