@@ -44,51 +44,53 @@ const ProjectNavbar: FunctionComponent<{
   const navlinkProject = projectNavInfo;
 
   return (
-    <Container maxWidth="lg" sx={{ bgcolor: "white" }}>
-      <Box
-        sx={{
-          display: "flex",
-          overflow: "auto",
-          justifyContent: "center",
-        }}
-      >
-        <Toolbar disableGutters sx={{ height: "40px" }}>
-          <TabContext value={value}>
-            <Box
-              sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-              }}
-            >
-              <TabList variant="fullWidth" onChange={handleChange}>
-                {navlinkProject.map((page, index) => {
-                  const { Header, Link } = page;
-                  return (
-                    <Tab
-                      key={index}
-                      label={tabLabel(Header)}
-                      value={Link}
-                      {...a11yProps(index)}
-                      sx={{
-                        marginLeft: index !== 0 ? 6 : 0,
-                        ":hover": {
-                          boxShadow:
-                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                        },
-                        borderRadius: 1,
-                      }}
-                      onClick={(event) => {
-                        reroute(Link);
-                      }}
-                    />
-                  );
-                })}
-              </TabList>
-            </Box>
-          </TabContext>
-        </Toolbar>
-      </Box>
-    </Container>
+    <Box sx={{ bgcolor: "white" }}>
+      <Container maxWidth="lg">
+        <Box
+          sx={{
+            display: "flex",
+            overflow: "auto",
+            justifyContent: "center",
+          }}
+        >
+          <Toolbar disableGutters sx={{ height: "40px" }}>
+            <TabContext value={value}>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <TabList variant="fullWidth" onChange={handleChange}>
+                  {navlinkProject.map((page, index) => {
+                    const { Header, Link } = page;
+                    return (
+                      <Tab
+                        key={index}
+                        label={tabLabel(Header)}
+                        value={Link}
+                        {...a11yProps(index)}
+                        sx={{
+                          marginLeft: index !== 0 ? 6 : 0,
+                          ":hover": {
+                            boxShadow:
+                              "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                          },
+                          borderRadius: 1,
+                        }}
+                        onClick={(event) => {
+                          reroute(Link);
+                        }}
+                      />
+                    );
+                  })}
+                </TabList>
+              </Box>
+            </TabContext>
+          </Toolbar>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

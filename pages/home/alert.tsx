@@ -37,7 +37,7 @@ import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Detector } from "react-detect-offline";
 import AlertNavbar from "../../src/components/AlertNavbar";
 
@@ -95,15 +95,52 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   };
 
   sortRes();
+  const today = dayjs(new Date());
 
-  const groupbyMMYY: { [key: string]: ReturnType<typeof compileBackStatus>[] } =
-    {};
+  const groupbyMMYYAlertFuture: {
+    [key: string]: ReturnType<typeof compileBackStatus>[];
+  } = {};
+  const groupbyMMYYAlertPast: {
+    [key: string]: ReturnType<typeof compileBackStatus>[];
+  } = {};
+  const groupbyMMYYFuture: {
+    [key: string]: ReturnType<typeof compileBackStatus>[];
+  } = {};
+  const groupbyMMYYPast: {
+    [key: string]: ReturnType<typeof compileBackStatus>[];
+  } = {};
   result.forEach((res) => {
     const date = dayjs(res[keyDate]).format("01/MM/YYYY");
-    if (!groupbyMMYY[date]) {
-      groupbyMMYY[date] = [];
+    const diff = -today.diff(res[keyDate], "days");
+    if (diff >= 0) {
+      if (!groupbyMMYYFuture[date]) {
+        groupbyMMYYFuture[date] = [];
+      }
+      groupbyMMYYFuture[date].push(res);
+      if (
+        res[keyAlert] === DateDeadlineStatus.RedAlert ||
+        res[keyAlert] === DateDeadlineStatus.PastDue
+      ) {
+        if (!groupbyMMYYAlertFuture[date]) {
+          groupbyMMYYAlertFuture[date] = [];
+        }
+        groupbyMMYYAlertFuture[date].push(res);
+      }
+    } else {
+      if (!groupbyMMYYPast[date]) {
+        groupbyMMYYPast[date] = [];
+      }
+      if (
+        res[keyAlert] === DateDeadlineStatus.RedAlert ||
+        res[keyAlert] === DateDeadlineStatus.PastDue
+      ) {
+        groupbyMMYYPast[date].push(res);
+        if (!groupbyMMYYAlertPast[date]) {
+          groupbyMMYYAlertPast[date] = [];
+        }
+        groupbyMMYYAlertPast[date].push(res);
+      }
     }
-    groupbyMMYY[date].push(res);
   });
 
   const handleChange = (
@@ -113,6 +150,17 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     setKeyDate(newValue);
     setKeyAlert(newValue ? "contractAlertLevel" : "maAlertLevel");
   };
+
+  useEffect(() => {
+    const alert_today = document.getElementById("alert_today");
+    if (alert_today) {
+      alert_today.scrollIntoView({ behavior: "smooth" });
+    }
+    const status_today = document.getElementById("status_today");
+    if (status_today) {
+      status_today.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
@@ -150,58 +198,120 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <PageContainer maxWidth="xl">
           <Grid container spacing={1}>
             <Grid item xs={12} md={6}>
+              Red Alert
+            </Grid>
+            <Grid item xs={12} md={6}>
+              All
+            </Grid>
+            <Grid item xs={12} md={6}>
               <Grid container sx={{ maxHeight: "60vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYY).map(([key, resarray]) => {
-                      const [dd, mm, yy] = key.split("/").map((r) => {
-                        return parseInt(r);
-                      });
-                      return (
-                        <AlertAccordion key={key} expanded={true}>
-                          <AlertAccordionSummary id={key}>
-                            <Typography>{`${formatDateYYYYMM(
-                              new Date(yy, mm, dd)
-                            )}`}</Typography>
-                          </AlertAccordionSummary>
-                          <AlertAccordionDetails>
-                            {resarray.map((row) => {
-                              const { project } = row;
-                              return (
-                                <Link
-                                  key={project._id}
-                                  href={{
-                                    pathname: "/project/projects",
-                                    query: { pid: project._id },
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      cursor: "pointer",
-                                      border: 1,
-                                      borderColor: "whitesmoke",
-                                      borderRadius: 2,
-                                      bgcolor: getBGColorFromStatus(
-                                        row[keyAlert]
-                                      ),
-                                      paddingY: 3,
-                                      paddingX: 1,
+                    {Object.entries(groupbyMMYYAlertFuture).map(
+                      ([key, resarray]) => {
+                        const [dd, mm, yy] = key.split("/").map((r) => {
+                          return parseInt(r);
+                        });
+                        return (
+                          <AlertAccordion key={key} expanded={true}>
+                            <AlertAccordionSummary id={key}>
+                              <Typography>{`${formatDateYYYYMM(
+                                new Date(yy, mm, dd)
+                              )}`}</Typography>
+                            </AlertAccordionSummary>
+                            <AlertAccordionDetails>
+                              {resarray.map((row) => {
+                                const { project } = row;
+                                return (
+                                  <Link
+                                    key={project._id}
+                                    href={{
+                                      pathname: "/project/projects",
+                                      query: { pid: project._id },
                                     }}
                                   >
-                                    <Typography>{`${project.projName}`}</Typography>
-                                    <Box sx={{ flexGrow: 1 }} />
-                                    <Typography>{`${formatDateDDMMYY(
-                                      row[keyDate]
-                                    )}`}</Typography>
-                                  </Box>
-                                </Link>
-                              );
-                            })}
-                          </AlertAccordionDetails>
-                        </AlertAccordion>
-                      );
-                    })}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        cursor: "pointer",
+                                        border: 1,
+                                        borderColor: "whitesmoke",
+                                        borderRadius: 2,
+                                        bgcolor: getBGColorFromStatus(
+                                          row[keyAlert]
+                                        ),
+                                        paddingY: 3,
+                                        paddingX: 1,
+                                      }}
+                                    >
+                                      <Typography>{`${project.projName}`}</Typography>
+                                      <Box sx={{ flexGrow: 1 }} />
+                                      <Typography>{`${formatDateDDMMYY(
+                                        row[keyDate]
+                                      )}`}</Typography>
+                                    </Box>
+                                  </Link>
+                                );
+                              })}
+                            </AlertAccordionDetails>
+                          </AlertAccordion>
+                        );
+                      }
+                    )}
+                  </Box>
+                  <Box id="alert_today" />
+                  <Box sx={{ mt: 1 }}>
+                    {Object.entries(groupbyMMYYAlertPast).map(
+                      ([key, resarray]) => {
+                        const [dd, mm, yy] = key.split("/").map((r) => {
+                          return parseInt(r);
+                        });
+                        return (
+                          <AlertAccordion key={key} expanded={true}>
+                            <AlertAccordionSummary id={key}>
+                              <Typography>{`${formatDateYYYYMM(
+                                new Date(yy, mm, dd)
+                              )}`}</Typography>
+                            </AlertAccordionSummary>
+                            <AlertAccordionDetails>
+                              {resarray.map((row) => {
+                                const { project } = row;
+                                return (
+                                  <Link
+                                    key={project._id}
+                                    href={{
+                                      pathname: "/project/projects",
+                                      query: { pid: project._id },
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        cursor: "pointer",
+                                        border: 1,
+                                        borderColor: "whitesmoke",
+                                        borderRadius: 2,
+                                        bgcolor: getBGColorFromStatus(
+                                          row[keyAlert]
+                                        ),
+                                        paddingY: 3,
+                                        paddingX: 1,
+                                      }}
+                                    >
+                                      <Typography>{`${project.projName}`}</Typography>
+                                      <Box sx={{ flexGrow: 1 }} />
+                                      <Typography>{`${formatDateDDMMYY(
+                                        row[keyDate]
+                                      )}`}</Typography>
+                                    </Box>
+                                  </Link>
+                                );
+                              })}
+                            </AlertAccordionDetails>
+                          </AlertAccordion>
+                        );
+                      }
+                    )}
                   </Box>
                 </Grid>
               </Grid>
@@ -210,7 +320,61 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
               <Grid container sx={{ maxHeight: "85vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYY).map(([key, resarray]) => {
+                    {Object.entries(groupbyMMYYFuture).map(
+                      ([key, resarray]) => {
+                        const [dd, mm, yy] = key.split("/").map((r) => {
+                          return parseInt(r);
+                        });
+                        return (
+                          <AlertAccordion key={key} expanded={true}>
+                            <AlertAccordionSummary id={key}>
+                              <Typography>{`${formatDateYYYYMM(
+                                new Date(yy, mm, dd)
+                              )}`}</Typography>
+                            </AlertAccordionSummary>
+                            <AlertAccordionDetails>
+                              {resarray.map((row) => {
+                                const { project } = row;
+                                return (
+                                  <Link
+                                    key={project._id}
+                                    href={{
+                                      pathname: "/project/projects",
+                                      query: { pid: project._id },
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        cursor: "pointer",
+                                        border: 1,
+                                        borderColor: "whitesmoke",
+                                        borderRadius: 2,
+                                        bgcolor: getBGColorFromStatus(
+                                          row[keyAlert]
+                                        ),
+                                        paddingY: 3,
+                                        paddingX: 1,
+                                      }}
+                                    >
+                                      <Typography>{`${project.projName}`}</Typography>
+                                      <Box sx={{ flexGrow: 1 }} />
+                                      <Typography>{`${formatDateDDMMYY(
+                                        row[keyDate]
+                                      )}`}</Typography>
+                                    </Box>
+                                  </Link>
+                                );
+                              })}
+                            </AlertAccordionDetails>
+                          </AlertAccordion>
+                        );
+                      }
+                    )}
+                  </Box>
+                  <Box id="status_today" />
+                  <Box sx={{ mt: 1 }}>
+                    {Object.entries(groupbyMMYYPast).map(([key, resarray]) => {
                       const [dd, mm, yy] = key.split("/").map((r) => {
                         return parseInt(r);
                       });

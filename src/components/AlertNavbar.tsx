@@ -35,39 +35,41 @@ const AlertNavbar = ({
   ) => void;
 }) => {
   return (
-    <Container maxWidth="lg" sx={{ bgcolor: "white" }}>
-      <Box
-        sx={{
-          display: "flex",
-          overflow: "auto",
-          justifyContent: "center",
-        }}
-      >
-        <Toolbar disableGutters>
-          <TabContext value={keyDate}>
-            <Box
-              sx={{
-                borderBottom: 1,
-                borderColor: "divider",
-              }}
-            >
-              <TabList onChange={handleChange}>
-                <Tab
-                  label={tabLabel("Contract Status")}
-                  value="contractendDate"
-                  {...a11yProps(0)}
-                />
-                <Tab
-                  label={tabLabel("MA Status")}
-                  value="maendDate"
-                  {...a11yProps(1)}
-                />
-              </TabList>
-            </Box>
-          </TabContext>
-        </Toolbar>
-      </Box>
-    </Container>
+    <Box sx={{ bgcolor: "white" }}>
+      <Container maxWidth="lg">
+        <Box
+          sx={{
+            display: "flex",
+            overflow: "auto",
+            justifyContent: "center",
+          }}
+        >
+          <Toolbar disableGutters>
+            <TabContext value={keyDate}>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: "divider",
+                }}
+              >
+                <TabList onChange={handleChange}>
+                  <Tab
+                    label={tabLabel("Contract Status")}
+                    value="contractendDate"
+                    {...a11yProps(0)}
+                  />
+                  <Tab
+                    label={tabLabel("MA Status")}
+                    value="maendDate"
+                    {...a11yProps(1)}
+                  />
+                </TabList>
+              </Box>
+            </TabContext>
+          </Toolbar>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
