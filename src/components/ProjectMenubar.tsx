@@ -7,6 +7,7 @@ import {
   MenuItem,
   Divider,
   ListItemIcon,
+  Box,
 } from "@mui/material";
 import {
   DragHandle as DragHandleIcon,
@@ -42,6 +43,7 @@ const ProjectMenubar: FunctionComponent<{
   return (
     <Container maxWidth="xl" sx={{ bgcolor: "primary.main" }}>
       <Toolbar disableGutters sx={{ height: "40px" }}>
+        <Box sx={{ flexGrow: 1 }} />
         <IconButton
           color="inherit"
           sx={{

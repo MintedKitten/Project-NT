@@ -66,8 +66,13 @@ const AlertAccordionSummary = styled((props: AccordionSummaryProps) => (
 }));
 
 const AlertAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   borderTop: "1px solid rgba(0, 0, 0, .125)",
+  "& .MuiBox-root": {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    marginTop: theme.spacing(0.2),
+  },
 }));
 
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
@@ -148,7 +153,9 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     newValue: "contractendDate" | "maendDate"
   ) => {
     setKeyDate(newValue);
-    setKeyAlert(newValue ? "contractAlertLevel" : "maAlertLevel");
+    setKeyAlert(
+      newValue === "contractendDate" ? "contractAlertLevel" : "maAlertLevel"
+    );
   };
 
   useEffect(() => {
@@ -198,12 +205,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <PageContainer maxWidth="xl">
           <Grid container spacing={1}>
             <Grid item xs={12} md={6}>
-              Red Alert
-            </Grid>
-            <Grid item xs={12} md={6}>
-              All
-            </Grid>
-            <Grid item xs={12} md={6}>
+              <Typography>Red Alert</Typography>
               <Grid container sx={{ maxHeight: "60vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
@@ -242,6 +244,12 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                                         ),
                                         paddingY: 3,
                                         paddingX: 1,
+                                        ":hover": {
+                                          boxShadow:
+                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                                          border: 1,
+                                          borderColor: "#B7B3C7",
+                                        },
                                       }}
                                     >
                                       <Typography>{`${project.projName}`}</Typography>
@@ -259,7 +267,39 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                       }
                     )}
                   </Box>
-                  <Box id="alert_today" />
+                  <Box
+                    id="alert_today"
+                    sx={{
+                      display: "flex",
+                      // border: 1,
+                      // borderRadius: 5,
+                      justifyItems: "center",
+                      alignItems: "center",
+                      // borderColor: "rgba(0, 0, 0, 0.25)",
+                      mt: 1,
+                      // bgcolor: "whitesmoke",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        mx: 1,
+                        border: 1,
+                        borderColor: "rgba(0, 0, 0, 0.25)",
+                      }}
+                    />
+                    <Typography>
+                      Today: {formatDateDDMMYY(today.toDate())}
+                    </Typography>
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        mx: 1,
+                        border: 1,
+                        borderColor: "rgba(0, 0, 0, 0.25)",
+                      }}
+                    />
+                  </Box>
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYAlertPast).map(
                       ([key, resarray]) => {
@@ -296,6 +336,12 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                                         ),
                                         paddingY: 3,
                                         paddingX: 1,
+                                        ":hover": {
+                                          boxShadow:
+                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                                          border: 1,
+                                          borderColor: "#B7B3C7",
+                                        },
                                       }}
                                     >
                                       <Typography>{`${project.projName}`}</Typography>
@@ -317,7 +363,8 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
               </Grid>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Grid container sx={{ maxHeight: "85vh", overflow: "auto" }}>
+              <Typography>All</Typography>
+              <Grid container sx={{ maxHeight: "75vh", overflow: "auto" }}>
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYFuture).map(
@@ -355,6 +402,12 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                                         ),
                                         paddingY: 3,
                                         paddingX: 1,
+                                        ":hover": {
+                                          boxShadow:
+                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                                          border: 1,
+                                          borderColor: "#B7B3C7",
+                                        },
                                       }}
                                     >
                                       <Typography>{`${project.projName}`}</Typography>
@@ -372,7 +425,39 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                       }
                     )}
                   </Box>
-                  <Box id="status_today" />
+                  <Box
+                    id="status_today"
+                    sx={{
+                      display: "flex",
+                      // border: 1,
+                      // borderRadius: 5,
+                      justifyItems: "center",
+                      alignItems: "center",
+                      // borderColor: "rgba(0, 0, 0, 0.25)",
+                      mt: 1,
+                      // bgcolor: "whitesmoke",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        mx: 1,
+                        border: 1,
+                        borderColor: "rgba(0, 0, 0, 0.25)",
+                      }}
+                    />
+                    <Typography>
+                      Today: {formatDateDDMMYY(today.toDate())}
+                    </Typography>
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        mx: 1,
+                        border: 1,
+                        borderColor: "rgba(0, 0, 0, 0.25)",
+                      }}
+                    />
+                  </Box>
                   <Box sx={{ mt: 1 }}>
                     {Object.entries(groupbyMMYYPast).map(([key, resarray]) => {
                       const [dd, mm, yy] = key.split("/").map((r) => {
@@ -408,6 +493,12 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                                       ),
                                       paddingY: 3,
                                       paddingX: 1,
+                                      ":hover": {
+                                        boxShadow:
+                                          "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                                        border: 1,
+                                        borderColor: "#B7B3C7",
+                                      },
                                     }}
                                   >
                                     <Typography>{`${project.projName}`}</Typography>
@@ -557,7 +648,7 @@ function convtoSerializable(
 function getBGColorFromStatus(status: DateDeadlineStatus) {
   switch (status) {
     case DateDeadlineStatus.Normal:
-      return "";
+      return "#F9F9F9";
     case DateDeadlineStatus.Passed:
       return "#B7C4CF";
     case DateDeadlineStatus.PastDue:
