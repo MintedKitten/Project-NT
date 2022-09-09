@@ -1,5 +1,3 @@
-import * as dotenv from "dotenv";
-dotenv.config({ path: "/.env.local" });
 import next from "next";
 import express from "express";
 
@@ -32,7 +30,7 @@ function sha256(msg: string) {
 }
 
 // Server config from env and server request handler
-const port = Number(`${process.env.PORT}`, 10) || 3000;
+const port = Number(`${process.env.PORT}`) || 3000;
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "install": "npm list",
     "dev": "npm run prerun && npm run dev:real",
     "build_start": "npm run build && npm run start",
     "build": "npm run prerun && npm run build:real",
@@ -12,9 +13,9 @@
     "prerun": "npm run prerun:node && npm run prerun:server",
     "prerun:node": "esbuild next.config.ts --bundle --format=esm --outfile=next.config.mjs --platform=node --external:./node_modules/* --target=es2020 --minify --allow-overwrite",
     "prerun:server": "esbuild start.ts --bundle --format=esm --outfile=start.mjs --platform=node --external:./node_modules/* --target=es2020 --minify --allow-overwrite",
-    "dev:real": "cross-env NODE_ENV=development node start.mjs",
+    "dev:real": "cross-env NODE_ENV=development node -r dotenv/config start.mjs",
     "build:real": "next build",
-    "start:real": "cross-env NODE_ENV=production node start.mjs",
+    "start:real": "cross-env NODE_ENV=production node -r dotenv/config start.mjs",
     "lint:real": "next lint"
   },
   "dependencies": {

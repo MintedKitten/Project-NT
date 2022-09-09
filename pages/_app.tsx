@@ -9,6 +9,8 @@ import { SessionProvider } from "next-auth/react";
 import NextNProgress from "nextjs-progressbar";
 import { ConfirmDialogProvider } from "react-mui-confirm";
 import "../styles/globals.css";
+import { Detector } from "react-detect-offline";
+import { Alert, Snackbar } from "@mui/material";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -32,6 +34,21 @@ export default function MyApp(props: MyAppProps) {
           <NextNProgress color="#CFE8A9" />
           {/* @ts-ignore */}
           <ConfirmDialogProvider preventDuplicate>
+            <Detector
+              render={({ online }) => {
+                if (!online) {
+                  return (
+                    <Snackbar open={true}>
+                      <Alert severity="error" sx={{ width: "100%" }}>
+                        No Internet Connection
+                      </Alert>
+                    </Snackbar>
+                  );
+                } else {
+                  return <></>;
+                }
+              }}
+            />
             <Component {...pageProps} />
           </ConfirmDialogProvider>
         </SessionProvider>

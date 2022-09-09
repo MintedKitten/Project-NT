@@ -20,6 +20,13 @@
     "strictNullChecks": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": [".env.local", "next-env.d.ts", "**/*.ts", "**/*.tsx", "start.ts"],
+  "include": [
+    ".env.local",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "start.ts",
+    "next.config.ts"
+  ],
   "exclude": ["node_modules"]
 }

@@ -189,23 +189,9 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           )}
           <AlertNavbar keyDate={keyDate} handleChange={handleChange} />
         </PageAppbar>
-        <Detector
-          render={({ online }) => {
-            if (!online) {
-              return (
-                <Snackbar open={true}>
-                  <Alert severity="error" sx={{ width: "100%" }}>
-                    No Internet Connection
-                  </Alert>
-                </Snackbar>
-              );
-            } else {
-              return <></>;
-            }
-          }}
-        />
+        
         <PageContainer maxWidth="xl">
-          <Grid container spacing={1}>
+          {/* <Grid container spacing={1}>
             <Grid item xs={12} md={6} ref={containerAlertRef}>
               <Box sx={{ display: "flex", my: 1 }}>
                 <Box sx={{ flexGrow: 1 }} />
@@ -539,7 +525,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> */}
         </PageContainer>
       </>
     );
