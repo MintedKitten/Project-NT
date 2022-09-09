@@ -37,7 +37,7 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { navInfo, parseInteger, projectNavInfo } from "../../src/local";
+import { parseInteger } from "../../src/local";
 import { rowInt, rowCSVInt, rowCSVClass } from "../../src/create/equipments";
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
@@ -71,7 +71,7 @@ function EditToolbar(props: EditToolbarProps) {
   const { setRows, setRowModesModel } = props;
 
   const handleClickAddOneEmptyRow = () => {
-    const id = Math.random.toString();
+    const id = Math.random() + "";
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -148,7 +148,7 @@ function EditToolbar(props: EditToolbarProps) {
             }
           });
 
-          const id = Math.random.toString();
+          const id = Math.random() + "";
           const { uPrice, ...r } = nrow;
           withIdNewRows.push({
             ...r,
@@ -230,7 +230,7 @@ const EditEquipmentsGroup: NextPage<
       const { unitPrice, ...r } = eqmt;
       return {
         ...r,
-        id: Math.random.toString(),
+        id: Math.random() + "",
         uPrice: Big(unitPrice),
         eqid: eqg._id,
       };
@@ -308,12 +308,8 @@ const EditEquipmentsGroup: NextPage<
       type: "number",
       width: 100,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = valInteger(params.row.qty) === -1;
-        return { ...params.props, error: hasError };
-      },
-      valueGetter: (params) => {
-        const qty = valInteger(params.row.qty);
+      valueParser: (value, params) => {
+        const qty = valInteger(value);
         return qty > 0 ? qty : 0;
       },
     },
@@ -329,8 +325,12 @@ const EditEquipmentsGroup: NextPage<
       type: "number",
       width: 165,
       editable: true,
-      renderCell: (params) => {
-        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+      valueParser: (value, params) => {
+        const upr = valFloat((value + "").replace(/,/g, ""));
+        return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
+      },
+      valueFormatter: (params) => {
+        const upr = valFloat((params.value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
     },
@@ -341,14 +341,11 @@ const EditEquipmentsGroup: NextPage<
       width: 200,
       editable: false,
       valueGetter: (params) => {
-        const xpr = valFloat((params.row.uPrice + "").replace(/,/g, "")).mul(
-          params.row.qty
-        );
-        return !xpr.lt(0) ? xpr : Big(0);
-      },
-      renderCell: (params) => {
-        const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
-        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : "0";
+        const unitPrice = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+        const error =
+          unitPrice.lte(0) || parseInteger(params.row.qty + "") <= 0;
+        const xpr = unitPrice.mul(params.row.qty);
+        return !xpr.lt(0) && !error ? xpr : Big(0);
       },
     },
     {
@@ -409,25 +406,28 @@ const EditEquipmentsGroup: NextPage<
       desc: data.get("desc"),
       qty: data.get("amount"),
     };
-    let isFilled = true;
+
+    let nameer = "";
+    let qtyer = "";
     if (!eqGroup.name) {
-      setNameError("Please, enter the name of the group");
-      isFilled = false;
-    } else {
-      setNameError("");
+      nameer = "Please, enter the name of the group";
     }
     if (!eqGroup.qty) {
-      setAmountError("Please, enter the amount");
-      isFilled = false;
+      qtyer = "Please, enter an amount";
     } else {
       try {
-        setAmountError("");
+        const temp = parseInteger(eqGroup.qty + "");
+        if (temp < 1) {
+          qtyer = "Amount can't be less than 1";
+        }
       } catch (err) {
-        setAmountError("Please, enter a whole number");
-        isFilled = false;
+        qtyer = "Please, enter a whole number";
       }
     }
-    if (isFilled) {
+    setNameError(nameer);
+    setAmountError(qtyer);
+    const isValid = nameer === "" && qtyer === "";
+    if (isValid) {
       openConfirmDialog({
         title: "Are you sure you want to save equipment group?",
         onConfirm: async () => {

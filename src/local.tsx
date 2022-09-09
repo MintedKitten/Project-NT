@@ -189,13 +189,6 @@ export function parseInteger(s: string) {
   return nm;
 }
 
-export function isPositive(n: number) {
-  return n > 0;
-}
-export function isZero(n: number) {
-  return n === 0;
-}
-
 export function formatDateDDMMYY(date: Date) {
   return `${(date.getDate() + "").padStart(2, "0")}/${(
     date.getMonth() +

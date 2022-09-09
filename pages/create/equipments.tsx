@@ -40,7 +40,7 @@ import {
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
 import Big from "big.js";
-import { isPositive, parseInteger } from "../../src/local";
+import { parseInteger } from "../../src/local";
 
 interface EditToolbarProps {
   setRows: (
@@ -55,7 +55,7 @@ function EditToolbar(props: EditToolbarProps) {
   const { setRows, setRowModesModel } = props;
 
   const handleClickAddOneEmptyRow = () => {
-    const id = Math.random.toString();
+    const id = Math.random() + "";
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -132,7 +132,7 @@ function EditToolbar(props: EditToolbarProps) {
             }
           });
 
-          const id = Math.random.toString();
+          const id = Math.random() + "";
           const { uPrice, ...r } = nrow;
           withIdNewRows.push({
             ...r,
@@ -276,16 +276,11 @@ const CreateEquipmentsGroup = () => {
     {
       field: "qty",
       headerName: "Qty.",
-      type: "string",
+      type: "number",
       width: 100,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = valInteger(params.props.value) === -1;
-        console.log(hasError);
-        return { ...params.props, error: hasError };
-      },
-      valueGetter: (params) => {
-        const qty = valInteger(params.row.qty);
+      valueParser: (value, params) => {
+        const qty = valInteger(value);
         return qty > 0 ? qty : 0;
       },
     },
@@ -298,15 +293,15 @@ const CreateEquipmentsGroup = () => {
     {
       field: "uPrice",
       headerName: "Unit Price (บาท)",
-      type: "string",
+      type: "number",
       width: 165,
       editable: true,
-      valueGetter: (params) => {
-        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+      valueParser: (value, params) => {
+        const upr = valFloat((value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
-      renderCell: (params) => {
-        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+      valueFormatter: (params) => {
+        const upr = valFloat((params.value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
     },
@@ -322,10 +317,6 @@ const CreateEquipmentsGroup = () => {
           unitPrice.lte(0) || parseInteger(params.row.qty + "") <= 0;
         const xpr = unitPrice.mul(params.row.qty);
         return !xpr.lt(0) && !error ? xpr : Big(0);
-      },
-      renderCell: (params) => {
-        const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
-        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : "0";
       },
     },
     {
@@ -397,7 +388,7 @@ const CreateEquipmentsGroup = () => {
     } else {
       try {
         const temp = parseInteger(eqGroup.qty + "");
-        if (!isPositive(temp)) {
+        if (temp < 1) {
           qtyer = "Amount can't be less than 1";
         }
       } catch (err) {
