@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Alert,
   Box,
@@ -11,22 +10,46 @@ import {
 } from "@mui/material";
 import { callAuthSignup, callRegcheck } from "../frontend";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 export default function SignUp() {
   const router = useRouter();
-  const [error, setError] = React.useState("");
+  const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const user = {
-      username: data.get("username"),
-      password: data.get("password"),
-      name: data.get("name"),
+      username: data.get("username") + "",
+      password: data.get("password") + "",
+      name: data.get("name") + "",
     };
-    if (!user.username || !user.password) {
-      setError("Username and Password cannot be empty!");
+    let nameer = "";
+    let usernameer = "";
+    let passworder = "";
+    if (!user.name) {
+      nameer = "Name can't be empty";
+    }
+    if (!user.username) {
+      usernameer = "Username can't be empty";
+    }
+    if (!user.password) {
+      passworder = "Password can't be empty";
     } else {
+      if (user.password.length < 8) {
+        passworder = passworder.concat(
+          "Password has to contain atleast 8 characters"
+        );
+      }
+    }
+    setNameError(nameer);
+    setUsernameError(usernameer);
+    setPasswordError(passworder);
+    const isValid = nameer === "" && usernameer === "" && passworder === "";
+    if (isValid) {
       const usercheck = await callRegcheck("" + user.username);
       if (usercheck) {
         setError("This username has already been taken!");
@@ -72,6 +95,8 @@ export default function SignUp() {
                 label="Name"
                 name="name"
                 autoComplete="name"
+                error={nameError !== ""}
+                helperText={nameError !== "" ? nameError : ""}
               />
             </Grid>
             <Grid item xs={12}>
@@ -82,6 +107,8 @@ export default function SignUp() {
                 label="Username"
                 name="username"
                 autoComplete="username"
+                error={usernameError !== ""}
+                helperText={usernameError !== "" ? usernameError : ""}
               />
             </Grid>
             <Grid item xs={12}>
@@ -93,6 +120,8 @@ export default function SignUp() {
                 type="password"
                 id="password"
                 autoComplete="new-password"
+                error={passwordError !== ""}
+                helperText={passwordError !== "" ? passwordError : ""}
               />
             </Grid>
           </Grid>
