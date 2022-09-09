@@ -143,10 +143,6 @@ const ProjectEquipmentsPage: NextPage<
       type: "number",
       width: 100,
       editable: false,
-      valueGetter: (params) => {
-        const qty = valInteger(params.row.qty);
-        return qty > 0 ? qty : 0;
-      },
     },
     {
       field: "unit",
