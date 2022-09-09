@@ -33,12 +33,10 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { navInfo, projectNavInfo } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import Link from "next/link";
 import { ObjectId } from "bson";
 import Big from "big.js";
-import { randomId } from "@mui/x-data-grid-generator";
 import {
   GridColumns,
   DataGrid,
@@ -48,7 +46,7 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { valFloat, valInteger } from "../../src/create/projects";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { equipmentsGroupDelete } from "../../src/edit/equipments";
 import { useConfirmDialog } from "react-mui-confirm";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
@@ -69,6 +67,10 @@ const ProjectEquipmentsPage: NextPage<
   const eqGroups = peqGroups.map((eqg) => {
     return convBack(eqg);
   });
+  const tid = useId();
+  const getUniqueId = () => {
+    return;
+  };
 
   const totals: Big[] = [];
 
@@ -236,7 +238,7 @@ const ProjectEquipmentsPage: NextPage<
               const { desc, name, qty, _id } = eqg;
               const equipments = pequipments[index].map((eqmt) => {
                 const { unitPrice, ...r } = eqmt;
-                return { ...r, id: randomId(), uPrice: unitPrice };
+                return { ...r, id: _id?.toHexString(), uPrice: unitPrice };
               });
               return (
                 <Accordion key={name} TransitionProps={{ unmountOnExit: true }}>

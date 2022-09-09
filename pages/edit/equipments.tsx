@@ -19,7 +19,6 @@ import {
   GridRowId,
   GridRowModel,
 } from "@mui/x-data-grid";
-import { randomId } from "@mui/x-data-grid-generator";
 import { Alert, Backdrop, CircularProgress, TextField, useMediaQuery } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
@@ -66,7 +65,7 @@ function EditToolbar(props: EditToolbarProps) {
   const { setRows, setRowModesModel } = props;
 
   const handleClickAddOneEmptyRow = () => {
-    const id = randomId();
+    const id = Math.random.toString();
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -141,7 +140,7 @@ function EditToolbar(props: EditToolbarProps) {
             }
           });
 
-          const id = randomId();
+          const id = Math.random.toString();
           const { uPrice, ...r } = nrow;
           withIdNewRows.push({
             ...r,
@@ -221,7 +220,7 @@ const EditEquipmentsGroup: NextPage<
   const [rows, setRows] = useState<GridRowsProp<rowInt>>(
     pequipments.map((eqmt) => {
       const { unitPrice, ...r } = eqmt;
-      return { ...r, id: randomId(), uPrice: Big(unitPrice), eqid: eqg._id };
+      return { ...r, id: Math.random.toString(), uPrice: Big(unitPrice), eqid: eqg._id };
     })
   );
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});

@@ -19,7 +19,6 @@ import {
   GridRowId,
   GridRowModel,
 } from "@mui/x-data-grid";
-import { randomId } from "@mui/x-data-grid-generator";
 import { Alert, TextField, useMediaQuery } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
@@ -32,7 +31,6 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { navInfo, projectNavInfo } from "../../src/local";
 import {
   rowInt,
   rowCSVInt,
@@ -56,7 +54,7 @@ function EditToolbar(props: EditToolbarProps) {
   const { setRows, setRowModesModel } = props;
 
   const handleClickAddOneEmptyRow = () => {
-    const id = randomId();
+    const id = Math.random.toString();
     setRows((oldRows) => [
       ...oldRows,
       {
@@ -131,7 +129,7 @@ function EditToolbar(props: EditToolbarProps) {
             }
           });
 
-          const id = randomId();
+          const id = Math.random.toString();
           const { uPrice, ...r } = nrow;
           withIdNewRows.push({
             ...r,
