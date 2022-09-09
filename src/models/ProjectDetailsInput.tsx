@@ -13,7 +13,7 @@ import {
 } from "@mui/x-date-pickers";
 import Space from "../components/Space";
 import { itemObjectInt } from "../db";
-import { InputEn } from "../local";
+import { InputEn, parseInteger } from "../local";
 import { typeArray } from "../search/projects";
 import { ThaiAdapterDayjs } from "./classDateAdapter";
 
@@ -138,23 +138,25 @@ export const ProjectDetailsInput = ({
                   inputProps={{}}
                   label="วัน"
                   onChange={(e) => {
-                    if (e.target.value) {
-                      onChange(
-                        new Date(
-                          date.getFullYear(),
-                          date.getMonth(),
-                          Number(e.target.value)
-                        ).toString()
-                      );
-                    } else {
-                      onChange(
-                        new Date(
-                          date.getFullYear(),
-                          date.getMonth(),
-                          1
-                        ).toString()
-                      );
-                    }
+                    try {
+                      if (e.target.value) {
+                        onChange(
+                          new Date(
+                            date.getFullYear(),
+                            date.getMonth(),
+                            parseInteger(e.target.value)
+                          ).toString()
+                        );
+                      } else {
+                        onChange(
+                          new Date(
+                            date.getFullYear(),
+                            date.getMonth(),
+                            1
+                          ).toString()
+                        );
+                      }
+                    } catch (err) {}
                   }}
                   type="text"
                 />
@@ -165,23 +167,25 @@ export const ProjectDetailsInput = ({
                   size="small"
                   label="เดือน"
                   onChange={(e) => {
-                    if (e.target.value) {
-                      onChange(
-                        new Date(
-                          date.getFullYear(),
-                          Number(e.target.value) - 1,
-                          date.getDate()
-                        ).toString()
-                      );
-                    } else {
-                      onChange(
-                        new Date(
-                          date.getFullYear(),
-                          0,
-                          date.getDate()
-                        ).toString()
-                      );
-                    }
+                    try {
+                      if (e.target.value) {
+                        onChange(
+                          new Date(
+                            date.getFullYear(),
+                            parseInteger(e.target.value) - 1,
+                            date.getDate()
+                          ).toString()
+                        );
+                      } else {
+                        onChange(
+                          new Date(
+                            date.getFullYear(),
+                            0,
+                            date.getDate()
+                          ).toString()
+                        );
+                      }
+                    } catch (err) {}
                   }}
                   type="text"
                 />
@@ -192,27 +196,29 @@ export const ProjectDetailsInput = ({
                   size="small"
                   label="ปี"
                   onChange={(e) => {
-                    if (e.target.value.length > 0) {
-                      let t = e.target.value;
-                      if (t.length > 4) {
-                        t = t.slice(-4);
+                    try {
+                      if (e.target.value.length > 0) {
+                        let t = e.target.value;
+                        if (t.length > 4) {
+                          t = t.slice(-4);
+                        }
+                        onChange(
+                          new Date(
+                            parseInteger(t) - 543,
+                            date.getMonth(),
+                            date.getDate()
+                          ).toString()
+                        );
+                      } else {
+                        onChange(
+                          new Date(
+                            -543,
+                            date.getMonth(),
+                            date.getDate()
+                          ).toString()
+                        );
                       }
-                      onChange(
-                        new Date(
-                          Number(t) - 543,
-                          date.getMonth(),
-                          date.getDate()
-                        ).toString()
-                      );
-                    } else {
-                      onChange(
-                        new Date(
-                          -543,
-                          date.getMonth(),
-                          date.getDate()
-                        ).toString()
-                      );
-                    }
+                    } catch (err) {}
                   }}
                   type="text"
                 />
@@ -306,27 +312,29 @@ export const ProjectDetailsInput = ({
                   size="small"
                   label="ปี"
                   onChange={(e) => {
-                    if (e.target.value.length > 0) {
-                      let t = e.target.value;
-                      if (t.length > 4) {
-                        t = t.slice(-4);
+                    try {
+                      if (e.target.value.length > 0) {
+                        let t = e.target.value;
+                        if (t.length > 4) {
+                          t = t.slice(-4);
+                        }
+                        onChange(
+                          new Date(
+                            parseInteger(t) - 543,
+                            date.getMonth(),
+                            date.getDate()
+                          ).toString()
+                        );
+                      } else {
+                        onChange(
+                          new Date(
+                            -543,
+                            date.getMonth(),
+                            date.getDate()
+                          ).toString()
+                        );
                       }
-                      onChange(
-                        new Date(
-                          Number(t) - 543,
-                          date.getMonth(),
-                          date.getDate()
-                        ).toString()
-                      );
-                    } else {
-                      onChange(
-                        new Date(
-                          -543,
-                          date.getMonth(),
-                          date.getDate()
-                        ).toString()
-                      );
-                    }
+                    } catch (err) {}
                   }}
                   type="text"
                 />
@@ -370,7 +378,7 @@ export const ProjectDetailsInput = ({
   }
   if (type === InputEn.Item) {
     const { amount: samount, unit }: itemObjectInt = JSON.parse(value);
-    const amount = Number(samount + "");
+    const amount = parseInteger(samount + "");
     return (
       <>
         <Grid item xs={12} sm={4}>

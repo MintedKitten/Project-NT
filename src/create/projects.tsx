@@ -3,6 +3,7 @@ import { Big } from "big.js";
 import { fetcher } from "../frontend";
 import { retDatacreateproject } from "../../pages/api/create/projects";
 import { ObjectId } from "bson";
+import { parseInteger } from "../local";
 
 const __today = () => new Date();
 const today = (day = 0) => {
@@ -51,12 +52,12 @@ export const projectsDefaultValue: projectsTableInt = {
 };
 
 export function valInteger(v: string) {
-  const num = Number(v);
-  console.log(v, num);
-  if (isNaN(num)) {
+  try {
+    const num = parseInteger(v);
+    return num > 0 ? num : 0;
+  } catch (err) {
     return -1;
   }
-  return num > 0 ? num : 0;
 }
 
 export function valTypeList(v: string) {
@@ -154,17 +155,24 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
   let mastartDate = parsedate(data.mastartDate, "mastartDate");
   let maendDate = parsedate(data.maendDate, "maendDate");
   let type = parsetype(data.type, "type");
+  let procYear = 0;
+  try {
+    procYear = parseInteger(data.procurementYear + "") - 543;
+  } catch (err) {
+    throw new Error("Incorrect data on column procurementYear");
+  }
+  try {
+    Big((data.budget + "").replace(/,/g, ""));
+  } catch (err) {
+    throw new Error("Incorrect data on column budget");
+  }
   const c: projectsTableInt = {
     รายการโครงการจัดซื้อจัดจ้าง: data.projName || "",
     ประเภทโครงการ: type,
     จำนวนหน่วย: systemCount,
     "งบประมาณ (รวมภาษีมูลค่าเพิ่ม) (บาท)": "",
     ประเภทงบประมาณ: data.budgetType,
-    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": new Date(
-      Number(data.procurementYear + "") - 543,
-      0,
-      1
-    ),
+    "ปีที่ดำเนินการจัดซื้อจัดจ้าง (พ.ศ.)": new Date(procYear, 0, 1),
     "วันเริ่มสัญญา (พ.ศ.)": contractstartDate,
     "วันเริ่ม MA (พ.ศ.)": mastartDate,
     "วันหมดอายุ MA (พ.ศ.)": maendDate,
@@ -197,12 +205,9 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
     try {
       const split = ob.indexOf(" ");
       if (split > 0) {
-        if (
-          !isNaN(Number(ob.substring(0, split))) &&
-          ob.substring(split + 1).length > 0
-        ) {
+        if (ob.substring(split + 1).length > 0) {
           return {
-            amount: Number(ob.substring(0, split)),
+            amount: parseInteger(ob.substring(0, split)),
             unit: ob.substring(split + 1),
           } as itemObjectInt;
         }
@@ -218,9 +223,9 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
       let arr = ob.split("/");
       if (arr.length === 3) {
         return new Date(
-          Number(arr[2]) - 543,
-          Number(arr[1]) - 1,
-          Number(arr[0])
+          parseInteger(arr[2]) - 543,
+          parseInteger(arr[1]) - 1,
+          parseInteger(arr[0])
         );
       }
       throw new Error("Incorrect data on column " + column);

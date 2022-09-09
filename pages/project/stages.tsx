@@ -47,7 +47,7 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
-import { formatDateDDMMYY, StagesProgress } from "../../src/local";
+import { formatDateDDMMYY, parseInteger, StagesProgress } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { ChangeEvent, useEffect, useState } from "react";
 import fileSize from "filesize";
@@ -278,7 +278,7 @@ const ProjectStagesPage: NextPage<
                             new Date(
                               completeDate.getFullYear(),
                               completeDate.getMonth(),
-                              Number(e.target.value)
+                              parseInteger(e.target.value)
                             )
                           );
                         } else {
@@ -304,7 +304,7 @@ const ProjectStagesPage: NextPage<
                           setCompleteDate(
                             new Date(
                               completeDate.getFullYear(),
-                              Number(e.target.value) - 1,
+                              parseInteger(e.target.value) - 1,
                               completeDate.getDate()
                             )
                           );
@@ -334,7 +334,7 @@ const ProjectStagesPage: NextPage<
                           }
                           setCompleteDate(
                             new Date(
-                              Number(t) - 543,
+                              parseInteger(t) - 543,
                               completeDate.getMonth(),
                               completeDate.getDate()
                             )
@@ -745,7 +745,7 @@ export const getServerSideProps: GetServerSideProps<{
     let activestep = 0;
     let isComplete = true;
     if (!webquery["step"]) {
-      activestep = Number(webquery["step"]);
+      activestep = parseInteger(webquery["step"]);
       for (let index = 0; index < stages.length; index++) {
         const element = stages[index];
         if (element.status === StagesProgress.OnGoing) {
@@ -758,7 +758,7 @@ export const getServerSideProps: GetServerSideProps<{
         activestep = stages.length - 1;
       }
     } else {
-      const step = Number(webquery["step"]);
+      const step = parseInteger(webquery["step"]);
       if (step > 0 && step < stages.length) {
         activestep = step;
       }

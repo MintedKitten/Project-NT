@@ -41,6 +41,7 @@ import { ChangeEvent, useState } from "react";
 import Link from "next/link";
 import { EquipmentWithProjectName } from "../../src/server";
 import PageMenubar from "../../src/components/PageMenubar";
+import { parseInteger } from "../../src/local";
 
 const SearchEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -349,11 +350,11 @@ export const getServerSideProps: GetServerSideProps<{
     let qqty = false;
     const qty: Condition<number> = {};
     if (webquery["qtylb"]) {
-      qty["$gte"] = Number(webquery["qtylb"]);
+      qty["$gte"] = parseInteger(webquery["qtylb"]);
       qqty = true;
     }
     if (webquery["qtyub"]) {
-      qty["$lte"] = Number(webquery["qtyub"]);
+      qty["$lte"] = parseInteger(webquery["qtyub"]);
       qqty = true;
     }
     if (qqty) {

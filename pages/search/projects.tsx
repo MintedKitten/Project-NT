@@ -47,7 +47,7 @@ import {
   projectsInt,
 } from "../../src/db";
 import { ObjectId } from "bson";
-import { navInfo } from "../../src/local";
+import { navInfo, parseInteger } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import PageMenubar from "../../src/components/PageMenubar";
 
@@ -66,10 +66,10 @@ const SearchProjectsPage: NextPage<
   };
 
   const [filteryear, setFilteryear] = useState(
-    Number(router.query.year ? "" + router.query.year : "0")
+    parseInteger(router.query.year ? "" + router.query.year : "0")
   );
   const [filtertype, setFiltertype] = useState(
-    Number(router.query.type ? "" + router.query.type : "0")
+    parseInteger(router.query.type ? "" + router.query.type : "0")
   );
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -95,12 +95,12 @@ const SearchProjectsPage: NextPage<
     if (selectYear === "All") {
       setFilteryear(0);
     }
-    setFilteryear(Number(selectYear));
+    setFilteryear(parseInteger(selectYear));
   };
 
   const handleTypeChange = (event: SelectChangeEvent) => {
     let selectType = event.target.value;
-    setFiltertype(Number(selectType));
+    setFiltertype(parseInteger(selectType));
   };
 
   const [page, setPage] = useState(0);
@@ -334,10 +334,10 @@ export const getServerSideProps: GetServerSideProps<{
     query["projName"] = new RegExp(".*" + webquery["name"] + ".*");
   }
   if (webquery["type"] && webquery["type"] !== "0") {
-    query["type"] = Number(webquery["type"]);
+    query["type"] = parseInteger(webquery["type"]);
   }
   if (webquery["year"] && webquery["year"] !== "0") {
-    query["procurementYear"] = Number(webquery["year"]);
+    query["procurementYear"] = parseInteger(webquery["year"]);
   }
   let retOb: GetServerSidePropsResult<{
     result: ReturnType<typeof convtoTable>[];

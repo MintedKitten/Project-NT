@@ -171,6 +171,31 @@ export function calculateDiffTime(before: Date, after: Date) {
   return `${_days} วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่ม MA)`;
 }
 
+export function parseInteger(s: string) {
+  const nm = Number(s);
+  const nm2 = parseInt(s);
+  if (nm > Number.MAX_SAFE_INTEGER) {
+    throw new Error("Error: input is more than MAX_SAFE_INTEGER");
+  }
+  if (nm !== nm2) {
+    throw new Error("Error: input is not an Integer");
+  }
+  if (isNaN(nm)) {
+    throw new Error("Error: input is not an Integer");
+  }
+  if (!Number.isInteger(nm)) {
+    throw new Error("Error: input is not an Integer");
+  }
+  return nm;
+}
+
+export function isPositive(n: number) {
+  return n > 0;
+}
+export function isZero(n: number) {
+  return n === 0;
+}
+
 export function formatDateDDMMYY(date: Date) {
   return `${(date.getDate() + "").padStart(2, "0")}/${(
     date.getMonth() +

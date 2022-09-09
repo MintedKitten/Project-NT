@@ -19,7 +19,13 @@ import {
   GridRowId,
   GridRowModel,
 } from "@mui/x-data-grid";
-import { Alert, Backdrop, CircularProgress, TextField, useMediaQuery } from "@mui/material";
+import {
+  Alert,
+  Backdrop,
+  CircularProgress,
+  TextField,
+  useMediaQuery,
+} from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
 import { ChangeEvent, useState } from "react";
@@ -31,7 +37,7 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { navInfo, projectNavInfo } from "../../src/local";
+import { navInfo, parseInteger, projectNavInfo } from "../../src/local";
 import { rowInt, rowCSVInt, rowCSVClass } from "../../src/create/equipments";
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
@@ -127,7 +133,9 @@ function EditToolbar(props: EditToolbarProps) {
               throw new Error(`row ${rowindex + 1} has empty on column ${key}`);
             }
             if (key === "qty") {
-              if (isNaN(Number(value))) {
+              try {
+                parseInteger(value);
+              } catch (err) {
                 throw new Error(`row ${rowindex + 1} qty is not Integer`);
               }
             }
@@ -220,7 +228,12 @@ const EditEquipmentsGroup: NextPage<
   const [rows, setRows] = useState<GridRowsProp<rowInt>>(
     pequipments.map((eqmt) => {
       const { unitPrice, ...r } = eqmt;
-      return { ...r, id: Math.random.toString(), uPrice: Big(unitPrice), eqid: eqg._id };
+      return {
+        ...r,
+        id: Math.random.toString(),
+        uPrice: Big(unitPrice),
+        eqid: eqg._id,
+      };
     })
   );
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -423,7 +436,7 @@ const EditEquipmentsGroup: NextPage<
             eqg._id?.toHexString() + "",
             eqGroup.name + "",
             eqGroup.desc + "",
-            Number(eqGroup.qty + ""),
+            parseInteger(eqGroup.qty + ""),
             rows
           );
           if (isSuccessful) {
@@ -458,8 +471,8 @@ const EditEquipmentsGroup: NextPage<
           <title>Update Project Equipments</title>
         </Head>
         <PageAppbar>
-          <PageNavbar   session={data} />
-          <ProjectNavbar   pid={pid as string} />
+          <PageNavbar session={data} />
+          <ProjectNavbar pid={pid as string} />
         </PageAppbar>
         <PageContainer>
           <Box

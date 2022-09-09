@@ -12,6 +12,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Grid,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -225,13 +226,25 @@ const ProjectEquipmentsPage: NextPage<
             <TitleButtonElement />
           </Box>
           <Box sx={{ mt: 1 }}>
-            <Typography>{`Total Extended Price: ${totalxPrice
-              .toNumber()
-              .toLocaleString()} บาท`}</Typography>
-            <Typography>{`Total Extended Price + VAT: ${totalxPrice
-              .mul(1.07)
-              .toNumber()
-              .toLocaleString()} บาท`}</Typography>
+            <Grid container>
+              <Grid item xs={2}>
+                <Typography>Total Extended Price:</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography>{`${totalxPrice
+                  .toNumber()
+                  .toLocaleString()} บาท`}</Typography>
+              </Grid>
+              <Grid item xs={2}>
+                <Typography>+VAT:</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography>{`${totalxPrice
+                  .mul(1.07)
+                  .toNumber()
+                  .toLocaleString()} บาท`}</Typography>
+              </Grid>
+            </Grid>
           </Box>
           <Box sx={{ mt: 1 }}>
             {eqGroups.map((eqg, index) => {

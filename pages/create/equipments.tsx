@@ -40,6 +40,7 @@ import {
 import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
 import Big from "big.js";
+import { isPositive, parseInteger } from "../../src/local";
 
 interface EditToolbarProps {
   setRows: (
@@ -116,7 +117,9 @@ function EditToolbar(props: EditToolbarProps) {
               throw new Error(`row ${rowindex + 1} has empty on column ${key}`);
             }
             if (key === "qty") {
-              if (isNaN(Number(value))) {
+              try {
+                parseInteger(value);
+              } catch (err) {
                 throw new Error(`row ${rowindex + 1} qty is not Integer`);
               }
             }
@@ -315,7 +318,8 @@ const CreateEquipmentsGroup = () => {
       editable: false,
       valueGetter: (params) => {
         const unitPrice = valFloat((params.row.uPrice + "").replace(/,/g, ""));
-        const error = unitPrice.lte(0) || Number(params.row.qty + "") <= 0;
+        const error =
+          unitPrice.lte(0) || parseInteger(params.row.qty + "") <= 0;
         const xpr = unitPrice.mul(params.row.qty);
         return !xpr.lt(0) && !error ? xpr : Big(0);
       },
@@ -382,31 +386,28 @@ const CreateEquipmentsGroup = () => {
       desc: data.get("desc"),
       qty: data.get("amount"),
     };
-    let isFilled = true;
+
+    let nameer = "";
+    let qtyer = "";
     if (!eqGroup.name) {
-      setNameError("Please, enter the name of the group");
-      isFilled = false;
-    } else {
-      setNameError("");
+      nameer = "Please, enter the name of the group";
     }
     if (!eqGroup.qty) {
-      setAmountError("Please, enter the amount");
-      isFilled = false;
+      qtyer = "Please, enter an amount";
     } else {
-      const temp = Number(eqGroup.qty);
-      if (isNaN(temp)) {
-        setAmountError("Please, enter a whole number");
-        isFilled = false;
-      } else {
-        if (temp < 1) {
-          setAmountError("Amount can't be less than 1");
-          isFilled = false;
-        } else {
-          setAmountError("");
+      try {
+        const temp = parseInteger(eqGroup.qty + "");
+        if (!isPositive(temp)) {
+          qtyer = "Amount can't be less than 1";
         }
+      } catch (err) {
+        qtyer = "Please, enter a whole number";
       }
     }
-    if (isFilled) {
+    setNameError(nameer);
+    setAmountError(qtyer);
+    const isValid = nameer === "" && qtyer === "";
+    if (isValid) {
       openConfirmDialog({
         title: "Are you sure you want to add new equipment group?",
         onConfirm: async () => {
@@ -414,7 +415,7 @@ const CreateEquipmentsGroup = () => {
             pid,
             eqGroup.name + "",
             eqGroup.desc + "",
-            Number(eqGroup.qty + ""),
+            parseInteger(eqGroup.qty + ""),
             rows
           );
           if (isSuccessful) {
@@ -488,7 +489,6 @@ const CreateEquipmentsGroup = () => {
                 <TextField
                   name="amount"
                   label="Amount"
-                  type="number"
                   required
                   error={amountError !== ""}
                   helperText={amountError}
