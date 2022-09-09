@@ -150,6 +150,17 @@ export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Stages", Link: "/project/stages" },
 ];
 
+export const alertNavInfo = [
+  { label: "All", value: "All" },
+  { label: "3 Months", value: "3 Months" },
+  { label: "Past", value: "Past" },
+  { label: "Custom", value: "Custom" },
+] as const;
+const p = alertNavInfo.map((res) => {
+  return res.value;
+})[0];
+export type alertNavType = typeof p;
+
 export function calculateDiffTime(before: Date, after: Date) {
   const _days = -dayjs(before).diff(dayjs(after), "days") + 1;
   let diffyear = after.getFullYear() - before.getFullYear();

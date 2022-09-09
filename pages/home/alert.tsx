@@ -27,6 +27,7 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import {
+  alertNavType,
   DateDeadlineStatus,
   formatDateDDMMYY,
   formatDateYYYYMM,
@@ -40,6 +41,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Detector } from "react-detect-offline";
 import AlertNavbar from "../../src/components/AlertNavbar";
+import { DataGrid } from "@mui/x-data-grid";
 
 const AlertAccordion = styled((props: AccordionProps) => (
   <Accordion disableGutters elevation={0} square {...props} />
@@ -88,6 +90,8 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   const result = presult.map((res) => {
     return compileBackStatus(res);
   });
+
+  const [tab, setTab] = useState<alertNavType>("All");
 
   const [keyDate, setKeyDate] = useState<"contractendDate" | "maendDate">(
     "contractendDate"
@@ -152,12 +156,13 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
 
   const handleChange = (
     event: React.SyntheticEvent,
-    newValue: "contractendDate" | "maendDate"
+    newValue: alertNavType
   ) => {
-    setKeyDate(newValue);
-    setKeyAlert(
-      newValue === "contractendDate" ? "contractAlertLevel" : "maAlertLevel"
-    );
+    setTab(newValue);
+    // setKeyDate(newValue);
+    // setKeyAlert(
+    //   newValue === "contractendDate" ? "contractAlertLevel" : "maAlertLevel"
+    // );
   };
 
   useEffect(() => {
@@ -187,11 +192,11 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           ) : (
             <PageMenubar session={data} />
           )}
-          <AlertNavbar keyDate={keyDate} handleChange={handleChange} />
+          <AlertNavbar tab={tab} handleChange={handleChange} />
         </PageAppbar>
-        
-        <PageContainer maxWidth="xl">
-          {/* <Grid container spacing={1}>
+
+        <PageContainer maxWidth="xl">{/* <DataGrid /> */}</PageContainer>
+        {/* <Grid container spacing={1}>
             <Grid item xs={12} md={6} ref={containerAlertRef}>
               <Box sx={{ display: "flex", my: 1 }}>
                 <Box sx={{ flexGrow: 1 }} />
@@ -526,7 +531,6 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
               </Grid>
             </Grid>
           </Grid> */}
-        </PageContainer>
       </>
     );
   }
