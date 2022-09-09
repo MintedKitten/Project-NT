@@ -195,7 +195,6 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const CreateEquipmentsGroup = () => {
-  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const pid = router.query.pid as string;
@@ -279,7 +278,7 @@ const CreateEquipmentsGroup = () => {
       type: "number",
       width: 100,
       editable: true,
-      valueParser: (value, params) => {
+      valueParser: (value) => {
         const qty = valInteger(value);
         return qty > 0 ? qty : 0;
       },
@@ -296,7 +295,7 @@ const CreateEquipmentsGroup = () => {
       type: "number",
       width: 165,
       editable: true,
-      valueParser: (value, params) => {
+      valueParser: (value) => {
         const upr = valFloat((value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },

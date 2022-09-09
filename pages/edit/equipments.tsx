@@ -213,7 +213,6 @@ function EditToolbar(props: EditToolbarProps) {
 const EditEquipmentsGroup: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, peqGroup, pequipments }) => {
-  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -308,7 +307,7 @@ const EditEquipmentsGroup: NextPage<
       type: "number",
       width: 100,
       editable: true,
-      valueParser: (value, params) => {
+      valueParser: (value) => {
         const qty = valInteger(value);
         return qty > 0 ? qty : 0;
       },
@@ -325,7 +324,7 @@ const EditEquipmentsGroup: NextPage<
       type: "number",
       width: 165,
       editable: true,
-      valueParser: (value, params) => {
+      valueParser: (value) => {
         const upr = valFloat((value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
