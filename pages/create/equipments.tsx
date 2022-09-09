@@ -41,6 +41,7 @@ import { parse as parsecsv } from "papaparse";
 import Space from "../../src/components/Space";
 import Big from "big.js";
 import { parseInteger } from "../../src/local";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 interface EditToolbarProps {
   setRows: (
@@ -195,6 +196,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 const CreateEquipmentsGroup = () => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const pid = router.query.pid as string;
@@ -297,7 +299,7 @@ const CreateEquipmentsGroup = () => {
       editable: true,
       valueParser: (value) => {
         const upr = valFloat((value + "").replace(/,/g, ""));
-        return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
+        return !upr.lt(0) ? upr.toString() : "0";
       },
       valueFormatter: (params) => {
         const upr = valFloat((params.value + "").replace(/,/g, ""));
@@ -376,6 +378,12 @@ const CreateEquipmentsGroup = () => {
       desc: data.get("desc"),
       qty: data.get("amount"),
     };
+    Object.entries(rowModesModel).map(([, value]) => {
+      if (value.mode === GridRowModes.Edit) {
+        alert("Table has unsaved row. Save it or remove it.");
+        return;
+      }
+    });
 
     let nameer = "";
     let qtyer = "";
@@ -440,8 +448,14 @@ const CreateEquipmentsGroup = () => {
           <title>Create New Equipment Group</title>
         </Head>
         <PageAppbar>
-          <PageNavbar session={data} />
-          <ProjectNavbar pid={pid as string} />
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box

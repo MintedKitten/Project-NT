@@ -57,6 +57,7 @@ import {
 } from "../../src/db";
 import { getToken } from "next-auth/jwt";
 import { editEquipmentGroupAndEquipments } from "../../src/edit/equipments";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 interface EditToolbarProps {
   setRows: (
@@ -213,6 +214,7 @@ function EditToolbar(props: EditToolbarProps) {
 const EditEquipmentsGroup: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, peqGroup, pequipments }) => {
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -244,7 +246,7 @@ const EditEquipmentsGroup: NextPage<
   };
 
   const handleRowEditStart = (
-    params: GridRowParams,
+    _params: GridRowParams,
     event: MuiEvent<React.SyntheticEvent>
   ) => {
     event.defaultMuiPrevented = true;
@@ -326,7 +328,7 @@ const EditEquipmentsGroup: NextPage<
       editable: true,
       valueParser: (value) => {
         const upr = valFloat((value + "").replace(/,/g, ""));
-        return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
+        return !upr.lt(0) ? upr.toString() : "0";
       },
       valueFormatter: (params) => {
         const upr = valFloat((params.value + "").replace(/,/g, ""));
@@ -405,7 +407,12 @@ const EditEquipmentsGroup: NextPage<
       desc: data.get("desc"),
       qty: data.get("amount"),
     };
-
+    Object.entries(rowModesModel).map(([, value]) => {
+      if (value.mode === GridRowModes.Edit) {
+        alert("Table has unsaved row. Save it or remove it.");
+        return;
+      }
+    });
     let nameer = "";
     let qtyer = "";
     if (!eqGroup.name) {
@@ -470,8 +477,14 @@ const EditEquipmentsGroup: NextPage<
           <title>Update Project Equipments</title>
         </Head>
         <PageAppbar>
-          <PageNavbar session={data} />
-          <ProjectNavbar pid={pid as string} />
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box

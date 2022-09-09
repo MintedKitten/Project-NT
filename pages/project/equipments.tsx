@@ -47,7 +47,7 @@ import {
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
 import { valFloat, valInteger } from "../../src/create/projects";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { equipmentsGroupDelete } from "../../src/edit/equipments";
 import { useConfirmDialog } from "react-mui-confirm";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
@@ -68,10 +68,8 @@ const ProjectEquipmentsPage: NextPage<
   const eqGroups = peqGroups.map((eqg) => {
     return convBack(eqg);
   });
-  const tid = useId();
-  const getUniqueId = () => {
-    return;
-  };
+
+  console.log(pequipments);
 
   const totals: Big[] = [];
 
@@ -179,10 +177,6 @@ const ProjectEquipmentsPage: NextPage<
         );
         return !xpr.lt(0) ? xpr : Big(0);
       },
-      renderCell: (params) => {
-        const xpr = valFloat(params.row.uPrice).mul(params.row.qty);
-        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : "0";
-      },
     },
   ];
 
@@ -227,22 +221,20 @@ const ProjectEquipmentsPage: NextPage<
           </Box>
           <Box sx={{ mt: 1 }}>
             <Grid container>
-              <Grid item xs={2}>
-                <Typography>Total Extended Price:</Typography>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: "flex" }}>
+                  <Typography>{`Total Extended Price: ${totalxPrice
+                    .toNumber()
+                    .toLocaleString()} บาท`}</Typography>
+                </Box>
               </Grid>
-              <Grid item xs={4}>
-                <Typography>{`${totalxPrice
-                  .toNumber()
-                  .toLocaleString()} บาท`}</Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography>+VAT:</Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography>{`${totalxPrice
-                  .mul(1.07)
-                  .toNumber()
-                  .toLocaleString()} บาท`}</Typography>
+              <Grid item xs={12} sm={6}>
+                <Box sx={{ display: "flex" }}>
+                  <Typography>{`+VAT: ${totalxPrice
+                    .mul(1.07)
+                    .toNumber()
+                    .toLocaleString()} บาท`}</Typography>
+                </Box>
               </Grid>
             </Grid>
           </Box>
@@ -250,8 +242,8 @@ const ProjectEquipmentsPage: NextPage<
             {eqGroups.map((eqg, index) => {
               const { desc, name, qty, _id } = eqg;
               const equipments = pequipments[index].map((eqmt) => {
-                const { unitPrice, ...r } = eqmt;
-                return { ...r, id: _id?.toHexString(), uPrice: unitPrice };
+                const { unitPrice, _id: e_id, ...r } = eqmt;
+                return { ...r, id: e_id, uPrice: unitPrice };
               });
               return (
                 <Accordion key={name} TransitionProps={{ unmountOnExit: true }}>
@@ -326,7 +318,9 @@ export default ProjectEquipmentsPage;
 export const getServerSideProps: GetServerSideProps<{
   pid: string;
   peqGroups: ReturnType<typeof convToSerializable>[];
-  pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][];
+  pequipments: (Omit<equipmentsInt, "projId" | "eqgId" | "_id"> & {
+    _id: string;
+  })[][];
 }> = async (context) => {
   const token = await getToken({
     req: context.req,
@@ -352,7 +346,9 @@ export const getServerSideProps: GetServerSideProps<{
   let retOb: GetServerSidePropsResult<{
     pid: string;
     peqGroups: ReturnType<typeof convToSerializable>[];
-    pequipments: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][];
+    pequipments: (Omit<equipmentsInt, "projId" | "eqgId" | "_id"> & {
+      _id: string;
+    })[][];
   }> = {
     redirect: {
       destination: "/home/alert",
@@ -366,14 +362,20 @@ export const getServerSideProps: GetServerSideProps<{
     eqGroups.sort((a, b) => {
       return a.order < b.order ? -1 : 1;
     });
-    const eqmtsArray: Omit<equipmentsInt, "projId" | "eqgId" | "_id">[][] = [];
+    const eqmtsArray: (Omit<equipmentsInt, "projId" | "eqgId" | "_id"> & {
+      _id: string;
+    })[][] = [];
     for (let index = 0; index < eqGroups.length; index++) {
       const eqg = eqGroups[index];
-      const result = await equipmentsFindAll(
+      const presult = await equipmentsFindAll(
         conn,
         { eqgId: eqg._id },
-        { projection: { projId: 0, eqgId: 0, _id: 0 } }
+        { projection: { projId: 0, eqgId: 0 } }
       );
+      const result = presult.map((pres) => {
+        const { _id, ...r } = pres;
+        return { ...r, _id: _id.toHexString() };
+      });
       eqmtsArray.push(result);
     }
     const eqgSer = eqGroups.map((eqg) => {
