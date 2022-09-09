@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "install": "npm list",
-    "prod": "npm run start",
+    "prod": "npm run build && npm run start",
     "dev": "npm run prerun && npm run dev:real",
     "prerun_build_start": "npm run prerun && npm run build && npm run start",
     "build": "npm run build:real",
