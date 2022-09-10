@@ -9,7 +9,6 @@ import { createHash } from "crypto";
 
 import { fileMetadataInt } from "./src/db";
 import { getToken } from "next-auth/jwt";
-import { parseInteger } from "./src/local";
 
 /**
  * SHA256 Hashing
@@ -31,7 +30,7 @@ function sha256(msg: string) {
 }
 
 // Server config from env and server request handler
-const port = parseInteger(`${process.env.PORT}`) || 3000;
+const port = parseInt(`${process.env.PORT}`) || 3000;
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();
