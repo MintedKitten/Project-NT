@@ -42,13 +42,16 @@ const FilesMetaColl = "FilesMetadata";
 // ExpressJS DB Functions
 // Statically create the client, so there's only 1 client per connection
 
-let client: MongoClient;
-
 async function getMongoclient(): Promise<MongoClient> {
-  if (!client) {
-    client = new MongoClient(process.env.EXPRESS_MONGO_STRING + "");
-  }
-  return await client.connect();
+  const conn = await new MongoClient(process.env.EXPRESS_MONGO_STRING + "")
+    .on("open", (mongoclient) => {
+      console.log("An expressjs mongoclient has been opened");
+    })
+    .on("close", () => {
+      console.log("An expressjs mongoclient has been closed");
+    })
+    .connect();
+  return conn;
 }
 
 function isInstanceOfFile(ob: any): ob is File {

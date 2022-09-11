@@ -50,10 +50,10 @@ export interface userInt {
 export async function getMongoClient() {
   const conn = await new MongoClient(`${process.env.NEXT_MONGO_STRING}`)
     .on("open", (mongoclient) => {
-      console.log("A mongoclient has been opened");
+      console.log("A nextjs mongoclient has been opened");
     })
     .on("close", () => {
-      console.log("A mongoclient has been closed");
+      console.log("A nextjs mongoclient has been closed");
     })
     .connect();
   return conn;
