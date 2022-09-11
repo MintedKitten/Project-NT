@@ -106,53 +106,53 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   };
 
   sortRes();
-  const today = dayjs(new Date());
+  // const today = dayjs(new Date());
 
-  const groupbyMMYYAlertFuture: {
-    [key: string]: ReturnType<typeof compileBackStatus>[];
-  } = {};
-  const groupbyMMYYAlertPast: {
-    [key: string]: ReturnType<typeof compileBackStatus>[];
-  } = {};
-  const groupbyMMYYFuture: {
-    [key: string]: ReturnType<typeof compileBackStatus>[];
-  } = {};
-  const groupbyMMYYPast: {
-    [key: string]: ReturnType<typeof compileBackStatus>[];
-  } = {};
-  result.forEach((res) => {
-    const date = dayjs(res[keyDate]).format("01/MM/YYYY");
-    const diff = -today.diff(res[keyDate], "days");
-    if (diff >= 0) {
-      if (!groupbyMMYYFuture[date]) {
-        groupbyMMYYFuture[date] = [];
-      }
-      groupbyMMYYFuture[date].push(res);
-      if (
-        res[keyAlert] === DateDeadlineStatus.RedAlert ||
-        res[keyAlert] === DateDeadlineStatus.PastDue
-      ) {
-        if (!groupbyMMYYAlertFuture[date]) {
-          groupbyMMYYAlertFuture[date] = [];
-        }
-        groupbyMMYYAlertFuture[date].push(res);
-      }
-    } else {
-      if (!groupbyMMYYPast[date]) {
-        groupbyMMYYPast[date] = [];
-      }
-      if (
-        res[keyAlert] === DateDeadlineStatus.RedAlert ||
-        res[keyAlert] === DateDeadlineStatus.PastDue
-      ) {
-        groupbyMMYYPast[date].push(res);
-        if (!groupbyMMYYAlertPast[date]) {
-          groupbyMMYYAlertPast[date] = [];
-        }
-        groupbyMMYYAlertPast[date].push(res);
-      }
-    }
-  });
+  // const groupbyMMYYAlertFuture: {
+  //   [key: string]: ReturnType<typeof compileBackStatus>[];
+  // } = {};
+  // const groupbyMMYYAlertPast: {
+  //   [key: string]: ReturnType<typeof compileBackStatus>[];
+  // } = {};
+  // const groupbyMMYYFuture: {
+  //   [key: string]: ReturnType<typeof compileBackStatus>[];
+  // } = {};
+  // const groupbyMMYYPast: {
+  //   [key: string]: ReturnType<typeof compileBackStatus>[];
+  // } = {};
+  // result.forEach((res) => {
+  //   const date = dayjs(res[keyDate]).format("01/MM/YYYY");
+  //   const diff = -today.diff(res[keyDate], "days");
+  //   if (diff >= 0) {
+  //     if (!groupbyMMYYFuture[date]) {
+  //       groupbyMMYYFuture[date] = [];
+  //     }
+  //     groupbyMMYYFuture[date].push(res);
+  //     if (
+  //       res[keyAlert] === DateDeadlineStatus.RedAlert ||
+  //       res[keyAlert] === DateDeadlineStatus.PastDue
+  //     ) {
+  //       if (!groupbyMMYYAlertFuture[date]) {
+  //         groupbyMMYYAlertFuture[date] = [];
+  //       }
+  //       groupbyMMYYAlertFuture[date].push(res);
+  //     }
+  //   } else {
+  //     if (!groupbyMMYYPast[date]) {
+  //       groupbyMMYYPast[date] = [];
+  //     }
+  //     if (
+  //       res[keyAlert] === DateDeadlineStatus.RedAlert ||
+  //       res[keyAlert] === DateDeadlineStatus.PastDue
+  //     ) {
+  //       groupbyMMYYPast[date].push(res);
+  //       if (!groupbyMMYYAlertPast[date]) {
+  //         groupbyMMYYAlertPast[date] = [];
+  //       }
+  //       groupbyMMYYAlertPast[date].push(res);
+  //     }
+  //   }
+  // });
 
   const handleChange = (
     event: React.SyntheticEvent,
