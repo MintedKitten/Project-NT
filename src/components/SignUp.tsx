@@ -41,7 +41,7 @@ export default function SignUp() {
     } else {
       if (user.password.length < 8) {
         passworder = passworder.concat(
-          "Password has to contain atleast 8 characters"
+          "Password has to contain at least 8 characters"
         );
       }
     }
