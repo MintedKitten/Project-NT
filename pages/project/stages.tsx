@@ -47,7 +47,11 @@ import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { ObjectId } from "bson";
-import { formatDateDDMMYY, parseInteger, StagesProgress } from "../../src/local";
+import {
+  formatDateDDMMYY,
+  parseInteger,
+  StagesProgress,
+} from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { ChangeEvent, useEffect, useState } from "react";
 import fileSize from "filesize";
@@ -745,7 +749,6 @@ export const getServerSideProps: GetServerSideProps<{
     let activestep = 0;
     let isComplete = true;
     if (!webquery["step"]) {
-      activestep = parseInteger(webquery["step"]);
       for (let index = 0; index < stages.length; index++) {
         const element = stages[index];
         if (element.status === StagesProgress.OnGoing) {

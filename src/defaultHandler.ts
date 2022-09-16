@@ -17,6 +17,9 @@ const nxcHandler = () => {
     if (!session) {
       return res.status(401).end();
     }
+    console.log(session.id);
+    console.log(req.rawHeaders);
+    console.log(req.url);
     next();
   });
 };

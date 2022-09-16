@@ -339,6 +339,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
               rowsPerPageOptions={[10, 20, 50, 100]}
               components={{ Toolbar: CustomToolbar }}
               columnGroupingModel={columnGroupingModel}
+              disableColumnSelector
               experimentalFeatures={{ columnGrouping: true }}
               getRowClassName={(params) => {
                 return `conalert-theme--${DeadlineName[params.row.contractAlert]

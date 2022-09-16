@@ -48,92 +48,9 @@ export interface userInt {
 }
 
 export async function getMongoClient() {
-  const conn = await new MongoClient(`${process.env.NEXT_MONGO_STRING}`)
-    .on("open", (mongoclient) => {
-      console.log("A nextjs mongoclient has been opened");
-    })
-    .on("close", () => {
-      console.log("A nextjs mongoclient has been closed");
-    })
-    .on("commandFailed", (event) => {
-      console.log("A nextjs mongoclient commandFailed");
-    })
-    .on("commandStarted", (event) => {
-      console.log("A nextjs mongoclient commandStarted");
-    })
-    .on("commandSucceeded", (event) => {
-      console.log("A nextjs mongoclient commandSucceeded");
-    })
-    .on("connectionCheckOutFailed", (event) => {
-      console.log("A nextjs mongoclient connectionCheckOutFailed");
-    })
-    .on("connectionCheckOutStarted", (event) => {
-      console.log("A nextjs mongoclient connectionCheckOutStarted");
-    })
-    .on("connectionCheckedIn", (event) => {
-      console.log("A nextjs mongoclient connectionCheckedIn");
-    })
-    .on("connectionCheckedOut", (event) => {
-      console.log("A nextjs mongoclient connectionCheckedOut");
-    })
-    .on("connectionClosed", (event) => {
-      console.log("A nextjs mongoclient connectionClosed");
-    })
-    .on("connectionCreated", (event) => {
-      console.log("A nextjs mongoclient connectionCreated");
-    })
-    .on("connectionPoolCleared", (event) => {
-      console.log("A nextjs mongoclient connectionPoolCleared");
-    })
-    .on("connectionPoolClosed", (event) => {
-      console.log("A nextjs mongoclient connectionPoolClosed");
-    })
-    .on("connectionPoolCreated", (event) => {
-      console.log("A nextjs mongoclient connectionPoolCreated");
-    })
-    .on("connectionReady", (event) => {
-      console.log("A nextjs mongoclient connectionReady");
-    })
-    .on("error", (error) => {
-      console.log("A nextjs mongoclient error");
-    })
-    .on("newListener", (eventName, listener) => {
-      console.log("A nextjs mongoclient newListener");
-    })
-    .on("removeListener", (eventName, listener) => {
-      console.log("A nextjs mongoclient removeListener");
-    })
-    .on("serverClosed", (event) => {
-      console.log("A nextjs mongoclient serverClosed");
-    })
-    .on("serverDescriptionChanged", (event) => {
-      console.log("A nextjs mongoclient serverDescriptionChanged");
-    })
-    .on("serverHeartbeatFailed", (event) => {
-      console.log("A nextjs mongoclient serverHeartbeatFailed");
-    })
-    .on("serverHeartbeatStarted", (event) => {
-      console.log("A nextjs mongoclient serverHeartbeatStarted");
-    })
-    .on("serverHeartbeatSucceeded", (event) => {
-      console.log("A nextjs mongoclient serverHeartbeatSucceeded");
-    })
-    .on("serverOpening", (event) => {
-      console.log("A nextjs mongoclient serverOpening");
-    })
-    .on("timeout", () => {
-      console.log("A nextjs mongoclient timeout");
-    })
-    .on("topologyClosed", (event) => {
-      console.log("A nextjs mongoclient topologyClosed");
-    })
-    .on("topologyDescriptionChanged", (event) => {
-      console.log("A nextjs mongoclient topologyDescriptionChanged");
-    })
-    .on("topologyOpening", (event) => {
-      console.log("A nextjs mongoclient topologyOpening");
-    })
-    .connect();
+  const conn = await new MongoClient(
+    `${process.env.NEXT_MONGO_STRING}`
+  ).connect();
   return conn;
 }
 

@@ -412,11 +412,9 @@ export const ProjectDetailsInput = ({
               label="หน่วย"
               type="text"
               onChange={(e) => {
-                if (e.target.value) {
-                  onChange(
-                    JSON.stringify({ amount: amount, unit: e.target.value })
-                  );
-                }
+                onChange(
+                  JSON.stringify({ amount: amount, unit: e.target.value })
+                );
               }}
             />
           </Box>
