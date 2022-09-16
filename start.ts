@@ -42,14 +42,9 @@ const FilesMetaColl = "FilesMetadata";
 // Statically create the client, so there's only 1 client per connection
 
 async function getMongoclient(): Promise<MongoClient> {
-  const conn = await new MongoClient(process.env.EXPRESS_MONGO_STRING + "")
-    .on("open", (mongoclient) => {
-      console.log("An expressjs mongoclient has been opened");
-    })
-    .on("close", () => {
-      console.log("An expressjs mongoclient has been closed");
-    })
-    .connect();
+  const conn = await new MongoClient(
+    process.env.EXPRESS_MONGO_STRING + ""
+  ).connect();
   return conn;
 }
 

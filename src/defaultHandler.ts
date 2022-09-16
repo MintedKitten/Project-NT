@@ -1,7 +1,23 @@
+import { existsSync, mkdirSync } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import nextConnect from "next-connect";
+import { createLogger, transports, format } from "winston";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
+import { formatDateDDMMYY } from "./local";
+
+const logDir = "./log/";
+
+function formatDateHHMMSSmmmm(date: Date, divider: string = "-") {
+  return `${(date.getHours() + "").padStart(2, "0")}${divider}${(
+    date.getMinutes() +
+    1 +
+    ""
+  ).padStart(2, "0")}${divider}${(date.getSeconds() + 1 + "").padStart(
+    2,
+    "0"
+  )}${divider}${(date.getMilliseconds() + 1 + "").padStart(4, "0")}`;
+}
 
 const nxcHandler = () => {
   return nextConnect<NextApiRequest, NextApiResponse>({
@@ -17,9 +33,31 @@ const nxcHandler = () => {
     if (!session) {
       return res.status(401).end();
     }
-    console.log(session.id);
-    console.log(req.rawHeaders);
-    console.log(req.url);
+    const logDate = new Date();
+    const datedir = formatDateDDMMYY(logDate, "-");
+    if (!existsSync(logDir)) {
+      mkdirSync(logDir);
+    }
+    if (!existsSync(logDir + datedir)) {
+      mkdirSync(logDir + datedir);
+    }
+    const toLog = {
+      uid: session.id,
+      user: session.user?.name,
+      rawheader: req.rawHeaders,
+      apiurl: req.url,
+      body: JSON.parse(req.body),
+    };
+    createLogger({
+      format: format.json(),
+      transports: new transports.File({
+        filename: `${logDir}${datedir}/${formatDateHHMMSSmmmm(logDate)}.log`,
+      }),
+    }).log({
+      message: JSON.stringify(toLog),
+      level: "info",
+      date: new Date().toISOString(),
+    });
     next();
   });
 };

@@ -197,10 +197,10 @@ export function parseInteger(s: string) {
   return nm;
 }
 
-export function formatDateDDMMYY(date: Date) {
-  return `${(date.getDate() + "").padStart(2, "0")}/${(
+export function formatDateDDMMYY(date: Date, divider: string = "/") {
+  return `${(date.getDate() + "").padStart(2, "0")}${divider}${(
     date.getMonth() +
     1 +
     ""
-  ).padStart(2, "0")}/${date.getFullYear() + 543}`;
+  ).padStart(2, "0")}${divider}${date.getFullYear() + 543}`;
 }
