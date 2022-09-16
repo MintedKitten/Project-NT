@@ -10,7 +10,7 @@ const start: (
   { defaultConfig }: { defaultConfig: NextConfig }
 ) => NextConfig = async (phase, { defaultConfig }): Promise<NextConfig> => {
   let conf = { ...defaultConfig };
-  let userconf: { [key: string]: any } = {};
+  let userconf: Partial<NextConfig> = {};
   let DBname =
     process.env.NODE_ENV !== "production" ? "devProcurement" : "Procurement";
   const env = {
@@ -29,6 +29,7 @@ const start: (
   userconf = {
     reactStrictMode: true,
     env: env,
+    swcMinify: true,
   };
   if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_PRODUCTION_SERVER) {
     userconf["distDir"] = "build";

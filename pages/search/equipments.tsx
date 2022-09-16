@@ -267,7 +267,10 @@ const SearchEquipmentsPage: NextPage<
                               >
                                 {projName}
                                 <Tooltip title="Open Project" arrow>
-                                  <OpenInBrowserIcon fontSize="small" />
+                                  <OpenInBrowserIcon
+                                    fontSize="small"
+                                    color="action"
+                                  />
                                 </Tooltip>
                               </Typography>
                             </a>

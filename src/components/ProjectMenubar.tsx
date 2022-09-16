@@ -39,10 +39,53 @@ const ProjectMenubar: FunctionComponent<{
 
   const navlinkPage = navInfo;
   const navlinkProject = projectNavInfo;
+  const remainNavIcon = 1;
 
   return (
     <Container maxWidth="xl" sx={{ bgcolor: "primary.main" }}>
       <Toolbar disableGutters sx={{ height: "40px" }}>
+        <Box
+          sx={{
+            display: "flex",
+          }}
+        >
+          {navlinkPage.slice(0, remainNavIcon).map((navl, index) => {
+            const { Header, Link, Icon } = navl;
+            return (
+              <Box
+                key={index}
+                sx={{
+                  ml: 1,
+                  cursor: "pointer",
+                  borderRadius: 1,
+                  padding: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  ":hover": {
+                    boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
+                  },
+                }}
+              >
+                <Icon />
+                <Typography
+                  variant="h5"
+                  noWrap
+                  onClick={(event) => {
+                    event.preventDefault();
+                    reroute(Link);
+                  }}
+                  sx={{
+                    fontWeight: window.location.pathname === Link ? 600 : 300,
+                    fontSize: 16,
+                    color: "inherit",
+                  }}
+                >
+                  {Header}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
         <Box sx={{ flexGrow: 1 }} />
         <IconButton
           color="inherit"
@@ -72,7 +115,7 @@ const ProjectMenubar: FunctionComponent<{
             "aria-labelledby": "basic-button",
           }}
         >
-          {navlinkPage.map((navl, index) => {
+          {navlinkPage.slice(remainNavIcon).map((navl, index) => {
             const { Header, Link, Icon } = navl;
             return (
               <MenuItem

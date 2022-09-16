@@ -69,8 +69,6 @@ const ProjectEquipmentsPage: NextPage<
     return convBack(eqg);
   });
 
-  console.log(pequipments);
-
   const totals: Big[] = [];
 
   let totalxPrice = Big(0);

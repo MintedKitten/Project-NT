@@ -5,9 +5,7 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { FunctionComponent } from "react";
-import buddhistEra from "dayjs/plugin/buddhistEra";
 import "dayjs/locale/th";
-dayjs.extend(buddhistEra);
 
 export enum InputEn {
   String,
@@ -27,10 +25,18 @@ export enum StagesProgress {
 export enum DateDeadlineStatus {
   Normal,
   Complete,
-  RedAlert,
+  Alert,
   Passed,
   PastDue,
 }
+
+export const DeadlineName = [
+  "In Progress",
+  "Done",
+  "High Priority",
+  "Complete",
+  "Late",
+];
 
 export const budgetThreshold = 100000000;
 
@@ -150,17 +156,6 @@ export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Stages", Link: "/project/stages" },
 ];
 
-export const alertNavInfo = [
-  { label: "All", value: "All" },
-  { label: "3 Months", value: "3 Months" },
-  { label: "Past", value: "Past" },
-  { label: "Custom", value: "Custom" },
-] as const;
-const p = alertNavInfo.map((res) => {
-  return res.value;
-})[0];
-export type alertNavType = typeof p;
-
 export function calculateDiffTime(before: Date, after: Date) {
   const _days = -dayjs(before).diff(dayjs(after), "days") + 1;
   let diffyear = after.getFullYear() - before.getFullYear();
@@ -208,9 +203,4 @@ export function formatDateDDMMYY(date: Date) {
     1 +
     ""
   ).padStart(2, "0")}/${date.getFullYear() + 543}`;
-}
-
-export function formatDateYYYYMM(date: Date) {
-  const dt = dayjs(date).locale("th");
-  return dt.format("MMMM(MM) BBBB");
 }

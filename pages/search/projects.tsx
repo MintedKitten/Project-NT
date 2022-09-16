@@ -47,7 +47,7 @@ import {
   projectsInt,
 } from "../../src/db";
 import { ObjectId } from "bson";
-import { navInfo, parseInteger } from "../../src/local";
+import { parseInteger } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import PageMenubar from "../../src/components/PageMenubar";
 
@@ -265,7 +265,10 @@ const SearchProjectsPage: NextPage<
                               >
                                 {name}
                                 <Tooltip title="Open Project" arrow>
-                                  <OpenInBrowserIcon fontSize="small" />
+                                  <OpenInBrowserIcon
+                                    fontSize="small"
+                                    color="action"
+                                  />
                                 </Tooltip>
                               </Typography>
                             </a>

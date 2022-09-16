@@ -10,16 +10,22 @@ import {
   AccordionProps,
   AccordionSummary,
   AccordionSummaryProps,
-  Alert,
   Backdrop,
   Box,
   CircularProgress,
-  Grid,
-  Snackbar,
   styled,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { orange, red } from "@mui/material/colors";
+import {
+  Pending as PendingIcon,
+  CheckCircle as CheckCircleIcon,
+  Warning as WarningIcon,
+  OfflinePin as OfflinePinIcon,
+  OpenInBrowser as OpenInBrowserIcon,
+} from "@mui/icons-material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -27,55 +33,107 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import {
-  alertNavType,
   DateDeadlineStatus,
+  DeadlineName,
   formatDateDDMMYY,
-  formatDateYYYYMM,
 } from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
 import { ProjectWithInProgressStage } from "../../src/server";
 import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { Detector } from "react-detect-offline";
-import AlertNavbar from "../../src/components/AlertNavbar";
-import { DataGrid } from "@mui/x-data-grid";
+import { useState } from "react";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridColumnGroupingModel,
+  GridColumns,
+  GridRowsProp,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+  GridToolbarExport,
+  GridToolbarFilterButton,
+  GridToolbarQuickFilter,
+} from "@mui/x-data-grid";
+import Big from "big.js";
 
-const AlertAccordion = styled((props: AccordionProps) => (
-  <Accordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  marginBottom: "10px",
-  border: `1px solid ${theme.palette.divider}`,
-}));
+type rowsType = {
+  id: string;
+  projName: string;
+  contractstartDate: Date;
+  contractendDate: Date;
+  contractAlert: DateDeadlineStatus;
+  mastartDate: Date;
+  maendDate: Date;
+  maAlert: DateDeadlineStatus;
+};
 
-const AlertAccordionSummary = styled((props: AccordionSummaryProps) => (
-  <AccordionSummary {...props} />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(0),
-  },
-  pointerEvents: "inherit",
-}));
+function resultToRow(row: ReturnType<typeof compileBackStatus>): rowsType {
+  const { project, contractAlertLevel, maAlertLevel } = row;
+  return {
+    id: `${project._id?.toHexString()}`,
+    projName: project.projName,
+    contractstartDate: project.contractstartDate,
+    contractendDate: project.contractendDate,
+    contractAlert: contractAlertLevel,
+    mastartDate: project.mastartDate,
+    maendDate: project.maendDate,
+    maAlert: maAlertLevel,
+  };
+}
 
-const AlertAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(1),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-  "& .MuiBox-root": {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    marginTop: theme.spacing(0.2),
-  },
-}));
+function getAlertElement(status: DateDeadlineStatus) {
+  if (status === DateDeadlineStatus.Normal) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <PendingIcon color="info" />
+        <Typography sx={{ ml: 0.5 }}>{DeadlineName[0]}</Typography>
+      </Box>
+    );
+  }
+  if (status === DateDeadlineStatus.Complete) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <CheckCircleIcon color="success" />
+        <Typography sx={{ ml: 0.5 }}>{DeadlineName[1]}</Typography>
+      </Box>
+    );
+  }
+  if (status === DateDeadlineStatus.Alert) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <WarningIcon color="warning" />
+        <Typography sx={{ ml: 0.5 }}>{DeadlineName[2]}</Typography>
+      </Box>
+    );
+  }
+  if (status === DateDeadlineStatus.Passed) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <OfflinePinIcon color="success" />
+        <Typography sx={{ ml: 0.5 }}>{DeadlineName[3]}</Typography>
+      </Box>
+    );
+  }
+  if (status === DateDeadlineStatus.PastDue) {
+    return (
+      <Box sx={{ display: "flex" }}>
+        <span
+          className="material-symbols-outlined"
+          style={{ color: red["A400"] }}
+        >
+          emergency_home
+        </span>
+        <Typography sx={{ ml: 0.5 }}>{DeadlineName[4]}</Typography>
+      </Box>
+    );
+  }
+  return (
+    <>
+      <Typography>{status}</Typography>
+    </>
+  );
+}
 
 const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   presult,
@@ -84,97 +142,165 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
-  const containerAlertRef = useRef(null);
-  const containerAllRef = useRef(null);
 
-  const result = presult.map((res) => {
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const handleChangeRowsPerPage = (pageSize: number) => {
+    setRowsPerPage(pageSize);
+  };
+
+  const results = presult.map((res) => {
     return compileBackStatus(res);
   });
 
-  const [tab, setTab] = useState<alertNavType>("All");
-
-  const [keyDate, setKeyDate] = useState<"contractendDate" | "maendDate">(
-    "contractendDate"
+  const [rows, setRows] = useState<GridRowsProp<rowsType>>(
+    results.map((res) => {
+      return resultToRow(res);
+    })
   );
 
-  const [keyAlert, setKeyAlert] = useState<
-    "contractAlertLevel" | "maAlertLevel"
-  >("contractAlertLevel");
+  const columnDef: GridColumns = [
+    {
+      field: "projName",
+      type: "string",
+      headerName: "รายการโครงการจัดซื้อจัดจ้าง",
+      hideable: false,
+      flex: 1,
+      minWidth: 350,
+    },
+    {
+      field: "contractstartDate",
+      type: "date",
+      headerName: "วันเริ่มสัญญา (พ.ศ.)",
+      hideable: false,
+      width: 150,
+      valueFormatter: (params) => {
+        const { value } = params;
+        return formatDateDDMMYY(value);
+      },
+    },
+    {
+      field: "contractendDate",
+      type: "date",
+      headerName: "วันหมดสัญญา (พ.ศ.)",
+      hideable: false,
+      width: 150,
+      valueFormatter: (params) => {
+        const { value } = params;
+        return formatDateDDMMYY(value);
+      },
+    },
+    {
+      field: "contractAlert",
+      type: "singleSelect",
+      headerName: "Alert Contract",
+      hideable: false,
+      width: 125,
+      valueOptions: DeadlineName,
+      valueGetter: (params) => {
+        const { value } = params;
+        return DeadlineName[value];
+      },
+      renderCell: (params) => {
+        const { value } = params;
+        return getAlertElement(DeadlineName.indexOf(value));
+      },
+    },
+    {
+      field: "mastartDate",
+      type: "date",
+      headerName: "วันเริ่ม MA (พ.ศ.)",
+      hideable: false,
+      width: 150,
+      valueFormatter: (params) => {
+        const { value } = params;
+        return formatDateDDMMYY(value);
+      },
+    },
+    {
+      field: "maendDate",
+      type: "date",
+      headerName: "วันหมดอายุ MA (พ.ศ.)",
+      hideable: false,
+      width: 150,
+      valueFormatter: (params) => {
+        const { value } = params;
+        return formatDateDDMMYY(value);
+      },
+    },
+    {
+      field: "maAlert",
+      type: "string",
+      headerName: "Alert MA",
+      hideable: false,
+      width: 125,
+      renderCell: (params) => {
+        const { value } = params;
+        return getAlertElement(value);
+      },
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Action",
+      hideable: false,
+      width: 80,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            key={`${id.toString()}_open`}
+            icon={
+              <Tooltip title="Open Project" arrow>
+                <OpenInBrowserIcon fontSize="small" color="action" />
+              </Tooltip>
+            }
+            label="Open"
+            className="textPrimary"
+            onClick={() => {
+              router.push({
+                pathname: "/project/projects",
+                query: { pid: id },
+              });
+            }}
+          />,
+        ];
+      },
+    },
+  ];
 
-  const sortRes = () => {
-    result.sort((a, b) => b[keyDate].getTime() - a[keyDate].getTime());
-  };
+  const columnGroupingModel: GridColumnGroupingModel = [
+    {
+      groupId: "ระยะเวลาสัญญา (พ.ศ.)",
+      children: [
+        { field: "contractstartDate" },
+        { field: "contractendDate" },
+        { field: "contractAlert" },
+      ],
+      description: "วันเดือนปี และสถานะของ Project",
+    },
+    {
+      groupId: "ระยะเวลาอายุ MA (พ.ศ.)",
+      children: [
+        { field: "mastartDate" },
+        { field: "maendDate" },
+        { field: "maAlert" },
+      ],
+    },
+  ];
 
-  sortRes();
-  // const today = dayjs(new Date());
-
-  // const groupbyMMYYAlertFuture: {
-  //   [key: string]: ReturnType<typeof compileBackStatus>[];
-  // } = {};
-  // const groupbyMMYYAlertPast: {
-  //   [key: string]: ReturnType<typeof compileBackStatus>[];
-  // } = {};
-  // const groupbyMMYYFuture: {
-  //   [key: string]: ReturnType<typeof compileBackStatus>[];
-  // } = {};
-  // const groupbyMMYYPast: {
-  //   [key: string]: ReturnType<typeof compileBackStatus>[];
-  // } = {};
-  // result.forEach((res) => {
-  //   const date = dayjs(res[keyDate]).format("01/MM/YYYY");
-  //   const diff = -today.diff(res[keyDate], "days");
-  //   if (diff >= 0) {
-  //     if (!groupbyMMYYFuture[date]) {
-  //       groupbyMMYYFuture[date] = [];
-  //     }
-  //     groupbyMMYYFuture[date].push(res);
-  //     if (
-  //       res[keyAlert] === DateDeadlineStatus.RedAlert ||
-  //       res[keyAlert] === DateDeadlineStatus.PastDue
-  //     ) {
-  //       if (!groupbyMMYYAlertFuture[date]) {
-  //         groupbyMMYYAlertFuture[date] = [];
-  //       }
-  //       groupbyMMYYAlertFuture[date].push(res);
-  //     }
-  //   } else {
-  //     if (!groupbyMMYYPast[date]) {
-  //       groupbyMMYYPast[date] = [];
-  //     }
-  //     if (
-  //       res[keyAlert] === DateDeadlineStatus.RedAlert ||
-  //       res[keyAlert] === DateDeadlineStatus.PastDue
-  //     ) {
-  //       groupbyMMYYPast[date].push(res);
-  //       if (!groupbyMMYYAlertPast[date]) {
-  //         groupbyMMYYAlertPast[date] = [];
-  //       }
-  //       groupbyMMYYAlertPast[date].push(res);
-  //     }
-  //   }
-  // });
-
-  const handleChange = (
-    event: React.SyntheticEvent,
-    newValue: alertNavType
-  ) => {
-    setTab(newValue);
-    // setKeyDate(newValue);
-    // setKeyAlert(
-    //   newValue === "contractendDate" ? "contractAlertLevel" : "maAlertLevel"
-    // );
-  };
-
-  useEffect(() => {
-    const alert_today = document.getElementById("alert_today");
-    if (alert_today) {
-      alert_today.scrollIntoView({ behavior: "smooth" });
-    }
-    const status_today = document.getElementById("status_today");
-    if (status_today) {
-      status_today.scrollIntoView({ behavior: "smooth" });
-    }
-  }, []);
+  function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarDensitySelector />
+        <GridToolbarFilterButton />
+        <GridToolbarExport
+          printOptions={{ disableToolbarButton: true }}
+          csvOptions={{ utf8WithBom: true }}
+        />
+        <GridToolbarQuickFilter />
+      </GridToolbarContainer>
+    );
+  }
 
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
@@ -192,345 +318,38 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
           ) : (
             <PageMenubar session={data} />
           )}
-          <AlertNavbar tab={tab} handleChange={handleChange} />
         </PageAppbar>
 
-        <PageContainer maxWidth="xl">{/* <DataGrid /> */}</PageContainer>
-        {/* <Grid container spacing={1}>
-            <Grid item xs={12} md={6} ref={containerAlertRef}>
-              <Box sx={{ display: "flex", my: 1 }}>
-                <Box sx={{ flexGrow: 1 }} />
-                <Typography variant="h3">Alert</Typography>
-                <Box sx={{ flexGrow: 1 }} />
-              </Box>
-              <Grid container sx={{ maxHeight: "60vh", overflow: "auto" }}>
-                <Grid item xs={12}>
-                  <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYYAlertFuture).map(
-                      ([key, resarray]) => {
-                        const [dd, mm, yy] = key.split("/").map((r) => {
-                          return Number(r);
-                        });
-                        return (
-                          <AlertAccordion key={key} expanded={true}>
-                            <AlertAccordionSummary id={key}>
-                              <Typography>{`${formatDateYYYYMM(
-                                new Date(yy, mm, dd)
-                              )}`}</Typography>
-                            </AlertAccordionSummary>
-                            <AlertAccordionDetails>
-                              {resarray.map((row) => {
-                                const { project } = row;
-                                return (
-                                  <Link
-                                    key={project._id}
-                                    href={{
-                                      pathname: "/project/projects",
-                                      query: { pid: project._id },
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        cursor: "pointer",
-                                        border: 1,
-                                        borderColor: "whitesmoke",
-                                        borderRadius: 2,
-                                        bgcolor: getBGColorFromStatus(
-                                          row[keyAlert]
-                                        ),
-                                        paddingY: 3,
-                                        paddingX: 1,
-                                        ":hover": {
-                                          boxShadow:
-                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                                          border: 1,
-                                          borderColor: "#B7B3C7",
-                                        },
-                                      }}
-                                    >
-                                      <Typography>{`${project.projName}`}</Typography>
-                                      <Box sx={{ flexGrow: 1 }} />
-                                      <Typography>{`${formatDateDDMMYY(
-                                        row[keyDate]
-                                      )}`}</Typography>
-                                    </Box>
-                                  </Link>
-                                );
-                              })}
-                            </AlertAccordionDetails>
-                          </AlertAccordion>
-                        );
-                      }
-                    )}
-                  </Box>
-                  {Object.keys(groupbyMMYYAlertFuture).length > 0 ||
-                  Object.keys(groupbyMMYYAlertPast).length > 0 ? (
-                    <Box
-                      id="alert_today"
-                      sx={{
-                        display: "flex",
-                        // border: 1,
-                        // borderRadius: 5,
-                        justifyItems: "center",
-                        alignItems: "center",
-                        // borderColor: "rgba(0, 0, 0, 0.25)",
-                        my: 6,
-                        // bgcolor: "whitesmoke",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          mx: 1,
-                          border: 1,
-                          borderColor: "rgba(0, 0, 0, 0.25)",
-                        }}
-                      />
-                      <Typography>
-                        Today: {formatDateDDMMYY(today.toDate())}
-                      </Typography>
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          mx: 1,
-                          border: 1,
-                          borderColor: "rgba(0, 0, 0, 0.25)",
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <></>
-                  )}
-                  <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYYAlertPast).map(
-                      ([key, resarray]) => {
-                        const [dd, mm, yy] = key.split("/").map((r) => {
-                          return Number(r);
-                        });
-                        return (
-                          <AlertAccordion key={key} expanded={true}>
-                            <AlertAccordionSummary id={key}>
-                              <Typography>{`${formatDateYYYYMM(
-                                new Date(yy, mm, dd)
-                              )}`}</Typography>
-                            </AlertAccordionSummary>
-                            <AlertAccordionDetails>
-                              {resarray.map((row) => {
-                                const { project } = row;
-                                return (
-                                  <Link
-                                    key={project._id}
-                                    href={{
-                                      pathname: "/project/projects",
-                                      query: { pid: project._id },
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        cursor: "pointer",
-                                        border: 1,
-                                        borderColor: "whitesmoke",
-                                        borderRadius: 2,
-                                        bgcolor: getBGColorFromStatus(
-                                          row[keyAlert]
-                                        ),
-                                        paddingY: 3,
-                                        paddingX: 1,
-                                        ":hover": {
-                                          boxShadow:
-                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                                          border: 1,
-                                          borderColor: "#B7B3C7",
-                                        },
-                                      }}
-                                    >
-                                      <Typography>{`${project.projName}`}</Typography>
-                                      <Box sx={{ flexGrow: 1 }} />
-                                      <Typography>{`${formatDateDDMMYY(
-                                        row[keyDate]
-                                      )}`}</Typography>
-                                    </Box>
-                                  </Link>
-                                );
-                              })}
-                            </AlertAccordionDetails>
-                          </AlertAccordion>
-                        );
-                      }
-                    )}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} md={6} ref={containerAllRef}>
-              <Box sx={{ display: "flex", my: 1 }}>
-                <Box sx={{ flexGrow: 1 }} />
-                <Typography variant="h3">All Status</Typography>
-                <Box sx={{ flexGrow: 1 }} />
-              </Box>
-              <Grid container sx={{ maxHeight: "75vh", overflow: "auto" }}>
-                <Grid item xs={12}>
-                  <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYYFuture).map(
-                      ([key, resarray]) => {
-                        const [dd, mm, yy] = key.split("/").map((r) => {
-                          return Number(r);
-                        });
-                        return (
-                          <AlertAccordion key={key} expanded={true}>
-                            <AlertAccordionSummary id={key}>
-                              <Typography>{`${formatDateYYYYMM(
-                                new Date(yy, mm, dd)
-                              )}`}</Typography>
-                            </AlertAccordionSummary>
-                            <AlertAccordionDetails>
-                              {resarray.map((row) => {
-                                const { project } = row;
-                                return (
-                                  <Link
-                                    key={project._id}
-                                    href={{
-                                      pathname: "/project/projects",
-                                      query: { pid: project._id },
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        cursor: "pointer",
-                                        border: 1,
-                                        borderColor: "whitesmoke",
-                                        borderRadius: 2,
-                                        bgcolor: getBGColorFromStatus(
-                                          row[keyAlert]
-                                        ),
-                                        paddingY: 3,
-                                        paddingX: 1,
-                                        ":hover": {
-                                          boxShadow:
-                                            "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                                          border: 1,
-                                          borderColor: "#B7B3C7",
-                                        },
-                                      }}
-                                    >
-                                      <Typography>{`${project.projName}`}</Typography>
-                                      <Box sx={{ flexGrow: 1 }} />
-                                      <Typography>{`${formatDateDDMMYY(
-                                        row[keyDate]
-                                      )}`}</Typography>
-                                    </Box>
-                                  </Link>
-                                );
-                              })}
-                            </AlertAccordionDetails>
-                          </AlertAccordion>
-                        );
-                      }
-                    )}
-                  </Box>
-                  {Object.keys(groupbyMMYYFuture).length > 0 ||
-                  Object.keys(groupbyMMYYPast).length > 0 ? (
-                    <Box
-                      id="status_today"
-                      sx={{
-                        display: "flex",
-                        // border: 1,
-                        // borderRadius: 5,
-                        justifyItems: "center",
-                        alignItems: "center",
-                        // borderColor: "rgba(0, 0, 0, 0.25)",
-                        my: 6,
-                        // bgcolor: "whitesmoke",
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          mx: 1,
-                          border: 1,
-                          borderColor: "rgba(0, 0, 0, 0.25)",
-                        }}
-                      />
-                      <Typography>
-                        Today: {formatDateDDMMYY(today.toDate())}
-                      </Typography>
-                      <Box
-                        sx={{
-                          flexGrow: 1,
-                          mx: 1,
-                          border: 1,
-                          borderColor: "rgba(0, 0, 0, 0.25)",
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <></>
-                  )}
-
-                  <Box sx={{ mt: 1 }}>
-                    {Object.entries(groupbyMMYYPast).map(([key, resarray]) => {
-                      const [dd, mm, yy] = key.split("/").map((r) => {
-                        return Number(r);
-                      });
-                      return (
-                        <AlertAccordion key={key} expanded={true}>
-                          <AlertAccordionSummary id={key}>
-                            <Typography>{`${formatDateYYYYMM(
-                              new Date(yy, mm, dd)
-                            )}`}</Typography>
-                          </AlertAccordionSummary>
-                          <AlertAccordionDetails>
-                            {resarray.map((row) => {
-                              const { project } = row;
-                              return (
-                                <Link
-                                  key={project._id}
-                                  href={{
-                                    pathname: "/project/projects",
-                                    query: { pid: project._id },
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      cursor: "pointer",
-                                      border: 1,
-                                      borderColor: "whitesmoke",
-                                      borderRadius: 2,
-                                      bgcolor: getBGColorFromStatus(
-                                        row[keyAlert]
-                                      ),
-                                      paddingY: 3,
-                                      paddingX: 1,
-                                      ":hover": {
-                                        boxShadow:
-                                          "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
-                                        border: 1,
-                                        borderColor: "#B7B3C7",
-                                      },
-                                    }}
-                                  >
-                                    <Typography>{`${project.projName}`}</Typography>
-                                    <Box sx={{ flexGrow: 1 }} />
-                                    <Typography>{`${formatDateDDMMYY(
-                                      row[keyDate]
-                                    )}`}</Typography>
-                                  </Box>
-                                </Link>
-                              );
-                            })}
-                          </AlertAccordionDetails>
-                        </AlertAccordion>
-                      );
-                    })}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid> */}
+        <PageContainer maxWidth="xl">
+          <Box
+            sx={{
+              height: "89.5vh",
+              mt: 1,
+              "& .conalert-theme--Late": { bgcolor: red[50] },
+              "& .conalert-theme--HighPriority": {
+                bgcolor: orange[50],
+              },
+            }}
+          >
+            <DataGrid
+              rows={rows}
+              columns={columnDef}
+              pageSize={rowsPerPage}
+              onPageSizeChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[10, 20, 50, 100]}
+              components={{ Toolbar: CustomToolbar }}
+              columnGroupingModel={columnGroupingModel}
+              experimentalFeatures={{ columnGrouping: true }}
+              getRowClassName={(params) => {
+                return `conalert-theme--${DeadlineName[params.row.contractAlert]
+                  .split(" ")
+                  .join("")} maalert-theme--${DeadlineName[params.row.maAlert]
+                  .split(" ")
+                  .join("")}`;
+              }}
+            />
+          </Box>
+        </PageContainer>
       </>
     );
   }
@@ -575,17 +394,27 @@ export const getStaticProps: GetStaticProps<{
   return retOb;
 };
 
-function calAlertLevel(date: Date, isComplete: boolean): DateDeadlineStatus {
+function calContractAlertLevel(
+  date: Date,
+  isComplete: boolean
+): DateDeadlineStatus {
   const mths = -_today.diff(dayjs(date), "months");
   const days = -_today.diff(dayjs(date), "days");
   if (mths > 3) {
     return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Normal;
   } else if (mths >= 0 && days > 0) {
-    return isComplete
-      ? DateDeadlineStatus.Complete
-      : DateDeadlineStatus.RedAlert;
+    return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Alert;
   } else {
     return isComplete ? DateDeadlineStatus.Passed : DateDeadlineStatus.PastDue;
+  }
+}
+
+function calMAAlertLevel(date: Date): DateDeadlineStatus {
+  const days = -_today.diff(dayjs(date), "days");
+  if (days > 0) {
+    return DateDeadlineStatus.Normal;
+  } else {
+    return DateDeadlineStatus.Passed;
   }
 }
 
@@ -596,10 +425,8 @@ function compileStatus(
 ): {
   project: ReturnType<typeof convtoSerializable>;
   isComplete: boolean;
-  contractendDate: string;
-  contractAlertLevel: ReturnType<typeof calAlertLevel>;
-  maendDate: string;
-  maAlertLevel: ReturnType<typeof calAlertLevel>;
+  contractAlertLevel: ReturnType<typeof calContractAlertLevel>;
+  maAlertLevel: ReturnType<typeof calMAAlertLevel>;
 } {
   const { stages_docs, ...dresult } = result;
   const presult = dresult as projectsInt;
@@ -607,29 +434,23 @@ function compileStatus(
   return {
     project: convtoSerializable(presult),
     isComplete: isComplete,
-    contractendDate: presult.contractendDate.toString(),
-    contractAlertLevel: calAlertLevel(presult.contractendDate, isComplete),
-    maendDate: presult.maendDate.toString(),
-    maAlertLevel: calAlertLevel(presult.maendDate, false),
+    contractAlertLevel: calContractAlertLevel(
+      presult.contractendDate,
+      isComplete
+    ),
+    maAlertLevel: calMAAlertLevel(presult.maendDate),
   };
 }
 
 function compileBackStatus(data: ReturnType<typeof compileStatus>): {
-  project: ReturnType<typeof convtoSerializable>;
+  project: ReturnType<typeof convBack>;
   isComplete: boolean;
-  contractendDate: Date;
-  contractAlertLevel: ReturnType<typeof calAlertLevel>;
-  maendDate: Date;
-  maAlertLevel: ReturnType<typeof calAlertLevel>;
+  contractAlertLevel: ReturnType<typeof calContractAlertLevel>;
+  maAlertLevel: ReturnType<typeof calContractAlertLevel>;
 } {
-  const {
-    contractendDate: scontractendDate,
-    maendDate: smaendDate,
-    ...r
-  } = data;
+  const { project: sproject, ...r } = data;
   return {
-    contractendDate: new Date(scontractendDate),
-    maendDate: new Date(smaendDate),
+    project: convBack(sproject),
     ...r,
   };
 }
@@ -657,17 +478,25 @@ function convtoSerializable(
   };
 }
 
-function getBGColorFromStatus(status: DateDeadlineStatus) {
-  switch (status) {
-    case DateDeadlineStatus.Normal:
-      return "#F9F9F9";
-    case DateDeadlineStatus.Passed:
-      return "#B7C4CF";
-    case DateDeadlineStatus.PastDue:
-      return "#FF1E00";
-    case DateDeadlineStatus.RedAlert:
-      return "#EC7272";
-    case DateDeadlineStatus.Complete:
-      return "#59CE8F";
-  }
+function convBack(
+  data: ReturnType<typeof convtoSerializable>
+): Omit<projectsInt, "createdby" | "lastupdate"> {
+  const {
+    _id: s_id,
+    budget: sbudget,
+    contractstartDate: scontractstartDate,
+    contractendDate: scontractendDate,
+    mastartDate: smastartDate,
+    maendDate: smaendDate,
+    ...r
+  } = data;
+  return {
+    _id: new ObjectId(s_id),
+    contractstartDate: new Date(scontractstartDate),
+    contractendDate: new Date(scontractendDate),
+    mastartDate: new Date(smastartDate),
+    maendDate: new Date(smaendDate),
+    budget: Big(sbudget),
+    ...r,
+  };
 }
