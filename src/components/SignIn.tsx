@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Button,
   TextField,
@@ -6,34 +5,64 @@ import {
   Typography,
   Container,
   Grid,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
-
+import {
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from "@mui/icons-material";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Alert } from "@mui/material";
+import { FormEvent, useState } from "react";
 
 export default function SignIn({ csrfToken }: { csrfToken: string }) {
   const router = useRouter();
-  const [error, setError] = React.useState("");
-  const [signin, setSignin] = React.useState(false);
+  const [error, setError] = useState("");
+  const [signin, setSignin] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const result = await signIn("credentials", {
-      username: data.get("username"),
-      password: data.get("password"),
-      redirect: false,
-    });
-    if (result) {
-      if (!result.ok) {
-        setError("Username or password is incorrect.\nPlease, try again.");
-      } else {
-        setError("");
-        setSignin(true);
-        setTimeout(() => {
-          router.push({ pathname: "/" });
-        }, 10);
+    const user = {
+      username: data.get("username") + "",
+      password: data.get("password") + "",
+      name: data.get("name") + "",
+    };
+    let usernameer = "";
+    let passworder = "";
+    // Validate Username
+    if (!user.username.trim()) {
+      usernameer = "Username can't be empty.";
+    }
+    // Validate Password
+    if (!user.password.trim()) {
+      passworder = "Password can't be empty.";
+    }
+    setUsernameError(usernameer);
+    setPasswordError(passworder);
+    const isValid = usernameer === "" && passworder === "";
+    if (isValid) {
+      const result = await signIn("credentials", {
+        username: user.username,
+        password: user.password,
+        redirect: false,
+      });
+
+      if (result) {
+        if (!result.ok) {
+          setError("Username or password is incorrect.\nPlease, try again.");
+        } else {
+          setError("");
+          setSignin(true);
+          setTimeout(() => {
+            router.push({ pathname: "/" });
+          }, 10);
+        }
       }
     }
   };
@@ -70,6 +99,8 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
                 name="username"
                 autoComplete="username"
                 autoFocus
+                error={usernameError !== ""}
+                helperText={usernameError !== "" ? usernameError : ""}
               />
             </Grid>
             <Grid item xs={12}>
@@ -78,9 +109,36 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
+                error={passwordError !== ""}
+                helperText={passwordError !== "" ? passwordError : ""}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPassword((oldValue) => {
+                            return !oldValue;
+                          });
+                        }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                        }}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={3} />

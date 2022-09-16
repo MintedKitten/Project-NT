@@ -22,7 +22,7 @@ import {
 import { Alert, TextField, useMediaQuery } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, SyntheticEvent, useState } from "react";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -218,7 +218,7 @@ const CreateEquipmentsGroup = () => {
 
   const handleRowEditStart = (
     _params: GridRowParams,
-    event: MuiEvent<React.SyntheticEvent>
+    event: MuiEvent<SyntheticEvent>
   ) => {
     event.defaultMuiPrevented = true;
   };
@@ -370,7 +370,7 @@ const CreateEquipmentsGroup = () => {
   ];
 
   const openConfirmDialog = useConfirmDialog();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const eqGroup = {

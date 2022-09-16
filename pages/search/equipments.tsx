@@ -37,7 +37,7 @@ import { getToken } from "next-auth/jwt";
 import { equipmentsInt, getMongoClient, projectsInt } from "../../src/db";
 import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import Link from "next/link";
 import { EquipmentWithProjectName } from "../../src/server";
 import PageMenubar from "../../src/components/PageMenubar";
@@ -72,7 +72,7 @@ const SearchEquipmentsPage: NextPage<
   }
 
   if (status === "authenticated") {
-    const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
       const searchData = {

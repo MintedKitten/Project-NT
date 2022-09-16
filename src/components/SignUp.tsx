@@ -4,13 +4,20 @@ import {
   Button,
   Container,
   Grid,
+  IconButton,
+  InputAdornment,
   Link,
+  OutlinedInput,
   TextField,
   Typography,
 } from "@mui/material";
 import { callAuthSignup, callRegcheck } from "../frontend";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
+import {
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+} from "@mui/icons-material";
 
 export default function SignUp() {
   const router = useRouter();
@@ -18,8 +25,9 @@ export default function SignUp() {
   const [nameError, setNameError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const user = {
@@ -27,24 +35,51 @@ export default function SignUp() {
       password: data.get("password") + "",
       name: data.get("name") + "",
     };
+
     let nameer = "";
     let usernameer = "";
     let passworder = "";
-    if (!user.name) {
-      nameer = "Name can't be empty";
+    // Validate Name
+    const regexAlphabetandSpace = new RegExp("^[a-zA-Z -]*$");
+    if (!user.name.trim()) {
+      nameer = "Name can't be empty.";
     }
-    if (!user.username) {
-      usernameer = "Username can't be empty";
+    if (!regexAlphabetandSpace.test(user.name)) {
+      nameer = [
+        nameer,
+        "Name can only consists of alphabet, space, and dash.",
+      ].join("\n");
     }
-    if (!user.password) {
-      passworder = "Password can't be empty";
-    } else {
-      if (user.password.length < 8) {
-        passworder = passworder.concat(
-          "Password has to contain at least 8 characters"
-        );
-      }
+    const regexAlphanumericandSomespecialcharacters = new RegExp(
+      "^[a-zA-Z0-9._#@/?!-]*$"
+    );
+    // Validate Username
+    if (!user.username.trim()) {
+      usernameer = "Username can't be empty.";
     }
+    if (!regexAlphanumericandSomespecialcharacters.test(user.username)) {
+      usernameer = [
+        usernameer,
+        "Username can only consists of alphabet, number, and special characters . _ # @ / ? ! -.",
+      ].join("\n");
+    }
+    if (!user.password.trim()) {
+      // Validate Password
+      passworder = "Password can't be empty.";
+    }
+    if (user.password.length < 8) {
+      passworder = [
+        passworder,
+        "Password has to contain at least 8 characters.",
+      ].join("\n");
+    }
+    if (!regexAlphanumericandSomespecialcharacters.test(user.password)) {
+      passworder = [
+        passworder,
+        "Password can only consists of alphabet, number, and special characters . _ # @ / ? ! -.",
+      ].join("\n");
+    }
+
     setNameError(nameer);
     setUsernameError(usernameer);
     setPasswordError(passworder);
@@ -117,11 +152,36 @@ export default function SignUp() {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="new-password"
                 error={passwordError !== ""}
                 helperText={passwordError !== "" ? passwordError : ""}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPassword((oldValue) => {
+                            return !oldValue;
+                          });
+                        }}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                        }}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <VisibilityOffIcon />
+                        ) : (
+                          <VisibilityIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
           </Grid>
