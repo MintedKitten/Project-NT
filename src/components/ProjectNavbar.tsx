@@ -33,7 +33,7 @@ const ProjectNavbar: FunctionComponent<{
 
   const [value, setValue] = useState(window.location.pathname);
 
-  const handleChange = (event: SyntheticEvent, newValue: string) => {
+  const handleChange = (_event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
@@ -78,7 +78,7 @@ const ProjectNavbar: FunctionComponent<{
                           },
                           borderRadius: 1,
                         }}
-                        onClick={(event) => {
+                        onClick={(_event) => {
                           reroute(Link);
                         }}
                       />
