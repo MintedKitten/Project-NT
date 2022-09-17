@@ -57,7 +57,7 @@ export async function getMongoClient() {
 async function getAuthColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<userInt>(`${process.env.userCollection}`);
+    .collection<userInt>(`${process.env.userColl}`);
   return coll;
 }
 
@@ -121,7 +121,7 @@ export interface projectsInt {
 async function getProjectColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<projectsInsertInt>(`${process.env.projectsCollection}`);
+    .collection<projectsInsertInt>(`${process.env.projectsColl}`);
   return coll;
 }
 
@@ -248,7 +248,7 @@ export interface stagesInt {
 async function getStagesColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<stagesInt>(`${process.env.stagesCollection}`);
+    .collection<stagesInt>(`${process.env.stagesColl}`);
   coll.createIndex({ order: 1 });
   return coll;
 }
@@ -315,7 +315,7 @@ interface projectFilesInt {
 async function getProjectFilesColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<projectFilesInt>(`${process.env.projFilesCollection}`);
+    .collection<projectFilesInt>(`${process.env.projFilesColl}`);
   return coll;
 }
 
@@ -354,7 +354,7 @@ export async function getFileMetadata(
 ) {
   const result = await conn
     .db(`${process.env.dbName}`)
-    .collection<fileMetadataInt>(`${process.env.filesMetadataCollection}`)
+    .collection<fileMetadataInt>(`${process.env.filesMetadataColl}`)
     .findOne(query);
   return result;
 }
@@ -369,7 +369,7 @@ interface stageFilesInt {
 async function getStageFilesColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<projectFilesInt>(`${process.env.stageFilesCollection}`);
+    .collection<projectFilesInt>(`${process.env.stageFilesColl}`);
   return coll;
 }
 
@@ -414,7 +414,7 @@ export interface equipmentsGroupInt {
 async function getEquipmentsGroupColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<equipmentsGroupInt>(`${process.env.equipmentsGroupCollection}`);
+    .collection<equipmentsGroupInt>(`${process.env.equipmentsGroupColl}`);
   coll.createIndex({ order: 1 });
   return coll;
 }
@@ -523,7 +523,7 @@ export interface equipmentsInt {
 async function getEquipmentsColl(conn: MongoClient) {
   const coll = conn
     .db(`${process.env.dbName}`)
-    .collection<equipmentsInt>(`${process.env.equipmentsCollection}`);
+    .collection<equipmentsInt>(`${process.env.equipmentsColl}`);
   return coll;
 }
 
@@ -577,7 +577,7 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
     { $match: query },
     {
       $lookup: {
-        from: `${process.env.projectsCollection}`,
+        from: `${process.env.projectsColl}`,
         localField: "projId",
         foreignField: "_id",
         as: "proj_docs",
@@ -601,7 +601,7 @@ export async function projJoinStage(conn: MongoClient, query: object) {
     },
     {
       $lookup: {
-        from: `${process.env.stagesCollection}`,
+        from: `${process.env.stagesColl}`,
         localField: "_id",
         foreignField: "projId",
         pipeline: [{ $match: { status: StagesProgress.OnGoing } }],

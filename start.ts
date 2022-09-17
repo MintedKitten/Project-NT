@@ -35,8 +35,8 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev: dev });
 const nexthandler = app.getRequestHandler();
 
-const DBname = dev ? "devProcurement" : "Procurement";
-const FilesMetaColl = "FilesMetadata";
+const dbName = dev ? "devProcurement" : "Procurement";
+const filesMetadataColl = "FilesMetadata";
 
 // ExpressJS DB Functions
 // Statically create the client, so there's only 1 client per connection
@@ -59,18 +59,17 @@ function isInstanceOfArrayFile(ob: any): ob is File[] {
 async function getFileName(fmid: ObjectId): Promise<fileMetadataInt | null> {
   const conn = await getMongoclient();
   const result = await conn
-    .db(DBname)
-    .collection(FilesMetaColl)
+    .db(dbName)
+    .collection(filesMetadataColl)
     .findOne({ _id: fmid }, { projection: { filename: 1, dir: 1 } });
-
   return result as fileMetadataInt | null;
 }
 
 async function insoFileMetadata(query: fileMetadataInt): Promise<ObjectId> {
   const conn = await getMongoclient();
   const id = await conn
-    .db(DBname)
-    .collection(FilesMetaColl)
+    .db(dbName)
+    .collection(filesMetadataColl)
     .insertOne(query)
     .then((value) => {
       return value.insertedId;
@@ -85,8 +84,8 @@ async function insoDir2FileMetadata(
 ): Promise<ObjectId> {
   const conn = await getMongoclient();
   const id = await conn
-    .db(DBname)
-    .collection(FilesMetaColl)
+    .db(dbName)
+    .collection(filesMetadataColl)
     .updateOne({ _id: fmid }, { $set: { dir: query.dir } })
     .then((value) => {
       return value.upsertedId;

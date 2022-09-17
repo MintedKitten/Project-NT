@@ -8,23 +8,21 @@ const start: (
   phase: any,
   { defaultConfig }: { defaultConfig: NextConfig }
 ) => NextConfig = async (phase, { defaultConfig }): Promise<NextConfig> => {
-  let conf = { ...defaultConfig };
-  let userconf: Partial<NextConfig> = {};
-  let DBname =
-    process.env.NODE_ENV !== "production" ? "devProcurement" : "Procurement";
+  const conf: NextConfig = defaultConfig;
   const env = {
-    dbName: DBname,
-    projectsCollection: "Projects",
-    extraCollection: "Extra",
-    projFilesCollection: "ProjFiles",
-    equipmentsGroupCollection: "EquipmentsGroup",
-    equipmentsCollection: "Equipments",
-    stagesCollection: "Stages",
-    stageFilesCollection: "StageFiles",
-    filesMetadataCollection: "FilesMetadata",
-    userCollection: "User",
+    dbName:
+      process.env.NODE_ENV !== "production" ? "devProcurement" : "Procurement",
+    projectsColl: "Projects",
+    extraColl: "Extra",
+    projFilesColl: "ProjFiles",
+    equipmentsGroupColl: "EquipmentsGroup",
+    equipmentsColl: "Equipments",
+    stagesColl: "Stages",
+    stageFilesColl: "StageFiles",
+    filesMetadataColl: "FilesMetadata",
+    userColl: "User",
   };
-  userconf = {
+  const userconf: Partial<NextConfig> = {
     reactStrictMode: true,
     env: env,
     swcMinify: true,
@@ -35,7 +33,6 @@ const start: (
   Object.keys(userconf).forEach((key) => {
     conf[key] = userconf[key];
   });
-  console.log(`Dev or prod?: ${conf.distDir}`);
   return conf;
 };
 
