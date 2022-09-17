@@ -29,8 +29,6 @@ import {
   budgetThreshold,
   calculateDiffTime,
   InputEn,
-  navInfo,
-  projectNavInfo,
   thDate,
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";

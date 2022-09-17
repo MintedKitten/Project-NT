@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 
 type Direction = "row" | "column";
-// type RespNum = Breakpoint;
 
 const Space = ({
   size,

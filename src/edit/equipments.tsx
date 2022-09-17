@@ -1,5 +1,3 @@
-import { retDatacreateequipments } from "../../pages/api/create/equipments";
-import { retCreateequipmentsgroup } from "../../pages/api/create/equipmentsgroup";
 import { retEditequipments } from "../../pages/api/edit/equipments";
 import { retEditequipmentsgroup } from "../../pages/api/edit/equipmentsgroup";
 import { retDeleteequipmentsgroup } from "../../pages/api/edit/equipmentsgroupdelete";

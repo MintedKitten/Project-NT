@@ -20,12 +20,7 @@ import {
   ProjectDetailsInput,
   ProjectDetailsInputType,
 } from "../../src/models/ProjectDetailsInput";
-import {
-  budgetThreshold,
-  calculateDiffTime,
-  InputEn,
-  navInfo,
-} from "../../src/local";
+import { budgetThreshold, calculateDiffTime, InputEn } from "../../src/local";
 import {
   convertRawCSVToData,
   createNewProject,

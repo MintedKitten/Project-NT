@@ -6,17 +6,23 @@ import { createLogger, transports, format } from "winston";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { formatDateDDMMYY } from "./local";
 
-const logDir = "./log/";
+if (!process.env.LOG_DIR) {
+  console.log(
+    "Environment LOG_DIR is not defined. Default directory will be used."
+  );
+}
+// Log directory
+const logDir = process.env.LOG_DIR || process.cwd() + "/log";
 
 function formatDateHHMMSSmmmm(date: Date, divider: string = "-") {
   return `${(date.getHours() + "").padStart(2, "0")}${divider}${(
     date.getMinutes() +
     1 +
     ""
-  ).padStart(2, "0")}${divider}${(date.getSeconds() + 1 + "").padStart(
+  ).padStart(2, "0")}${divider}${(date.getSeconds() + "").padStart(
     2,
     "0"
-  )}${divider}${(date.getMilliseconds() + 1 + "").padStart(4, "0")}`;
+  )}${divider}${(date.getMilliseconds() + "").padStart(4, "0")}`;
 }
 
 const nxcHandler = () => {
@@ -35,11 +41,8 @@ const nxcHandler = () => {
     }
     const logDate = new Date();
     const datedir = formatDateDDMMYY(logDate, "-");
-    if (!existsSync(logDir)) {
-      mkdirSync(logDir);
-    }
-    if (!existsSync(logDir + datedir)) {
-      mkdirSync(logDir + datedir);
+    if (!existsSync(logDir + "/" + datedir)) {
+      mkdirSync(logDir + "/" + datedir, { recursive: true });
     }
     const toLog = {
       uid: session.id,
@@ -51,7 +54,7 @@ const nxcHandler = () => {
     createLogger({
       format: format.json(),
       transports: new transports.File({
-        filename: `${logDir}${datedir}/${formatDateHHMMSSmmmm(logDate)}.log`,
+        filename: `${logDir}/${datedir}/${formatDateHHMMSSmmmm(logDate)}.log`,
       }),
     }).log({
       message: JSON.stringify(toLog),

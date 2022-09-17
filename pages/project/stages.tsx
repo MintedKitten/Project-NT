@@ -180,9 +180,7 @@ const ProjectStagesPage: NextPage<
           const elm = file[index];
           const formData = new FormData();
           formData.append("file", elm);
-          const uploadRes = await uploadToServer(formData, (ld, tl) => {
-            // For upload progress bar
-          });
+          const uploadRes = await uploadToServer(formData);
           fmids.push(uploadRes.fmid);
         }
         const stid = stages[step]._id?.toHexString() + "";
@@ -573,9 +571,8 @@ const ProjectStagesPage: NextPage<
                     No file was found.
                   </Typography>
                 ) : (
-                  files.map((file, index) => {
-                    const { _id, filename, filetype, size, uploadDate, dir } =
-                      file;
+                  files.map((file) => {
+                    const { _id, filename, filetype, size, uploadDate } = file;
                     return (
                       <>
                         <Grid

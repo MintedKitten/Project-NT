@@ -65,15 +65,15 @@ const PageNavbar: FunctionComponent<{
                         "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
                     },
                   }}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    reroute(Link);
+                  }}
                 >
                   <Icon />
                   <Typography
                     variant="h5"
                     noWrap
-                    onClick={(event) => {
-                      event.preventDefault();
-                      reroute(Link);
-                    }}
                     sx={{
                       fontWeight: window.location.pathname === Link ? 600 : 300,
                       fontSize: 16,
@@ -144,15 +144,6 @@ const PageNavbar: FunctionComponent<{
               </Typography>
             </MenuItem>
           </Menu>
-          {/* <Button
-          color="inherit"
-          variant="outlined"
-          onClick={() => {
-            signOut({ redirect: false, callbackUrl: window.location.origin });
-          }}
-        >
-          Logout
-        </Button> */}
         </Toolbar>
       </Container>
     </Box>

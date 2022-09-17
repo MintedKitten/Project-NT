@@ -4,7 +4,7 @@ import { retDataregcheck } from "../pages/api/auth/regcheck";
 export async function rawfetcher(
   apiurl: string,
   body: FormData,
-  cb: (byteLoad: number, byteSent: number) => void
+  cb: (sentByte: number, totalByte: number) => void
 ) {
   const xhr = new XMLHttpRequest();
   let response: any = null;
@@ -16,7 +16,7 @@ export async function rawfetcher(
         cb(event.loaded, event.total);
       }
     });
-    xhr.addEventListener("loadend", (event) => {
+    xhr.addEventListener("loadend", () => {
       response = xhr.response;
       resolve(xhr.readyState === 4 && xhr.status === 201);
     });

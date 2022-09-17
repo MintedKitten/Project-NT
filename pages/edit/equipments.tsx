@@ -253,7 +253,7 @@ const EditEquipmentsGroup: NextPage<
   };
 
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
-    params,
+    _params,
     event
   ) => {
     event.defaultMuiPrevented = true;

@@ -4,10 +4,12 @@ import { fetcher, rawfetcher } from "../frontend";
 
 export async function uploadToServer(
   formData: FormData,
-  cb: (byteLoad: number, byteSent: number) => void
+  cb?: (sentByte: number, totalByte: number) => void
 ) {
   const data = await rawfetcher("/files/", formData, (ld, tl) => {
-    cb(ld, tl);
+    if (cb) {
+      cb(ld, tl);
+    }
   });
   return data.response as { fmid: string };
 }

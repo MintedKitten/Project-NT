@@ -5,15 +5,9 @@ import type {
   NextPage,
 } from "next";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionProps,
-  AccordionSummary,
-  AccordionSummaryProps,
   Backdrop,
   Box,
   CircularProgress,
-  styled,
   Tooltip,
   Typography,
   useMediaQuery,

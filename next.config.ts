@@ -1,5 +1,4 @@
 import {
-  PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_SERVER,
   PHASE_PRODUCTION_BUILD,
 } from "next/constants.js";
@@ -14,7 +13,6 @@ const start: (
   let DBname =
     process.env.NODE_ENV !== "production" ? "devProcurement" : "Procurement";
   const env = {
-    secret: "AwesomeSauce",
     dbName: DBname,
     projectsCollection: "Projects",
     extraCollection: "Extra",

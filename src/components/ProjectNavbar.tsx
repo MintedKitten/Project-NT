@@ -1,8 +1,8 @@
-import { Box, Container, Tab, Tabs, Toolbar, Typography } from "@mui/material";
+import { Box, Container, Tab, Toolbar, Typography } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import { useRouter } from "next/router";
 import { FunctionComponent, SyntheticEvent, useState } from "react";
-import { NavbarProjNavlink, projectNavInfo } from "../local";
+import { projectNavInfo } from "../local";
 
 function a11yProps(index: number) {
   return {

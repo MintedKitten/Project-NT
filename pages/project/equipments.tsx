@@ -46,7 +46,7 @@ import {
   GridToolbarDensitySelector,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import { valFloat, valInteger } from "../../src/create/projects";
+import { valFloat } from "../../src/create/projects";
 import { useState } from "react";
 import { equipmentsGroupDelete } from "../../src/edit/equipments";
 import { useConfirmDialog } from "react-mui-confirm";

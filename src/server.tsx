@@ -6,8 +6,6 @@ import {
   projJoinStage,
   stagesInt,
 } from "./db";
-import { Socket } from "net";
-import { lookup, LookupOptions, resolve } from "dns";
 
 export async function EquipmentWithProjectName(
   conn: MongoClient,

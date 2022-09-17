@@ -8,5 +8,3 @@ export interface searchProjectsTableInt {
   year: number;
   type: number;
 }
-
-

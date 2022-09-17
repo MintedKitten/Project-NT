@@ -108,8 +108,13 @@ function getCookies(cookies: string = ""): { [key: string]: string } {
   return cookiesOb;
 }
 
-// the directory to store files
-const dirfilepath = "./files/";
+if (!process.env.FILE_DIR) {
+  console.log(
+    "Environment FILE_DIR is not defined. Default directory will be used."
+  );
+}
+// Files directory
+const fileDir = process.env.FILE_DIR || process.cwd() + "/files";
 
 // start nextjs env and server, then start expressjs as fileserver, authenticate
 app
@@ -154,7 +159,7 @@ app
           return res.status(500).end("Something went wrong.");
         }
       })
-      .post("/files/", async (req, res, next) => {
+      .post("/files/", async (req, res) => {
         req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
           req: req,
@@ -174,12 +179,12 @@ app
             });
           }
         );
-        if (!existsSync(dirfilepath)) {
-          mkdirSync(dirfilepath);
+        if (!existsSync(fileDir)) {
+          mkdirSync(fileDir, { recursive: true });
         }
         await getDataFromBody
           .then((value) => {
-            const { fields, files } = value;
+            const { files } = value;
             let filelist: File[] = [];
             if (isInstanceOfFile(files.file)) {
               filelist[0] = files.file;
@@ -204,7 +209,7 @@ app
                 uploadDate: new Date(),
               });
 
-              const dir = dirfilepath + sha256(fmid.toHexString());
+              const dir = fileDir + "/" + sha256(fmid.toHexString()) + ".file";
               await new Promise<void>((resolve, reject) => {
                 const reader = createReadStream(file.filepath);
                 const writer = createWriteStream(dir);

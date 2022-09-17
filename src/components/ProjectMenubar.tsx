@@ -65,15 +65,15 @@ const ProjectMenubar: FunctionComponent<{
                     boxShadow: "inset 0 0 100px 100px rgba(255, 255, 255, 0.2)",
                   },
                 }}
+                onClick={(event) => {
+                  event.preventDefault();
+                  reroute(Link);
+                }}
               >
                 <Icon />
                 <Typography
                   variant="h5"
                   noWrap
-                  onClick={(event) => {
-                    event.preventDefault();
-                    reroute(Link);
-                  }}
                   sx={{
                     fontWeight: window.location.pathname === Link ? 600 : 300,
                     fontSize: 16,

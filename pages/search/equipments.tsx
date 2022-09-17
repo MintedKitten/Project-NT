@@ -230,7 +230,6 @@ const SearchEquipmentsPage: NextPage<
                       projId,
                       qty,
                       unitPrice,
-                      _id,
                       projName,
                       unit,
                     } = row;

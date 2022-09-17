@@ -24,8 +24,6 @@ import {
   budgetThreshold,
   calculateDiffTime,
   InputEn,
-  navInfo,
-  projectNavInfo,
   thDate,
 } from "../../src/local";
 import {
@@ -311,8 +309,8 @@ const CreateProjectsPage: NextPage<
           <title>Update Project Details</title>
         </Head>
         <PageAppbar>
-          <PageNavbar   session={data} />
-          <ProjectNavbar   pid={pid} />
+          <PageNavbar session={data} />
+          <ProjectNavbar pid={pid} />
         </PageAppbar>
         <PageContainer>
           <Box
