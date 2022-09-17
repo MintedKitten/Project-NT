@@ -44,6 +44,7 @@ import { navInfo, projectNavInfo } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
 import { getToken } from "next-auth/jwt";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import { log } from "../../src/logger";
 
 const ProjectFilesPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -347,6 +348,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Project files page was queried",
+    url: "project/files",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {

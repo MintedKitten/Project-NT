@@ -1,6 +1,7 @@
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import SignUp from "../../src/components/SignUp";
+import { log } from "../../src/logger";
 
 const LoginPage: NextPage = () => {
   return (
@@ -14,3 +15,13 @@ const LoginPage: NextPage = () => {
 };
 
 export default LoginPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const toLog = {
+    msg: "Sign up page was queried",
+    url: "auth/register",
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
+  return { props: {} };
+};

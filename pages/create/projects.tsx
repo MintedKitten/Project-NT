@@ -41,6 +41,9 @@ import { ObjectId } from "bson";
 import Space from "../../src/components/Space";
 import Big from "big.js";
 import PageMenubar from "../../src/components/PageMenubar";
+import { GetServerSideProps } from "next/types";
+import { getToken } from "next-auth/jwt";
+import { log } from "../../src/logger";
 
 const CreateProjectsPage = () => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
@@ -450,3 +453,26 @@ const CreateProjectsPage = () => {
 };
 
 export default CreateProjectsPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.JWT_SECRET}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  const toLog = {
+    msg: "Craete project page was queried",
+    url: "create/projects",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
+  return { props: {} };
+};

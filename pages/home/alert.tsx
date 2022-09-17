@@ -50,6 +50,7 @@ import {
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 import Big from "big.js";
+import { log } from "../../src/logger";
 
 type rowsType = {
   id: string;
@@ -365,7 +366,13 @@ export default AlertPage;
 let _today = dayjs(new Date());
 export const getStaticProps: GetStaticProps<{
   presult: ReturnType<typeof compileStatus>[];
-}> = async () => {
+}> = async (context) => {
+  const toLog = {
+    msg: "Home page was queried",
+    url: "alert/home",
+    context: context,
+  };
+  log(JSON.stringify(toLog));
   let retOb: GetStaticPropsResult<{
     presult: ReturnType<typeof compileStatus>[];
   }> = {

@@ -42,6 +42,9 @@ import Space from "../../src/components/Space";
 import Big from "big.js";
 import { parseInteger } from "../../src/local";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import { GetServerSideProps } from "next/types";
+import { getToken } from "next-auth/jwt";
+import { log } from "../../src/logger";
 
 interface EditToolbarProps {
   setRows: (
@@ -559,3 +562,26 @@ const CreateEquipmentsGroup = () => {
 };
 
 export default CreateEquipmentsGroup;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.JWT_SECRET}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
+  const toLog = {
+    msg: "Create project equipments page was queried",
+    url: "create/equipments",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
+  return { props: {} };
+};

@@ -35,6 +35,7 @@ import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
 import { ProjectWithInProgressStage } from "../../src/server";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import { log } from "../../src/logger";
 
 const ProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -231,6 +232,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Project details page was queried",
+    url: "project/projects",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {

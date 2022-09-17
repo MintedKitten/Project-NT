@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser, hashPassword } from "../../../src/auth";
+import { log } from "../../../src/logger";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,7 +11,7 @@ export const authOptions: NextAuthOptions = {
         username: { label: "Username", type: "text", placeholder: "Username" },
         password: { label: "Password", type: "password" },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials, req) => {
         if (credentials) {
           const username = credentials.username;
           const password = credentials.password;
@@ -19,9 +20,21 @@ export const authOptions: NextAuthOptions = {
             hashPassword(username, password)
           );
           if (user) {
+            const toLog = {
+              msg: "A log in attempt was successful",
+              uid: user._id,
+              user: user.name,
+              rawheader: req.headers,
+            };
+            log(JSON.stringify(toLog));
             return { id: user._id, name: user.name, admin: user.admin };
           }
         }
+        const toLog = {
+          msg: "A log in attempt was unsuccessful",
+          rawheader: req.headers,
+        };
+        log(JSON.stringify(toLog));
         return null;
       },
     }),

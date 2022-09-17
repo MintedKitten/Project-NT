@@ -58,6 +58,7 @@ import {
 import { getToken } from "next-auth/jwt";
 import { editEquipmentGroupAndEquipments } from "../../src/edit/equipments";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import { log } from "../../src/logger";
 
 interface EditToolbarProps {
   setRows: (
@@ -624,6 +625,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Edit project equipments page was queried",
+    url: "edit/equipments",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {

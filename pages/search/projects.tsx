@@ -50,6 +50,7 @@ import { ObjectId } from "bson";
 import { parseInteger } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import PageMenubar from "../../src/components/PageMenubar";
+import { log } from "../../src/logger";
 
 const SearchProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -331,6 +332,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Project search page was queried",
+    url: "search/projects",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   const query: { [key in keyof projectsInt]?: any } = {};
   if (webquery["name"]) {

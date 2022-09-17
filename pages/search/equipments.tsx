@@ -42,6 +42,7 @@ import Link from "next/link";
 import { EquipmentWithProjectName } from "../../src/server";
 import PageMenubar from "../../src/components/PageMenubar";
 import { parseInteger } from "../../src/local";
+import { log } from "../../src/logger";
 
 const SearchEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -338,6 +339,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Equipments search page was queried",
+    url: "search/equipments",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   const query: Filter<equipmentsInt> = {};
   let result: ReturnType<typeof convToSerializable>[] = [];

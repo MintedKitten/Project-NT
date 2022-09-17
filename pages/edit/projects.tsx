@@ -46,6 +46,7 @@ import Big from "big.js";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { updateProject } from "../../src/edit/projects";
 import { getToken } from "next-auth/jwt";
+import { log } from "../../src/logger";
 
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -392,6 +393,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Edit project details page was queried",
+    url: "edit/projects",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {

@@ -6,6 +6,7 @@ import {
   NextPage,
 } from "next";
 import Head from "next/head";
+import { log } from "../../src/logger";
 
 const LoginPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -25,6 +26,12 @@ export default LoginPage;
 export const getServerSideProps: GetServerSideProps<{
   csrfToken: string;
 }> = async (context) => {
+  const toLog = {
+    msg: "Sign in page was queried",
+    url: "auth/login",
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   return {
     props: {
       csrfToken: `${await getCsrfToken(context)}`,

@@ -68,6 +68,7 @@ import {
 } from "@mui/x-date-pickers";
 import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
+import { log } from "../../src/logger";
 
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
@@ -715,6 +716,13 @@ export const getServerSideProps: GetServerSideProps<{
       },
     };
   }
+  const toLog = {
+    msg: "Project stages page was queried",
+    url: "project/stages",
+    token: token,
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
   const webquery = context.query as { [key: string]: any };
   if (!webquery["pid"]) {
     return {
