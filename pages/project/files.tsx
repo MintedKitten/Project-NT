@@ -82,7 +82,7 @@ const ProjectFilesPage: NextPage<
           const elm = file[index];
           const formData = new FormData();
           formData.append("file", elm);
-          const uploadRes = await uploadToServer(formData, (_ld, _tl) => {});
+          const uploadRes = await uploadToServer(formData);
           fmids.push(uploadRes.fmid);
         }
         const isAllSuccessful = await addFMidsToProject(pid, fmids);
