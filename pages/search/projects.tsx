@@ -355,7 +355,7 @@ export const getServerSideProps: GetServerSideProps<{
     filterSelectionYear: number[];
   }> = {
     redirect: {
-      destination: "/home/alert",
+      destination: "/home/status",
       permanent: false,
     },
   };

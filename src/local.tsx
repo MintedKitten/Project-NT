@@ -111,7 +111,7 @@ export interface NavbarProjNavlink {
 export const navInfo: NavbarNavlink[] = [
   {
     Header: "Home",
-    Link: "/home/alert",
+    Link: "/home/status",
     Icon: () => <HomeIcon />,
   },
   {

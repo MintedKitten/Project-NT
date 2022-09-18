@@ -13,7 +13,7 @@ const HomePage: NextPage = () => {
   }
 
   if (status === "authenticated") {
-    router.push({ pathname: "/home/alert" });
+    router.push({ pathname: "/home/status" });
   }
   return (
     <>

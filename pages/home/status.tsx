@@ -280,6 +280,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         { field: "maendDate" },
         { field: "maAlert" },
       ],
+      description: "วันเดือนปี และสถานะของ MA",
     },
   ];
 
@@ -369,7 +370,7 @@ export const getStaticProps: GetStaticProps<{
 }> = async (context) => {
   const toLog = {
     msg: "Home page was queried",
-    url: "alert/home",
+    url: "home/status",
     context: context,
   };
   log(JSON.stringify(toLog));

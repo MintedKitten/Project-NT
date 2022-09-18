@@ -243,7 +243,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (!webquery["pid"]) {
     return {
       redirect: {
-        destination: "/home/alert",
+        destination: "/home/status",
         permanent: false,
       },
     };
@@ -254,7 +254,7 @@ export const getServerSideProps: GetServerSideProps<{
     isComplete: boolean;
   }> = {
     redirect: {
-      destination: "/home/alert",
+      destination: "/home/status",
       permanent: false,
     },
   };
@@ -268,7 +268,7 @@ export const getServerSideProps: GetServerSideProps<{
       if (arresult.length !== 1) {
         retOb = {
           redirect: {
-            destination: "/home/alert",
+            destination: "/home/status",
             permanent: false,
           },
         };
@@ -288,7 +288,7 @@ export const getServerSideProps: GetServerSideProps<{
   } catch (err) {
     retOb = {
       redirect: {
-        destination: "/home/alert",
+        destination: "/home/status",
         permanent: false,
       },
     };
