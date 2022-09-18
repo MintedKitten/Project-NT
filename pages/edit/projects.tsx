@@ -47,11 +47,13 @@ import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { updateProject } from "../../src/edit/projects";
 import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
+import ProjectMenubar from "../../src/components/ProjectMenubar";
 
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, preresult }) => {
   const isDisplayMobile = useMediaQuery("(max-width:600px)") || isMobile;
+  const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
   const { status, data } = session;
@@ -310,8 +312,14 @@ const CreateProjectsPage: NextPage<
           <title>Update Project Details</title>
         </Head>
         <PageAppbar>
-          <PageNavbar session={data} />
-          <ProjectNavbar pid={pid} />
+          {isNavbar ? (
+            <>
+              <PageNavbar session={data} />
+              <ProjectNavbar pid={pid} />
+            </>
+          ) : (
+            <ProjectMenubar session={data} />
+          )}
         </PageAppbar>
         <PageContainer>
           <Box
