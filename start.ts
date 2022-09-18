@@ -124,7 +124,6 @@ app
     fileserver
       // Download a file
       .get("/files/:fmid", async (req, res, next) => {
-        console.log(req.headers);
         req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
           req: req,
@@ -160,7 +159,6 @@ app
         }
       })
       .post("/files/", async (req, res) => {
-        console.log(req.headers);
         req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
           req: req,
