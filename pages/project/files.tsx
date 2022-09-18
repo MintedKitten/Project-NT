@@ -191,7 +191,12 @@ const ProjectFilesPage: NextPage<
               container
               spacing={1}
               rowSpacing={1}
-              sx={{ mt: 0, maxHeight: "65vh", overflow: "auto" }}
+              sx={{
+                mt: 0,
+                maxHeight: "65vh",
+                overflow: "auto",
+                minWidth: "600px",
+              }}
             >
               {files.length === 0 ? (
                 <Typography
