@@ -1,7 +1,8 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import { Backdrop, CircularProgress } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
+import { log } from "../src/logger";
 
 const HomePage: NextPage = () => {
   const session = useSession();
@@ -28,3 +29,13 @@ const HomePage: NextPage = () => {
 };
 
 export default HomePage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const toLog = {
+    msg: "Home page was queried",
+    url: "/",
+    query: context.query,
+  };
+  log(JSON.stringify(toLog));
+  return { props: {} };
+};

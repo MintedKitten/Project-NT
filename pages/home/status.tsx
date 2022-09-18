@@ -369,7 +369,7 @@ export const getStaticProps: GetStaticProps<{
   presult: ReturnType<typeof compileStatus>[];
 }> = async (context) => {
   const toLog = {
-    msg: "Home page was queried",
+    msg: "Status page was queried",
     url: "home/status",
     context: context,
   };

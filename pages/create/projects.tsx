@@ -468,7 +468,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
   const toLog = {
-    msg: "Craete project page was queried",
+    msg: "Create project page was queried",
     url: "create/projects",
     token: token,
     query: context.query,

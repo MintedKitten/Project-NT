@@ -189,10 +189,7 @@ const ProjectMenubar: FunctionComponent<{
               sx={{ mx: 2, overflow: "auto", width: "10rem" }}
               noWrap
               onClick={() => {
-                signOut({
-                  redirect: false,
-                  callbackUrl: window.location.origin,
-                });
+                signOut();
               }}
             >
               Logout
