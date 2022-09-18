@@ -154,6 +154,7 @@ const ProjectFilesPage: NextPage<
               paddingY: 1,
               borderColor: "lightgrey",
               borderRadius: 2,
+              overflow: "auto",
             }}
           >
             <Grid container spacing={1} sx={{ minWidth: "600px" }}>
@@ -191,12 +192,7 @@ const ProjectFilesPage: NextPage<
               container
               spacing={1}
               rowSpacing={1}
-              sx={{
-                mt: 0,
-                maxHeight: "65vh",
-                overflow: "auto",
-                minWidth: "600px",
-              }}
+              sx={{ mt: 0, maxHeight: "65vh", minWidth: "600px" }}
             >
               {files.length === 0 ? (
                 <Typography
