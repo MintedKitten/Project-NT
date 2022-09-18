@@ -155,8 +155,8 @@ const ProjectEquipmentsPage: NextPage<
       type: "number",
       width: 165,
       editable: false,
-      renderCell: (params) => {
-        const upr = valFloat((params.row.uPrice + "").replace(/,/g, ""));
+      valueFormatter: (params) => {
+        const upr = valFloat((params.value + "").replace(/,/g, ""));
         return !upr.lt(0) ? upr.toNumber().toLocaleString() : "0";
       },
     },
@@ -170,7 +170,7 @@ const ProjectEquipmentsPage: NextPage<
         const xpr = valFloat((params.row.uPrice + "").replace(/,/g, "")).mul(
           params.row.qty
         );
-        return !xpr.lt(0) ? xpr : Big(0);
+        return !xpr.lt(0) ? xpr.toNumber().toLocaleString() : Big(0);
       },
     },
   ];
@@ -275,7 +275,26 @@ const ProjectEquipmentsPage: NextPage<
                         <Button variant="contained">Edit</Button>
                       </Link>
                     </Box>
-                    <Box sx={{ height: "60vh", mt: 1 }}>
+                    <Box
+                      sx={{
+                        height: "60vh",
+                        mt: 1,
+                        "& .MuiDataGrid-viewport, .MuiDataGrid-row, .MuiDataGrid-renderingZone":
+                          {
+                            maxHeight: "fit-content !important",
+                          },
+                        "& .MuiDataGrid-cell": {
+                          maxHeight: "fit-content !important",
+                          overflow: "auto",
+                          whiteSpace: "initial !important",
+                          lineHeight: "16px !important",
+                          display: "flex !important",
+                          alignItems: "center",
+                          paddingTop: "10px !important",
+                          paddingBottom: "10px !important",
+                        },
+                      }}
+                    >
                       <DataGrid
                         rows={equipments}
                         columns={columns}

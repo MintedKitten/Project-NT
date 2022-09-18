@@ -129,7 +129,7 @@ function EditToolbar(props: EditToolbarProps) {
             }
             if (key === "uPrice") {
               try {
-                Big(value.replace(/,/g, ""));
+                Big((value + "").replace(/,/g, ""));
               } catch (err) {
                 throw new Error(`row ${rowindex + 1} uPrice is not Number`);
               }
@@ -540,6 +540,20 @@ const CreateEquipmentsGroup = () => {
                 "&:hover": {
                   bgcolor: "#adb2b8",
                 },
+              },
+              "& .MuiDataGrid-viewport, .MuiDataGrid-row, .MuiDataGrid-renderingZone":
+                {
+                  maxHeight: "fit-content !important",
+                },
+              "& .MuiDataGrid-cell": {
+                maxHeight: "fit-content !important",
+                overflow: "auto",
+                whiteSpace: "initial !important",
+                lineHeight: "16px !important",
+                display: "flex !important",
+                alignItems: "center",
+                paddingTop: "10px !important",
+                paddingBottom: "10px !important",
               },
             }}
           >
