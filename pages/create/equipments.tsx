@@ -19,7 +19,7 @@ import {
   GridRowId,
   GridRowModel,
 } from "@mui/x-data-grid";
-import { Alert, TextField, useMediaQuery } from "@mui/material";
+import { Alert, TextField, Tooltip, useMediaQuery } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
 import { ChangeEvent, FormEvent, SyntheticEvent, useState } from "react";
@@ -336,13 +336,21 @@ const CreateEquipmentsGroup = () => {
           return [
             <GridActionsCellItem
               key={`${id.toString()}_save`}
-              icon={<SaveIcon />}
+              icon={
+                <Tooltip title="Save Equipment" arrow>
+                  <SaveIcon />
+                </Tooltip>
+              }
               label="Save"
               onClick={handleSaveClick(id)}
             />,
             <GridActionsCellItem
               key={`${id.toString()}_cancel`}
-              icon={<CancelIcon />}
+              icon={
+                <Tooltip title="Cancel Equipment" arrow>
+                  <CancelIcon />
+                </Tooltip>
+              }
               label="Cancel"
               className="textPrimary"
               onClick={handleCancelClick(id)}
@@ -354,7 +362,11 @@ const CreateEquipmentsGroup = () => {
         return [
           <GridActionsCellItem
             key={`${id.toString()}_edit`}
-            icon={<EditIcon />}
+            icon={
+              <Tooltip title="Save Change" arrow>
+                <EditIcon />
+              </Tooltip>
+            }
             label="Edit"
             className="textPrimary"
             onClick={handleEditClick(id)}
@@ -362,7 +374,11 @@ const CreateEquipmentsGroup = () => {
           />,
           <GridActionsCellItem
             key={`${id.toString()}_delete`}
-            icon={<DeleteIcon />}
+            icon={
+              <Tooltip title="Delete Change" arrow>
+                <DeleteIcon />
+              </Tooltip>
+            }
             label="Delete"
             onClick={handleDeleteClick(id)}
             color="inherit"

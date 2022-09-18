@@ -238,7 +238,7 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
       type: "actions",
       headerName: "Action",
       hideable: false,
-      width: 80,
+      width: 65,
       cellClassName: "actions",
       getActions: ({ id }) => {
         return [
