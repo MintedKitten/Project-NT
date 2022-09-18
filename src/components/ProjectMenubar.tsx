@@ -180,18 +180,13 @@ const ProjectMenubar: FunctionComponent<{
           <MenuItem
             onClick={() => {
               handleClose();
+              signOut();
             }}
           >
             <ListItemIcon>
               <LogoutIcon fontSize="small" />
             </ListItemIcon>
-            <Typography
-              sx={{ mx: 2, overflow: "auto", width: "10rem" }}
-              noWrap
-              onClick={() => {
-                signOut();
-              }}
-            >
+            <Typography sx={{ mx: 2, overflow: "auto", width: "10rem" }} noWrap>
               Logout
             </Typography>
           </MenuItem>

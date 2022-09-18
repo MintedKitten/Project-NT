@@ -125,6 +125,7 @@ const PageNavbar: FunctionComponent<{
             <MenuItem
               onClick={() => {
                 handleClose();
+                signOut();
               }}
             >
               <ListItemIcon>
@@ -133,9 +134,6 @@ const PageNavbar: FunctionComponent<{
               <Typography
                 sx={{ mx: 2, overflow: "auto", width: "10rem" }}
                 noWrap
-                onClick={() => {
-                  signOut();
-                }}
               >
                 Logout
               </Typography>
