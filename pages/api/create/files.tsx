@@ -2,10 +2,16 @@ import { ObjectId } from "bson";
 import { getMongoClient, projectFilesInsertOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDatacreatefiles = {
   isAllSuccessful: boolean;
 };
 
+/**
+ * Add file to project
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

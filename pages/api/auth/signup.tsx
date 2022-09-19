@@ -2,10 +2,19 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { createNewUser, hashPassword } from "../../../src/auth";
 import { log } from "../../../src/logger";
 
+/**
+ * Api return type
+ */
 export type retDatasignup = {
   isComplete: boolean;
 };
 
+/**
+ * Create new user
+ * @param req
+ * @param res
+ * @returns
+ */
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<{ data: retDatasignup }>

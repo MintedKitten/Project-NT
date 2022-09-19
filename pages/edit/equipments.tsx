@@ -70,9 +70,17 @@ interface EditToolbarProps {
   ) => void;
 }
 
+/**
+ * The equipment form toolbar element
+ * @param props
+ * @returns
+ */
 function EditToolbar(props: EditToolbarProps) {
   const { setRows, setRowModesModel } = props;
 
+  /**
+   * Add new empty equipment row
+   */
   const handleClickAddOneEmptyRow = () => {
     const id = Math.random() + "";
     setRows((oldRows) => [
@@ -94,6 +102,11 @@ function EditToolbar(props: EditToolbarProps) {
     }));
   };
 
+  /**
+   * add new equipments from CSV
+   * @param e
+   * @returns
+   */
   const handleAddMultipleFromCSV = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
       alert("File select canceled");
@@ -243,17 +256,31 @@ const EditEquipmentsGroup: NextPage<
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  /**
+   * Handle when rows per page number is changed
+   * @param pageSize
+   */
   const handleChangeRowsPerPage = (pageSize: number) => {
     setRowsPerPage(pageSize);
   };
 
-  const handleRowEditStart = (
+  /**
+   * Handle when start editing a row
+   * @param _params
+   * @param event
+   */
+  const handleRowEditStart: GridEventListener<"rowEditStart"> = (
     _params: GridRowParams,
     event: MuiEvent<SyntheticEvent>
   ) => {
     event.defaultMuiPrevented = true;
   };
 
+  /**
+   * Handle when stop editing a row
+   * @param _params
+   * @param event
+   */
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     _params,
     event
@@ -261,18 +288,38 @@ const EditEquipmentsGroup: NextPage<
     event.defaultMuiPrevented = true;
   };
 
+  /**
+   * Handle when clicking edit icon
+   * @param id
+   * @returns
+   */
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
+  /**
+   * Handle when clicking save icon
+   * @param id
+   * @returns
+   */
   const handleSaveClick = (id: GridRowId) => () => {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
+  /**
+   * Handle when clicking delete icon
+   * @param id
+   * @returns
+   */
   const handleDeleteClick = (id: GridRowId) => () => {
     setRows(rows.filter((row) => row.id !== id));
   };
 
+  /**
+   * Handle when clicking cancel icon
+   * @param id
+   * @returns
+   */
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
@@ -285,6 +332,11 @@ const EditEquipmentsGroup: NextPage<
     }
   };
 
+  /**
+   * Handle adding new equipment row to form
+   * @param newRow
+   * @returns
+   */
   const processRowUpdate = (newRow: GridRowModel<rowInt>) => {
     const updatedRow = { ...newRow, isNew: false, isToSave: true };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
@@ -417,6 +469,11 @@ const EditEquipmentsGroup: NextPage<
   ];
 
   const openConfirmDialog = useConfirmDialog();
+
+  /**
+   * Handle submiting new equipments group and equipments
+   * @param event
+   */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -484,6 +541,9 @@ const EditEquipmentsGroup: NextPage<
     }
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -731,6 +791,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convtoSerializable(data: equipmentsGroupInt) {
   const { _id, projId, ...r } = data;
   return {
@@ -740,6 +805,11 @@ function convtoSerializable(data: equipmentsGroupInt) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convBack(
   data: ReturnType<typeof convtoSerializable>
 ): equipmentsGroupInt {

@@ -2,10 +2,17 @@ import { ObjectId } from "bson";
 import { getMongoClient, stageFilesDeleteOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
+
 export type retDataeditstagefiles = {
   isDeleteSuccessful: boolean;
 };
 
+/**
+ * Delete file from stage
+ */
 const handler = nxcHandler().all(async (req, res) => {
   try {
     const body = JSON.parse(req.body);

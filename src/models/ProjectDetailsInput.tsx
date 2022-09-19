@@ -1,3 +1,6 @@
+/**
+ * @file Frontend Project Details Input Form
+ */
 import {
   Grid,
   TextField,

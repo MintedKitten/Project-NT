@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * Website navigation bar, visible in mobile size
+ */
 import {
   Toolbar,
   Typography,

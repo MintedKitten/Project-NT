@@ -4,8 +4,15 @@ import { getMongoClient, projectsInt, projectUpdateOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 import { thDate } from "../../../src/local";
 
+/**
+ * Api return type
+ */
+
 export type retDataeditproject = { isUpdated: boolean };
 
+/**
+ * Update project details
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

@@ -397,6 +397,12 @@ export const getStaticProps: GetStaticProps<{
   return retOb;
 };
 
+/**
+ * Calculate Alert level for Contract End Date
+ * @param date
+ * @param isComplete
+ * @returns
+ */
 function calContractAlertLevel(
   date: Date,
   isComplete: boolean
@@ -412,6 +418,11 @@ function calContractAlertLevel(
   }
 }
 
+/**
+ * Calculate Alert level for MA End Date
+ * @param date
+ * @returns
+ */
 function calMAAlertLevel(date: Date): DateDeadlineStatus {
   const days = -_today.diff(dayjs(date), "days");
   if (days > 0) {
@@ -421,6 +432,11 @@ function calMAAlertLevel(date: Date): DateDeadlineStatus {
   }
 }
 
+/**
+ * Serialize data and add additional data
+ * @param result
+ * @returns
+ */
 function compileStatus(
   result: projectsInt & {
     stages_docs: stagesInt[];
@@ -445,6 +461,11 @@ function compileStatus(
   };
 }
 
+/**
+ * Convert serialized data back to usable data with additional data
+ * @param data
+ * @returns
+ */
 function compileBackStatus(data: ReturnType<typeof compileStatus>): {
   project: ReturnType<typeof convBack>;
   isComplete: boolean;
@@ -458,6 +479,11 @@ function compileBackStatus(data: ReturnType<typeof compileStatus>): {
   };
 }
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convtoSerializable(
   data: Omit<projectsInt, "createdby" | "lastupdate">
 ) {
@@ -481,6 +507,11 @@ function convtoSerializable(
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convBack(
   data: ReturnType<typeof convtoSerializable>
 ): Omit<projectsInt, "createdby" | "lastupdate"> {

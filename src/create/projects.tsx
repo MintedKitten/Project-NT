@@ -1,3 +1,6 @@
+/**
+ * @file Frontend to Backend, Project Details Create functions
+ */
 import { itemObjectInt, projectsInt } from "../db";
 import { Big } from "big.js";
 import { fetcher } from "../frontend";
@@ -19,6 +22,9 @@ const today = (day = 0) => {
   );
 };
 
+/**
+ * Definition for project details display form
+ */
 export interface projectsTableInt {
   รายการโครงการจัดซื้อจัดจ้าง: string;
   ประเภทโครงการ: number;
@@ -35,6 +41,9 @@ export interface projectsTableInt {
   "MA (ระยะเวลารับประกัน)": string;
 }
 
+/**
+ * Default value for starting adding a new projects
+ */
 export const projectsDefaultValue: projectsTableInt = {
   รายการโครงการจัดซื้อจัดจ้าง: "",
   ประเภทโครงการ: 1,
@@ -51,6 +60,13 @@ export const projectsDefaultValue: projectsTableInt = {
   "วันหมดสัญญา (พ.ศ.)": today(1),
 };
 
+/**
+ * Validating an integer.
+ * If positive or zero return itself.
+ * If negative return -1.
+ * @param v The string to validate
+ * @returns Validated integer
+ */
 export function valInteger(v: string) {
   try {
     const num = parseInteger(v);
@@ -60,6 +76,13 @@ export function valInteger(v: string) {
   }
 }
 
+/**
+ * Validating a typelist.
+ * If within range return itself.
+ * If not return 0.
+ * @param v The string to validate
+ * @returns Validated typelist
+ */
 export function valTypeList(v: string) {
   try {
     const vnum = valInteger(v);
@@ -73,6 +96,13 @@ export function valTypeList(v: string) {
   }
 }
 
+/**
+ * Validating a floating point number. Convert to Big.js for better precision.
+ * If positive or zero return itself.
+ * If negative return -1.
+ * @param v The string or number to validate
+ * @returns Validated floating point number
+ */
 export function valFloat(v: string | number) {
   try {
     const fl = new Big(v);
@@ -82,6 +112,13 @@ export function valFloat(v: string | number) {
   }
 }
 
+/**
+ * Validating an item.
+ * If amount is positive or zero return Item Object.
+ * If amount is negative return Item Object with amount -1.
+ * @param v The string to validate
+ * @returns Validated item
+ */
 export function valItem(v: string): itemObjectInt {
   try {
     const { amount, unit } = JSON.parse(v) as itemObjectInt;
@@ -96,6 +133,13 @@ export function valItem(v: string): itemObjectInt {
   }
 }
 
+/**
+ * Validating a year.
+ * If can be turn into a Date return year.
+ * If can't return null;
+ * @param v The string to validate
+ * @returns Validated year or null
+ */
 export const valYear = (v: string) => {
   try {
     const vnum = valDate(v);
@@ -109,6 +153,13 @@ export const valYear = (v: string) => {
   }
 };
 
+/**
+ * Validating a date.
+ * If can be turn into a Date return date Object.
+ * If can't return null;
+ * @param v The string to validate
+ * @returns Validated year or null
+ */
 export const valDate = (v: string) => {
   try {
     return new Date(v);
@@ -117,6 +168,9 @@ export const valDate = (v: string) => {
   }
 };
 
+/**
+ * Definition for Importing from CSV file: Projects
+ */
 export interface projectsCSVInt {
   projName: string;
   type: string | number;
@@ -131,6 +185,9 @@ export interface projectsCSVInt {
   comments: string;
 }
 
+/**
+ * Class for validating imported CSV file columns: Projects
+ */
 export class projectsCSVClass implements projectsCSVInt {
   projName: string = "";
   type: string | number = "";
@@ -145,6 +202,12 @@ export class projectsCSVClass implements projectsCSVInt {
   comments: string = "";
 }
 
+/**
+ * Convert raw CSV row into Projects
+ * @throws Incorrect data definition in column
+ * @param data the row data
+ * @returns Converted data
+ */
 export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
   let systemCount = parseio(data.systemCount, "systemCount");
   let contractstartDate = parsedate(
@@ -235,6 +298,11 @@ export function convertRawCSVToData(data: projectsCSVInt): projectsTableInt {
   }
 }
 
+/**
+ * Add project
+ * @param query The project details
+ * @returns true if addition is successful, otherwise false
+ */
 export async function createNewProject(query: projectsInt) {
   const data = (await fetcher(
     "/api/create/projects",

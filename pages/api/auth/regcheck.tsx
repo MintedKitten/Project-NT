@@ -1,10 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { isUsernameExist } from "../../../src/auth";
 
+/**
+ * Api return type
+ */
 export type retDataregcheck = {
   isExist: boolean;
 };
 
+/**
+ * Check if usernam ehas been taken
+ * @param req
+ * @param res
+ * @returns
+ */
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<{ data: retDataregcheck }>

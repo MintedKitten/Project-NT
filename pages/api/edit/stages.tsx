@@ -2,10 +2,16 @@ import { ObjectId } from "bson";
 import { getMongoClient, stagesUpdateOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDataeditstages = {
   isUpdateSuccesful: boolean;
 };
 
+/**
+ * Update the stages
+ */
 const handler = nxcHandler().all(async (req, res) => {
   try {
     const body = JSON.parse(req.body);

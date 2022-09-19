@@ -2,11 +2,16 @@ import { ObjectId } from "bson";
 import { getMongoClient, stageFilesInsertOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDatacreatestages = {
   isAllSuccessful: boolean;
 };
 
-// Upload the file to stage, not creating the stage
+/**
+ * Add file to stage, not to be confused with creating stages
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

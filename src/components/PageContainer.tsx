@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * The container for the body
+ */
 import { Container, Box, Breakpoint } from "@mui/material";
 import { ReactElement } from "react";
 

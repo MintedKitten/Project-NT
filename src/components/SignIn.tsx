@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * Sign in form
+ */
 import {
   Button,
   TextField,

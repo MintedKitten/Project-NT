@@ -1,3 +1,6 @@
+/**
+ * @file Frontend Project Details Diaplay Form
+ */
 import { Grid, Typography, Box } from "@mui/material";
 import Big from "big.js";
 import { itemObjectInt } from "../db";

@@ -8,10 +8,16 @@ import {
 } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDeleteequipmentsgroup = {
   isDeleteSuccessful: boolean;
 };
 
+/**
+ * Delete equipments group and equipments
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

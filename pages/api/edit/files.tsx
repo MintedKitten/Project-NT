@@ -1,14 +1,17 @@
 import { ObjectId } from "bson";
-import {
-  getMongoClient,
-  projectFilesDeleteOne,
-} from "../../../src/db";
+import { getMongoClient, projectFilesDeleteOne } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDataeditfiles = {
   isDeleteSuccessful: boolean;
 };
 
+/**
+ * Delete file from project
+ */
 const handler = nxcHandler().all(async (req, res) => {
   try {
     const body = JSON.parse(req.body);

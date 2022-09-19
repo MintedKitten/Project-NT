@@ -7,10 +7,16 @@ import {
 } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retDatacreateequipments = {
   isCreateSuccessful: boolean;
 };
 
+/**
+ * Add equipments to equipments group
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

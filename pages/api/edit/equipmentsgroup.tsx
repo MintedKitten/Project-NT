@@ -1,14 +1,17 @@
 import { ObjectId } from "bson";
-import {
-  equipmentsGroupUpdateOne,
-  getMongoClient,
-} from "../../../src/db";
+import { equipmentsGroupUpdateOne, getMongoClient } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retEditequipmentsgroup = {
   isUpdateSuccessful: boolean;
 };
 
+/**
+ * Update equipments group
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

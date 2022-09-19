@@ -1,3 +1,6 @@
+/**
+ * @file Connecting, and CRUD to MongoDB
+ */
 import { ObjectId } from "bson";
 import { createHash } from "crypto";
 import {
@@ -29,6 +32,10 @@ export function sha256(msg: string): string {
     .join("");
   return hashHex;
 }
+
+/**
+ * Column Definition for collection: FilesMetadata
+ */
 export interface fileMetadataInt {
   _id?: ObjectId;
   filename: string;
@@ -39,6 +46,9 @@ export interface fileMetadataInt {
   dir?: string;
 }
 
+/**
+ * Column Definition for collection: User
+ */
 export interface userInt {
   _id?: ObjectId;
   username: string;
@@ -79,11 +89,17 @@ export async function authInsertOne(conn: MongoClient, query: userInt) {
   return result;
 }
 
+/**
+ * Definition for Object Item
+ */
 export interface itemObjectInt {
   amount: number;
   unit: string;
 }
 
+/**
+ * Column Definition for collection: Projects
+ */
 interface projectsInsertInt {
   _id?: ObjectId;
   projName: string;
@@ -101,6 +117,9 @@ interface projectsInsertInt {
   lastupdate: Date;
 }
 
+/**
+ * Definition for parsing collection: Projects
+ */
 export interface projectsInt {
   _id?: ObjectId;
   projName: string;
@@ -236,6 +255,9 @@ export async function projectDistinct(
   return result;
 }
 
+/**
+ * Column Definition for collection: Stages
+ */
 export interface stagesInt {
   _id?: ObjectId;
   projId: ObjectId;
@@ -306,6 +328,9 @@ export async function initProject(
   }
 }
 
+/**
+ * Column Definition for collection: ProjFiles
+ */
 interface projectFilesInt {
   _id?: ObjectId;
   projId: ObjectId;
@@ -359,6 +384,9 @@ export async function getFileMetadata(
   return result;
 }
 
+/**
+ * Column Definition for collection: StageFiles
+ */
 interface stageFilesInt {
   _id?: ObjectId;
   projId: ObjectId;
@@ -402,6 +430,9 @@ export async function stageFilesDeleteOne(
   return result;
 }
 
+/**
+ * Column Definition for collection: EquipmentsGroup
+ */
 export interface equipmentsGroupInt {
   _id?: ObjectId;
   projId: ObjectId;
@@ -509,6 +540,9 @@ function isInstanceUpdateResult(ob: any): ob is UpdateResult {
   return "acknowledged" in ob;
 }
 
+/**
+ * Column Definition for collection: Equipments
+ */
 export interface equipmentsInt {
   _id?: ObjectId;
   projId: ObjectId;
@@ -572,6 +606,12 @@ export async function equipmentsDeleteMany(
   return result;
 }
 
+/**
+ * Equipments Join Projects
+ * @param conn 
+ * @param query 
+ * @returns 
+ */
 export async function eqJoinProj(conn: MongoClient, query: object) {
   const result = (await getEquipmentsColl(conn)).aggregate([
     { $match: query },
@@ -594,6 +634,12 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
   return result;
 }
 
+/**
+ * Projects join Stages, filter stages with status OnGoing
+ * @param conn 
+ * @param query 
+ * @returns 
+ */
 export async function projJoinStage(conn: MongoClient, query: object) {
   const result = (await getProjectColl(conn)).aggregate([
     {

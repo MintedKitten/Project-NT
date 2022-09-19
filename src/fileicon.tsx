@@ -1,3 +1,6 @@
+/**
+ * @file From react-file-icon
+ */
 import { FileIcon, defaultStyles } from "react-file-icon";
 
 export function fileicon(filetype: string) {

@@ -1,9 +1,17 @@
+/**
+ * @file Default backend request handler
+ */
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import nextConnect from "next-connect";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { log } from "./logger";
 
+/**
+ * The default handler.
+ * Handles page checking and error.
+ * Handles authentication and logging.
+ */
 const nxcHandler = () => {
   return nextConnect<NextApiRequest, NextApiResponse>({
     onError: (err, req, res, next) => {

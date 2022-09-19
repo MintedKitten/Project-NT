@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * Project navigation bar, only visible when in project and in desktop size
+ */
 import { Box, Container, Tab, Toolbar, Typography } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import { useRouter } from "next/router";

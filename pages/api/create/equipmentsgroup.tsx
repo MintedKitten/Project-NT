@@ -2,10 +2,16 @@ import { ObjectId } from "bson";
 import { equipmentsGroupInsertOne, equipmentsGroupLastOrderInProject, getMongoClient } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retCreateequipmentsgroup = {
   eqgId: string;
 };
 
+/**
+ * Add equipments group to project
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

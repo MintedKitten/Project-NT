@@ -4,8 +4,14 @@ import { getMongoClient, projectInsertOne, projectsInt } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 import { thDate } from "../../../src/local";
 
+/**
+ * Api return type
+ */
 export type retDatacreateproject = { pid: ObjectId };
 
+/**
+ * Add project and its stages
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

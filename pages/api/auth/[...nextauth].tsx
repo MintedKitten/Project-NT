@@ -3,6 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser, hashPassword } from "../../../src/auth";
 import { log } from "../../../src/logger";
 
+/**
+ * NextAuth Configuration Option
+ * Using Credential i.e. With username and password
+ */
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -58,6 +62,9 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: "/auth/login" },
 };
 
+/**
+ * The handler
+ */
 const nxauth = NextAuth(authOptions);
 
 export default nxauth;

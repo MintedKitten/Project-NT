@@ -8,10 +8,16 @@ import {
 } from "../../../src/db";
 import { nxcHandler } from "../../../src/defaultHandler";
 
+/**
+ * Api return type
+ */
 export type retEditequipments = {
   isEditSuccessful: boolean;
 };
 
+/**
+ * Update equipments
+ */
 const handler = nxcHandler().all(async (req, res) => {
   const conn = await getMongoClient();
   try {

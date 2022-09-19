@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * Sign up form
+ */
 import {
   Alert,
   Box,

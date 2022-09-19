@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * Add Space between Elements
+ */
 import { Box } from "@mui/material";
 
 type Direction = "row" | "column";

@@ -60,10 +60,11 @@ const ProjectFilesPage: NextPage<
     return convToTable(sfile);
   });
 
-  if (status === "unauthenticated") {
-    router.push({ pathname: "/api/auth/signin" });
-  }
-
+  /**
+   * Handle when uploading file
+   * @param e
+   * @returns
+   */
   function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     if (!e.target.files) {
@@ -124,6 +125,13 @@ const ProjectFilesPage: NextPage<
       </Button>
     );
   };
+
+  /**
+   * Authentication: Redirect if not authenicated
+   */
+  if (status === "unauthenticated") {
+    router.push({ pathname: "/api/auth/signin" });
+  }
 
   if (status === "authenticated") {
     return (
@@ -402,6 +410,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convToSerializable(data: fileMetadataInt) {
   const { _id, uploadDate, ...r } = data;
   return {
@@ -411,6 +424,11 @@ function convToSerializable(data: fileMetadataInt) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convToTable(
   data: ReturnType<typeof convToSerializable>
 ): fileMetadataInt {
@@ -422,6 +440,11 @@ function convToTable(
   };
 }
 
+/**
+ * Date display format
+ * @param uploadDate
+ * @returns
+ */
 function formatDate(uploadDate: Date) {
   return `${(uploadDate.getDate() + "").padStart(2, "0")}/${(
     uploadDate.getMonth() +

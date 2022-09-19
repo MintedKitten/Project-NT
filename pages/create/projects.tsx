@@ -304,6 +304,11 @@ const CreateProjectsPage = () => {
     );
   };
 
+  /**
+   * add new project details from CSV
+   * @param e
+   * @returns
+   */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
       return;
@@ -361,6 +366,9 @@ const CreateProjectsPage = () => {
     );
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }

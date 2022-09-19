@@ -98,6 +98,12 @@ const ProjectEquipmentsPage: NextPage<
   };
 
   const openConfirmDialog = useConfirmDialog();
+
+  /**
+   * Handle delete equipments group
+   * @param name
+   * @param eqgid
+   */
   const handleDelete = (name: string, eqgid: string) => {
     openConfirmDialog({
       title: "Are you sure you want to delete: " + name + " ?",
@@ -188,6 +194,9 @@ const ProjectEquipmentsPage: NextPage<
     );
   }
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -422,6 +431,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convToSerializable(data: equipmentsGroupInt) {
   const { _id, projId, ...r } = data;
   return {
@@ -431,6 +445,11 @@ function convToSerializable(data: equipmentsGroupInt) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convBack(
   data: ReturnType<typeof convToSerializable>
 ): equipmentsGroupInt {

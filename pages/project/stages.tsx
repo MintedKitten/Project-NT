@@ -70,6 +70,9 @@ import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
 import { log } from "../../src/logger";
 
+/**
+ * Custom Style
+ */
 const StageConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
     top: 10,
@@ -94,6 +97,9 @@ const StageConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+/**
+ * Custom Style
+ */
 const StageStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
   ({ theme, ownerState }) => ({
     "& .StageStepIconRoot-completedIcon": {
@@ -104,6 +110,9 @@ const StageStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
   })
 );
 
+/**
+ * Custom Icon
+ */
 function StageStepIcon(props: StepIconProps) {
   const { active, completed, className } = props;
 
@@ -150,10 +159,18 @@ const ProjectStagesPage: NextPage<
     }
   }, [step, stages]);
 
+  /**
+   * Handle when changing display step
+   * @param step
+   */
   const handleChangeActiveStep = (step: number) => {
     pagereload(step);
   };
 
+  /**
+   * Reload the page to display step
+   * @param step
+   */
   const pagereload = (step: number) => {
     router.push({
       pathname: "/project/stages",
@@ -162,6 +179,11 @@ const ProjectStagesPage: NextPage<
   };
 
   const openConfirmDialog = useConfirmDialog();
+  /**
+   * Handle when uploading file
+   * @param e
+   * @returns
+   */
   function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     if (!e.target.files) {
@@ -221,6 +243,11 @@ const ProjectStagesPage: NextPage<
     );
   };
 
+  /**
+   * Handle when changing stage status
+   * @param status
+   * @param date
+   */
   const changeStageStatus = async (status: StagesProgress, date: Date) => {
     const isUpdateSuccessful = await editStageStatus(
       stages[step]._id?.toHexString() + "",
@@ -236,6 +263,10 @@ const ProjectStagesPage: NextPage<
     }
   };
 
+  /**
+   * The date and status element
+   * @returns
+   */
   const StatusElement = () => {
     if (stages[step].status === StagesProgress.OnGoing) {
       return (
@@ -426,6 +457,9 @@ const ProjectStagesPage: NextPage<
     }
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -807,6 +841,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convtoSerializable(data: stagesInt) {
   const { _id, projId, completeDate, ...r } = data;
   return {
@@ -817,6 +856,11 @@ function convtoSerializable(data: stagesInt) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convBack(data: ReturnType<typeof convtoSerializable>): stagesInt {
   const {
     _id: s_id,

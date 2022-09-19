@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ * The container for the navigation bar
+ */
 import { AppBar, AppBarProps, Box, useScrollTrigger } from "@mui/material";
 import { cloneElement, ReactElement } from "react";
 

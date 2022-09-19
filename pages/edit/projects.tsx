@@ -301,6 +301,9 @@ const CreateProjectsPage: NextPage<
     );
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -455,6 +458,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convtoSerializable(data: projectsInt) {
   const {
     _id,
@@ -480,6 +488,11 @@ function convtoSerializable(data: projectsInt) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convtoTable(
   data: ReturnType<typeof convtoSerializable>
 ): projectsTableInt {

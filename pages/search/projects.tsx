@@ -73,6 +73,10 @@ const SearchProjectsPage: NextPage<
     parseInteger(router.query.type ? "" + router.query.type : "0")
   );
 
+  /**
+   * Handle searching
+   * @param event
+   */
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -91,6 +95,10 @@ const SearchProjectsPage: NextPage<
     });
   };
 
+  /**
+   * Handle when dropdown year is selected
+   * @param event
+   */
   const handleYearChange = (event: SelectChangeEvent) => {
     let selectYear = event.target.value;
     if (selectYear === "All") {
@@ -99,6 +107,10 @@ const SearchProjectsPage: NextPage<
     setFilteryear(parseInteger(selectYear));
   };
 
+  /**
+   * Handle when dropdown year is selected
+   * @param event
+   */
   const handleTypeChange = (event: SelectChangeEvent) => {
     let selectType = event.target.value;
     setFiltertype(parseInteger(selectType));
@@ -107,15 +119,27 @@ const SearchProjectsPage: NextPage<
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  /**
+   * Handle when page number is changed
+   * @param _event
+   * @param newPage
+   */
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  /**
+   * Handle when rows per page number is changed
+   * @param event
+   */
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -386,6 +410,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data and convert into table form
+ * @param data
+ * @returns
+ */
 function convtoTable(data: projectsInt) {
   return {
     id: (data._id as ObjectId).toHexString(),

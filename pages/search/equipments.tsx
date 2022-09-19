@@ -59,20 +59,37 @@ const SearchEquipmentsPage: NextPage<
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  /**
+   * Handle when page number is changed
+   * @param _event 
+   * @param newPage 
+   */
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
+  /**
+   * Handle when rows per page number is changed
+   * @param event 
+   */
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
 
   if (status === "authenticated") {
+
+    /**
+     * Handle searching
+     * @param event 
+     */
     const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
@@ -420,6 +437,11 @@ export const getServerSideProps: GetServerSideProps<{
   }
 };
 
+/**
+ * Serializing data
+ * @param data
+ * @returns
+ */
 function convToSerializable(data: Partial<equipmentsInt & projectsInt>) {
   const { _id, projId, ...r } = data;
   return {
@@ -434,6 +456,11 @@ function convToSerializable(data: Partial<equipmentsInt & projectsInt>) {
   };
 }
 
+/**
+ * Convert serialized data back to usable data
+ * @param data
+ * @returns
+ */
 function convBack(data: ReturnType<typeof convToSerializable>) {
   const { _id: s_id, projId: sprojId, ...r } = data;
   return { _id: new ObjectId(s_id), projId: new ObjectId(sprojId), ...r };

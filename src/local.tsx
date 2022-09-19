@@ -1,3 +1,6 @@
+/**
+ * @file Client Side File. Can only be imported and used both server and client sided.
+ */
 import {
   Search as SearchIcon,
   Add as AddIcon,
@@ -7,6 +10,18 @@ import dayjs from "dayjs";
 import { FunctionComponent } from "react";
 import "dayjs/locale/th";
 
+/**
+ * The enum type of the input for Project Details Input.
+ * There are 8 types.
+ * String: any text.
+ * Integer: only integer.
+ * Float: floating point numbers.
+ * Date: day month year.
+ * Year: year.
+ * Item: amount of item and unit of item.
+ * TypeList: dropdown selection.
+ * Calculated: not used for inputing data, but for displaying data.
+ */
 export enum InputEn {
   String,
   Integer,
@@ -18,10 +33,26 @@ export enum InputEn {
   Calculated,
 }
 
+/**
+ * The enum type of the status of the stages
+ * There are 2 types.
+ * OnGoing: in-progress stages.
+ * Complete: done stages.
+ */
 export enum StagesProgress {
   OnGoing,
   Complete,
 }
+
+/**
+ * The enum type of the status of the Deadline
+ * There are 5 types.
+ * Normal: not done and not within 3 months.
+ * Complete: done and not passed deadline.
+ * Alert: not done and within 3 months.
+ * Passed: done and passed.
+ * PastDue: not done and passed.
+ */
 export enum DateDeadlineStatus {
   Normal,
   Complete,
@@ -30,6 +61,9 @@ export enum DateDeadlineStatus {
   PastDue,
 }
 
+/**
+ * The display name for the @enum {DateDeadlineStatus}
+ */
 export const DeadlineName = [
   "In Progress",
   "Done",
@@ -38,6 +72,7 @@ export const DeadlineName = [
   "Late",
 ];
 
+// The threshold for selecting between stages1 or stages2
 export const budgetThreshold = 100000000;
 
 const stageType1 = [
@@ -78,8 +113,16 @@ const stageType2 = [
   "คืนหลักประกันค้ำสัญญา",
 ];
 
+/**
+ * The stagwes Name for both types
+ */
 export const stageNames = [stageType1, stageType2];
 
+/**
+ * Turn the data string into Date Object
+ * @param date The data
+ * @returns The Date
+ */
 export function thDate(date: string | Date | number) {
   if (typeof date === "number") {
     return new Date(date, 0, 1);
@@ -97,17 +140,26 @@ export function thDate(date: string | Date | number) {
   return thdate;
 }
 
+/**
+ * Interface for Item of Page Navigation
+ */
 export interface NavbarNavlink {
   Header: string;
   Link: string;
   Icon: FunctionComponent;
 }
 
+/**
+ * Interface for Item of Project Navigation
+ */
 export interface NavbarProjNavlink {
   Header: string;
   Link: string;
 }
 
+/**
+ * The Page Navbar Item
+ */
 export const navInfo: NavbarNavlink[] = [
   {
     Header: "Home",
@@ -131,6 +183,9 @@ export const navInfo: NavbarNavlink[] = [
   },
 ];
 
+/**
+ * The Project Navbar Item
+ */
 export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Details", Link: "/project/projects" },
   { Header: "Files", Link: "/project/files" },
@@ -138,6 +193,12 @@ export const projectNavInfo: NavbarProjNavlink[] = [
   { Header: "Stages", Link: "/project/stages" },
 ];
 
+/**
+ * For calculating difference between 2 datetimes
+ * @param before the date that is supposed to come before
+ * @param after the date that is supposed to come after
+ * @returns the formatted result
+ */
 export function calculateDiffTime(before: Date, after: Date) {
   const _days = -dayjs(before).diff(dayjs(after), "days") + 1;
   let diffyear = after.getFullYear() - before.getFullYear();
@@ -161,6 +222,13 @@ export function calculateDiffTime(before: Date, after: Date) {
   } วัน (ประมาณ ${diffyear} ปี ${diffmth} เดือน ${diffdt} วัน) (รวมวันเริ่ม MA)`;
 }
 
+/**
+ * Parse the string as a whole into an Integer.
+ * @throws Input is not an Integer
+ * @throws Input is more than MAX_SAFE_INTEGER
+ * @param s the strnig to be parsed
+ * @returns the integer if parsed successfully
+ */
 export function parseInteger(s: string) {
   const nm = Number(s);
   const nm2 = parseInt(s);
@@ -173,12 +241,15 @@ export function parseInteger(s: string) {
   if (isNaN(nm)) {
     throw new Error("Input is not an Integer");
   }
-  if (!Number.isInteger(nm)) {
-    throw new Error("Input is not an Integer");
-  }
   return nm;
 }
 
+/**
+ * Format date to HH-MM-SS-mmmm. The divider can be changed.
+ * @param date The date Object
+ * @param divider The thing that gets put between other thing
+ * @returns The formatted string
+ */
 export function formatDateDDMMYY(date: Date, divider: string = "/") {
   return `${(date.getDate() + "").padStart(2, "0")}${divider}${(
     date.getMonth() +

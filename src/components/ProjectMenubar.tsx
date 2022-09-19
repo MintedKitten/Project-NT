@@ -1,3 +1,7 @@
+/**
+ * @file Frontend Component
+ *Project navigation bar, only visible when in project and in mobile size
+ */
 import {
   Toolbar,
   Typography,

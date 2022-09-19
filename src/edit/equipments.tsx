@@ -1,9 +1,22 @@
-import { retEditequipments } from "../../pages/api/edit/equipments";
+/**
+ * @file Frontend to Backend, Project Equipments Edit functions
+ */
+ import { retEditequipments } from "../../pages/api/edit/equipments";
 import { retEditequipmentsgroup } from "../../pages/api/edit/equipmentsgroup";
 import { retDeleteequipmentsgroup } from "../../pages/api/edit/equipmentsgroupdelete";
 import { rowCSVInt, rowInt } from "../create/equipments";
 import { fetcher } from "../frontend";
 
+/**
+ * Update Equipments Groups and Equipments
+ * @param pid The project id
+ * @param eqgid The equipments group id
+ * @param eqgName The equipments group name
+ * @param eqgDesc The equipments group desc
+ * @param eqgQty The equipments group qty
+ * @param rows The equipments array
+ * @returns true if both update are successful, otherwise false
+ */
 export async function editEquipmentGroupAndEquipments(
   pid: string,
   eqgid: string,
@@ -41,6 +54,11 @@ function rowToqrow(row: rowInt) {
   return ret;
 }
 
+/**
+ * Remove an equipments group from project
+ * @param eqgId The equipments group id
+ * @returns true if removal is successful, otherwise false
+ */
 export async function equipmentsGroupDelete(eqgId: string) {
   const data = (await fetcher("/api/edit/equipmentsgroupdelete", {
     eqgId: eqgId,

@@ -23,6 +23,11 @@ const LoginPage: NextPage<
 
 export default LoginPage;
 
+/**
+ * Just for logging. No actual function
+ * @param context 
+ * @returns 
+ */
 export const getServerSideProps: GetServerSideProps<{
   csrfToken: string;
 }> = async (context) => {
