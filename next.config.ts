@@ -1,3 +1,7 @@
+/**
+ * @file Start file of nextjs.
+ * Initializing environment.
+ */
 import {
   PHASE_PRODUCTION_SERVER,
   PHASE_PRODUCTION_BUILD,

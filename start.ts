@@ -1,3 +1,9 @@
+/**
+ * @file Start file of the server.
+ * Initiating 2 servers: expressjs as fileserver, and nextjs as webserver.
+ * Expressjs config also in this file, and uploading and downloading function.
+ * Nextjs config in seperate file.
+ */
 import next from "next";
 import express from "express";
 
@@ -94,7 +100,8 @@ async function insoDir2FileMetadata(
   return id;
 }
 
-//cookieformat as key1=value1; key2=value2; key3=value3
+// Parse authentication cookie
+// cookieformat as key1=value1; key2=value2; key3=value3
 function getCookies(cookies: string = ""): { [key: string]: string } {
   const keyvaluepair = cookies.split("; ");
   const cookiesOb: { [key: string]: string } = {};
@@ -122,7 +129,7 @@ app
     const fileserver = express();
 
     fileserver
-      // Download a file
+      // Client Download a file
       .get("/files/:fmid", async (req, res, next) => {
         req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
@@ -158,6 +165,7 @@ app
           return res.status(500).end("Something went wrong.");
         }
       })
+      // Client Upload a file
       .post("/files/", async (req, res) => {
         req.cookies = getCookies(req.headers.cookie);
         const token = await getToken({
