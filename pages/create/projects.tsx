@@ -462,6 +462,11 @@ const CreateProjectsPage = () => {
 
 export default CreateProjectsPage;
 
+/**
+ * Just for logging. No actual function
+ * @param context
+ * @returns
+ */
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = await getToken({
     req: context.req,

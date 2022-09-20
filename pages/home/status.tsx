@@ -1,7 +1,7 @@
 import type {
-  GetStaticProps,
-  GetStaticPropsResult,
-  InferGetStaticPropsType,
+  GetServerSideProps,
+  GetServerSidePropsResult,
+  InferGetServerSidePropsType,
   NextPage,
 } from "next";
 import {
@@ -51,6 +51,7 @@ import {
 } from "@mui/x-data-grid";
 import Big from "big.js";
 import { log } from "../../src/logger";
+import { getToken } from "next-auth/jwt";
 
 type rowsType = {
   id: string;
@@ -130,9 +131,9 @@ function getAlertElement(status: DateDeadlineStatus) {
   );
 }
 
-const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
-  presult,
-}) => {
+const AlertPage: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ presult }) => {
   const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
   const router = useRouter();
@@ -147,11 +148,9 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     return compileBackStatus(res);
   });
 
-  const [rows, setRows] = useState<GridRowsProp<rowsType>>(
-    results.map((res) => {
-      return resultToRow(res);
-    })
-  );
+  const rows: GridRowsProp<rowsType> = results.map((res) => {
+    return resultToRow(res);
+  });
 
   const columnDef: GridColumns = [
     {
@@ -298,6 +297,9 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     );
   }
 
+  /**
+   * Authentication: Redirect if not authenicated
+   */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
   }
@@ -365,16 +367,29 @@ const AlertPage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
 export default AlertPage;
 
 let _today = dayjs(new Date());
-export const getStaticProps: GetStaticProps<{
+export const getServerSideProps: GetServerSideProps<{
   presult: ReturnType<typeof compileStatus>[];
 }> = async (context) => {
+  const token = await getToken({
+    req: context.req,
+    secret: `${process.env.JWT_SECRET}`,
+  });
+  if (!token) {
+    return {
+      redirect: {
+        destination: "/api/auth/signin",
+        permanent: false,
+      },
+    };
+  }
   const toLog = {
     msg: "Status page was queried",
     url: "home/status",
-    context: context,
+    token: token,
+    query: context.query,
   };
   log(JSON.stringify(toLog));
-  let retOb: GetStaticPropsResult<{
+  let retOb: GetServerSidePropsResult<{
     presult: ReturnType<typeof compileStatus>[];
   }> = {
     props: { presult: [] },
@@ -388,7 +403,7 @@ export const getStaticProps: GetStaticProps<{
       const result = arresult.map((result) => {
         return compileStatus(result);
       });
-      retOb = { props: { presult: result }, revalidate: 1 };
+      retOb = { props: { presult: result } };
     }
   } catch (err) {
     alert(err);
