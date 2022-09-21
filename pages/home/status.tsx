@@ -439,9 +439,12 @@ function calContractAlertLevel(
  * @returns
  */
 function calMAAlertLevel(date: Date): DateDeadlineStatus {
+  const mths = -_today.diff(dayjs(date), "months");
   const days = -_today.diff(dayjs(date), "days");
-  if (days > 0) {
+  if (mths > 3) {
     return DateDeadlineStatus.Normal;
+  } else if (mths >= 0 && days > 0) {
+    return DateDeadlineStatus.Alert;
   } else {
     return DateDeadlineStatus.Passed;
   }
