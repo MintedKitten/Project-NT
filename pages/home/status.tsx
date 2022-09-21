@@ -12,7 +12,7 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import { orange, red } from "@mui/material/colors";
+import { green, orange, red } from "@mui/material/colors";
 import {
   Pending as PendingIcon,
   CheckCircle as CheckCircleIcon,
@@ -323,10 +323,10 @@ const AlertPage: NextPage<
             sx={{
               height: "89.5vh",
               mt: 1,
-              "& .conalert-theme--Late": { bgcolor: red[50] },
-              "& .conalert-theme--HighPriority": {
+              "& .conalert-theme--HighPriority,.maalert-theme--HighPriority": {
                 bgcolor: orange[50],
               },
+              "& .conalert-theme--Late": { bgcolor: red[50] },
             }}
           >
             <DataGrid
@@ -426,7 +426,7 @@ function calContractAlertLevel(
   const days = -_today.diff(dayjs(date), "days");
   if (mths > 3) {
     return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Normal;
-  } else if (mths >= 0 && days > 0) {
+  } else if (mths >= 0 && days >= 0) {
     return isComplete ? DateDeadlineStatus.Complete : DateDeadlineStatus.Alert;
   } else {
     return isComplete ? DateDeadlineStatus.Passed : DateDeadlineStatus.PastDue;
@@ -443,7 +443,7 @@ function calMAAlertLevel(date: Date): DateDeadlineStatus {
   const days = -_today.diff(dayjs(date), "days");
   if (mths > 3) {
     return DateDeadlineStatus.Normal;
-  } else if (mths >= 0 && days > 0) {
+  } else if (mths >= 0 && days >= 0) {
     return DateDeadlineStatus.Alert;
   } else {
     return DateDeadlineStatus.Passed;
