@@ -1,0 +1,8 @@
+﻿partNumber,desc,qty,unit,uPrice
+FG-300E,"FortiGate 300,E 18x GE RJ45 ports (including 1x MGMT port, 1x HA port, 16x switch ports), 16x GE SFP slots, SPU NP6 and CP9 hardware accelerated.",2,Firewall,"250,000"
+SF550X-48MP-K9-xx,"SF550X-48MP, 48 x 10/100 PoE+ ports with 740W power budget, 4 x 10 Gigabit Ethernet (2 x 10GBase-T/SFP+ combo + 2 x SFP+) ",4,Switch,"65,000"
+JW687A,Aruba 7030 (US) 8p Dual Pers 10/100/1000BASE-T/1GBASE-X SFP 64 AP and 4K Clients Controller,2,AP Controller,"150,000"
+R2X05A,Aruba Instant On AP15 (US) 4X4 11ac Wave2 Indoor Access Point ,85,AP,"6,500"
+R2X10A,Aruba Instant On AP17 (US) 2x2 11ac Wave2 Outdoor Access Point,30,AP,"8,000"
+APIC-CLUSTER-L3,"Cluster of 3 APIC-SERVER-L3 with large CPU, hard drive, and memory configurations (more than 1200 edge ports)",1,Cluster,"2,000,000"
+N9K-C93108TC-EX,Nexus 9K Fixed with 48p 10G BASE-T and 6p 40G/100G QSFP28,5,Switch,"550,000"
