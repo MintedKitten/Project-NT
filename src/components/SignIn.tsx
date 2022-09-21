@@ -20,8 +20,15 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Alert } from "@mui/material";
 import { FormEvent, useState } from "react";
+import { decode, sign } from "jsonwebtoken";
 
-export default function SignIn({ csrfToken }: { csrfToken: string }) {
+export default function SignIn({
+  csrfToken,
+  encToken,
+}: {
+  csrfToken: string;
+  encToken: string;
+}) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [signin, setSignin] = useState(false);
@@ -51,12 +58,25 @@ export default function SignIn({ csrfToken }: { csrfToken: string }) {
     setPasswordError(passworder);
     const isValid = usernameer === "" && passworder === "";
     if (isValid) {
+      function decToken(): {
+        enc: string;
+        date: string;
+      } {
+        return decode(encToken) as { enc: string; date: string };
+      }
+      const encpassword = sign(
+        {
+          password: user.password,
+          sub: Math.random(),
+          date: decToken().date,
+        },
+        decToken().enc
+      );
       const result = await signIn("credentials", {
         username: user.username,
-        password: user.password,
+        password: encpassword,
         redirect: false,
       });
-
       if (result) {
         if (!result.ok) {
           setError("Username or password is incorrect.\nPlease, try again.");

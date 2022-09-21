@@ -1,3 +1,4 @@
+import { decode } from "jsonwebtoken";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createNewUser, hashPassword } from "../../../src/auth";
 import { log } from "../../../src/logger";
@@ -21,17 +22,26 @@ async function handler(
 ) {
   try {
     const body = JSON.parse(req.body);
+    const username = body.username;
+    const passwordToken = decode(body.password) as {
+      password: string;
+      sub: string;
+      date: string;
+    };
+    const password = passwordToken.password;
+    const name = body.name;
     const isComplete = await createNewUser(
-      body.username,
-      hashPassword(body.username, body.password),
-      body.name
+      username,
+      hashPassword(username, password),
+      name
     );
     log(
       JSON.stringify({
         msg: "Attempt new sign up",
-        user: body.name,
+        user: name,
         rawheader: req.rawHeaders,
         isComplete: isComplete,
+        pwdToken: { sub: passwordToken.sub, date: passwordToken.date },
       })
     );
     return res.status(200).json({

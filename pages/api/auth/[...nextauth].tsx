@@ -1,3 +1,4 @@
+import { decode } from "jsonwebtoken";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser, hashPassword } from "../../../src/auth";
@@ -18,10 +19,14 @@ export const authOptions: NextAuthOptions = {
       authorize: async (credentials, req) => {
         if (credentials) {
           const username = credentials.username;
-          const password = credentials.password;
+          const passwordToken = decode(credentials.password) as {
+            password: string;
+            sub: string;
+            date: string;
+          };
           const user = await getUser(
             username,
-            hashPassword(username, password)
+            hashPassword(username, passwordToken.password)
           );
           if (user) {
             const toLog = {
@@ -29,6 +34,7 @@ export const authOptions: NextAuthOptions = {
               uid: user._id,
               user: user.name,
               rawheader: req.headers,
+              pwdToken: { sub: passwordToken.sub, date: passwordToken.date },
             };
             log(JSON.stringify(toLog));
             return { id: user._id, name: user.name, admin: user.admin };

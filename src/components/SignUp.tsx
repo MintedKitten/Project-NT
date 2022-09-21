@@ -21,8 +21,9 @@ import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
 } from "@mui/icons-material";
+import { decode, sign } from "jsonwebtoken";
 
-export default function SignUp() {
+export default function SignUp({ encToken }: { encToken: string }) {
   const router = useRouter();
   const [error, setError] = useState("");
   const [nameError, setNameError] = useState("");
@@ -82,7 +83,6 @@ export default function SignUp() {
         "Password can only consists of alphabet, number, and special characters . _ # @ / ? ! -.",
       ].join("\n");
     }
-
     setNameError(nameer);
     setUsernameError(usernameer);
     setPasswordError(passworder);
@@ -92,10 +92,24 @@ export default function SignUp() {
       if (usercheck) {
         setError("This username has already been taken!");
       } else {
+        function decToken(): {
+          enc: string;
+          date: string;
+        } {
+          return decode(encToken) as { enc: string; date: string };
+        }
+        const encpassword = sign(
+          {
+            password: user.password,
+            sub: Math.random(),
+            date: decToken().date,
+          },
+          decToken().enc
+        );
         const signupComplete = await callAuthSignup(
-          "" + user.username,
-          "" + user.password,
-          "" + user.name
+          user.username,
+          encpassword,
+          user.name
         );
         if (signupComplete) {
           setError("");
