@@ -223,10 +223,11 @@ const AlertPage: NextPage<
     },
     {
       field: "maAlert",
-      type: "string",
+      type: "singleSelect",
       headerName: "Alert MA",
       hideable: false,
       width: 125,
+      valueOptions: [DeadlineName[0], DeadlineName[2], DeadlineName[3]],
       renderCell: (params) => {
         const { value } = params;
         return getAlertElement(value);
