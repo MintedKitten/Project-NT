@@ -51,6 +51,7 @@ import { parseInteger } from "../../src/local";
 import { getToken } from "next-auth/jwt";
 import PageMenubar from "../../src/components/PageMenubar";
 import { log } from "../../src/logger";
+import { checkSession } from "../../src/server";
 
 const SearchProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -344,11 +345,8 @@ export const getServerSideProps: GetServerSideProps<{
   result: ReturnType<typeof convtoTable>[];
   filterSelectionYear: number[];
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -359,7 +357,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Project search page was queried",
     url: "search/projects",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

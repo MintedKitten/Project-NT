@@ -48,6 +48,7 @@ import { updateProject } from "../../src/edit/projects";
 import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
+import { checkSession } from "../../src/server";
 
 const CreateProjectsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -392,11 +393,8 @@ export const getServerSideProps: GetServerSideProps<{
   pid: string;
   preresult: ReturnType<typeof convtoSerializable>;
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -407,7 +405,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Edit project details page was queried",
     url: "edit/projects",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

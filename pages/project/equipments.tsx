@@ -52,6 +52,7 @@ import { equipmentsGroupDelete } from "../../src/edit/equipments";
 import { useConfirmDialog } from "react-mui-confirm";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { log } from "../../src/logger";
+import { checkSession } from "../../src/server";
 
 const ProjectEquipmentsPage: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
@@ -345,11 +346,8 @@ export const getServerSideProps: GetServerSideProps<{
     _id: string;
   })[][];
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -360,7 +358,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Project equipments page was queried",
     url: "project/equipments",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

@@ -32,7 +32,7 @@ import {
   formatDateDDMMYY,
 } from "../../src/local";
 import { getMongoClient, projectsInt, stagesInt } from "../../src/db";
-import { ProjectWithInProgressStage } from "../../src/server";
+import { checkSession, ProjectWithInProgressStage } from "../../src/server";
 import { ObjectId } from "bson";
 import PageMenubar from "../../src/components/PageMenubar";
 import dayjs from "dayjs";
@@ -371,11 +371,8 @@ let _today = dayjs(new Date());
 export const getServerSideProps: GetServerSideProps<{
   presult: ReturnType<typeof compileStatus>[];
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -386,7 +383,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Status page was queried",
     url: "home/status",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

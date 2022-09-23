@@ -69,6 +69,7 @@ import {
 import { ThaiAdapterDayjs } from "../../src/models/classDateAdapter";
 import { isMobile } from "react-device-detect";
 import { log } from "../../src/logger";
+import { checkSession } from "../../src/server";
 
 /**
  * Custom Style
@@ -739,11 +740,8 @@ export const getServerSideProps: GetServerSideProps<{
   step: number;
   srfiles: ReturnType<typeof convFileToSerializable>[];
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -754,7 +752,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Project stages page was queried",
     url: "project/stages",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

@@ -45,6 +45,7 @@ import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { GetServerSideProps } from "next/types";
 import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
+import { checkSession } from "../../src/server";
 
 interface EditToolbarProps {
   setRows: (
@@ -659,11 +660,8 @@ export default CreateEquipmentsGroup;
  * @returns 
  */
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -674,8 +672,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const toLog = {
     msg: "Create project equipments page was queried",
     url: "create/equipments",
-    token: token,
-    query: context.query,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
   };
   log(JSON.stringify(toLog));
   return { props: {} };

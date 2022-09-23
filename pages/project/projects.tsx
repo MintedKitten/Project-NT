@@ -33,7 +33,7 @@ import {
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
 import { getToken } from "next-auth/jwt";
-import { ProjectWithInProgressStage } from "../../src/server";
+import { checkSession, ProjectWithInProgressStage } from "../../src/server";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { log } from "../../src/logger";
 
@@ -223,11 +223,8 @@ export const getServerSideProps: GetServerSideProps<{
   preresult: ReturnType<typeof convtoSerializable>;
   isComplete: boolean;
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -238,7 +235,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Project details page was queried",
     url: "project/projects",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

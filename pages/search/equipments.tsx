@@ -39,7 +39,7 @@ import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";
 import { ChangeEvent, FormEvent, useState } from "react";
 import Link from "next/link";
-import { EquipmentWithProjectName } from "../../src/server";
+import { checkSession, EquipmentWithProjectName } from "../../src/server";
 import PageMenubar from "../../src/components/PageMenubar";
 import { parseInteger } from "../../src/local";
 import { log } from "../../src/logger";
@@ -61,8 +61,8 @@ const SearchEquipmentsPage: NextPage<
 
   /**
    * Handle when page number is changed
-   * @param _event 
-   * @param newPage 
+   * @param _event
+   * @param newPage
    */
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -70,7 +70,7 @@ const SearchEquipmentsPage: NextPage<
 
   /**
    * Handle when rows per page number is changed
-   * @param event 
+   * @param event
    */
   const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
@@ -85,10 +85,9 @@ const SearchEquipmentsPage: NextPage<
   }
 
   if (status === "authenticated") {
-
     /**
      * Handle searching
-     * @param event 
+     * @param event
      */
     const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -344,11 +343,8 @@ export default SearchEquipmentsPage;
 export const getServerSideProps: GetServerSideProps<{
   presult: ReturnType<typeof convToSerializable>[];
 }> = async (context) => {
-  const token = await getToken({
-    req: context.req,
-    secret: `${process.env.JWT_SECRET}`,
-  });
-  if (!token) {
+  const session = await checkSession(context);
+  if (!session) {
     return {
       redirect: {
         destination: "/api/auth/signin",
@@ -359,7 +355,9 @@ export const getServerSideProps: GetServerSideProps<{
   const toLog = {
     msg: "Equipments search page was queried",
     url: "search/equipments",
-    token: token,
+    uid: session.id,
+    user: session.user?.name,
+    rawHeaders: context.req.rawHeaders,
     query: context.query,
   };
   log(JSON.stringify(toLog));

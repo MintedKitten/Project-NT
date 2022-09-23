@@ -2,6 +2,9 @@
  * @file Server Side File. Can only be imported and used server-sided.
  */
 import { AggregationCursor, Filter, MongoClient } from "mongodb";
+import { GetServerSidePropsContext } from "next";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 import {
   eqJoinProj,
   equipmentsInt,
@@ -71,4 +74,18 @@ export async function ProjectWithInProgressStage(
   });
   ret = result;
   return ret;
+}
+
+/**
+ * Check the session when the age is queried
+ * @param context the next page server side context
+ * @returns the session; if exists
+ */
+export async function checkSession(context: GetServerSidePropsContext) {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+  return session;
 }
