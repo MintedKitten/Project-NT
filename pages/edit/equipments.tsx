@@ -18,18 +18,28 @@ import {
   GridEventListener,
   GridRowId,
   GridRowModel,
+  GridRenderEditCellParams,
+  useGridApiContext,
 } from "@mui/x-data-grid";
 import {
   Alert,
   Backdrop,
   CircularProgress,
+  InputBase,
+  InputBaseProps,
   TextField,
   Tooltip,
   useMediaQuery,
 } from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
-import { ChangeEvent, FormEvent, SyntheticEvent, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  SyntheticEvent,
+  useCallback,
+  useState,
+} from "react";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -56,7 +66,6 @@ import {
   equipmentsInt,
   getMongoClient,
 } from "../../src/db";
-import { getToken } from "next-auth/jwt";
 import { editEquipmentGroupAndEquipments } from "../../src/edit/equipments";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { log } from "../../src/logger";
@@ -227,6 +236,37 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
+const EditTextarea = (props: GridRenderEditCellParams<string>) => {
+  const { id, field, value, colDef } = props;
+  const [valueState, setValueState] = useState(value);
+  const apiRef = useGridApiContext();
+
+  const handleChange = useCallback<NonNullable<InputBaseProps["onChange"]>>(
+    (event) => {
+      const newValue = event.target.value;
+      setValueState(newValue);
+      apiRef.current.setEditCellValue(
+        { id, field, value: newValue, debounceMs: 200 },
+        event
+      );
+    },
+    [apiRef, field, id]
+  );
+
+  return (
+    <InputBase
+      multiline
+      value={valueState}
+      sx={{
+        textarea: { resize: "vertical" },
+        width: colDef.computedWidth,
+        height: "fit-content !important",
+      }}
+      onChange={handleChange}
+    />
+  );
+};
+
 const EditEquipmentsGroup: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ pid, peqGroup, pequipments }) => {
@@ -350,6 +390,9 @@ const EditEquipmentsGroup: NextPage<
       headerName: "Part Number",
       width: 150,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "desc",
@@ -357,6 +400,9 @@ const EditEquipmentsGroup: NextPage<
       flex: 1,
       minWidth: 300,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "qty",
@@ -374,6 +420,9 @@ const EditEquipmentsGroup: NextPage<
       headerName: "Unit",
       width: 100,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "uPrice",

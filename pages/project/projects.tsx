@@ -32,7 +32,6 @@ import {
   thDate,
 } from "../../src/local";
 import { ProjectDetails } from "../../src/models/ProjectDetails";
-import { getToken } from "next-auth/jwt";
 import { checkSession, ProjectWithInProgressStage } from "../../src/server";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { log } from "../../src/logger";

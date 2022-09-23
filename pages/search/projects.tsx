@@ -48,7 +48,6 @@ import {
 } from "../../src/db";
 import { ObjectId } from "bson";
 import { parseInteger } from "../../src/local";
-import { getToken } from "next-auth/jwt";
 import PageMenubar from "../../src/components/PageMenubar";
 import { log } from "../../src/logger";
 import { checkSession } from "../../src/server";

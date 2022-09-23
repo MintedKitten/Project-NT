@@ -45,7 +45,6 @@ import {
 import Big from "big.js";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
 import { updateProject } from "../../src/edit/projects";
-import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { checkSession } from "../../src/server";

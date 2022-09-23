@@ -42,7 +42,6 @@ import {
 import { ObjectId } from "bson";
 import { navInfo, projectNavInfo } from "../../src/local";
 import { fileicon } from "../../src/fileicon";
-import { getToken } from "next-auth/jwt";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { log } from "../../src/logger";
 import { checkSession } from "../../src/server";

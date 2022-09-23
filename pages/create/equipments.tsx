@@ -18,11 +18,28 @@ import {
   GridEventListener,
   GridRowId,
   GridRowModel,
+  GridEditSingleSelectCellProps,
+  useGridApiContext,
+  GridRenderEditCellParams,
 } from "@mui/x-data-grid";
-import { Alert, TextField, Tooltip, useMediaQuery } from "@mui/material";
+import {
+  Alert,
+  InputBase,
+  InputBaseProps,
+  Paper,
+  TextField,
+  Tooltip,
+  useMediaQuery,
+} from "@mui/material";
 import { valFloat, valInteger } from "../../src/create/projects";
 import { ObjectId } from "bson";
-import { ChangeEvent, FormEvent, SyntheticEvent, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  SyntheticEvent,
+  useCallback,
+  useState,
+} from "react";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -43,7 +60,6 @@ import Big from "big.js";
 import { parseInteger } from "../../src/local";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import { GetServerSideProps } from "next/types";
-import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
 import { checkSession } from "../../src/server";
 
@@ -212,6 +228,37 @@ function EditToolbar(props: EditToolbarProps) {
   );
 }
 
+const EditTextarea = (props: GridRenderEditCellParams<string>) => {
+  const { id, field, value, colDef } = props;
+  const [valueState, setValueState] = useState(value);
+  const apiRef = useGridApiContext();
+
+  const handleChange = useCallback<NonNullable<InputBaseProps["onChange"]>>(
+    (event) => {
+      const newValue = event.target.value;
+      setValueState(newValue);
+      apiRef.current.setEditCellValue(
+        { id, field, value: newValue, debounceMs: 200 },
+        event
+      );
+    },
+    [apiRef, field, id]
+  );
+
+  return (
+    <InputBase
+      multiline
+      value={valueState}
+      sx={{
+        textarea: { resize: "vertical" },
+        width: colDef.computedWidth,
+        height: "fit-content !important",
+      }}
+      onChange={handleChange}
+    />
+  );
+};
+
 const CreateEquipmentsGroup = () => {
   const isNavbar = useMediaQuery("(min-width:900px)");
   const session = useSession();
@@ -322,6 +369,9 @@ const CreateEquipmentsGroup = () => {
       headerName: "Part Number",
       width: 150,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "desc",
@@ -329,6 +379,9 @@ const CreateEquipmentsGroup = () => {
       flex: 1,
       minWidth: 300,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "qty",
@@ -346,6 +399,9 @@ const CreateEquipmentsGroup = () => {
       headerName: "Unit",
       width: 100,
       editable: true,
+      renderEditCell: (params) => {
+        return <EditTextarea {...params} />;
+      },
     },
     {
       field: "uPrice",
@@ -656,8 +712,8 @@ export default CreateEquipmentsGroup;
 
 /**
  * Just for logging. No actual function
- * @param context 
- * @returns 
+ * @param context
+ * @returns
  */
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await checkSession(context);

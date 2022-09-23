@@ -33,7 +33,6 @@ import {
   InferGetServerSidePropsType,
   NextPage,
 } from "next";
-import { getToken } from "next-auth/jwt";
 import { equipmentsInt, getMongoClient, projectsInt } from "../../src/db";
 import { Condition, Filter } from "mongodb";
 import { ObjectId } from "bson";

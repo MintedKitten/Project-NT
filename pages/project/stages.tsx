@@ -59,7 +59,6 @@ import { uploadToServer } from "../../src/create/files";
 import { useConfirmDialog } from "react-mui-confirm";
 import { addFMidsToStage } from "../../src/create/stages";
 import { deleteStageFile, editStageStatus } from "../../src/edit/stages";
-import { getToken } from "next-auth/jwt";
 import ProjectMenubar from "../../src/components/ProjectMenubar";
 import {
   LocalizationProvider,

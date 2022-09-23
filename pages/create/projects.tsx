@@ -42,7 +42,6 @@ import Space from "../../src/components/Space";
 import Big from "big.js";
 import PageMenubar from "../../src/components/PageMenubar";
 import { GetServerSideProps } from "next/types";
-import { getToken } from "next-auth/jwt";
 import { log } from "../../src/logger";
 import { checkSession } from "../../src/server";
 

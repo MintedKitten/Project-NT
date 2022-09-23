@@ -51,7 +51,6 @@ import {
 } from "@mui/x-data-grid";
 import Big from "big.js";
 import { log } from "../../src/logger";
-import { getToken } from "next-auth/jwt";
 
 type rowsType = {
   id: string;

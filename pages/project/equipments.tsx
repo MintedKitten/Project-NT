@@ -34,7 +34,6 @@ import PageAppbar from "../../src/components/PageAppbar";
 import PageContainer from "../../src/components/PageContainer";
 import PageNavbar from "../../src/components/PageNavbar";
 import ProjectNavbar from "../../src/components/ProjectNavbar";
-import { getToken } from "next-auth/jwt";
 import Link from "next/link";
 import { ObjectId } from "bson";
 import Big from "big.js";

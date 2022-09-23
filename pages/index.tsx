@@ -3,7 +3,6 @@ import { Backdrop, CircularProgress } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { log } from "../src/logger";
-import { getToken } from "next-auth/jwt";
 import { checkSession } from "../src/server";
 
 const HomePage: NextPage = () => {
