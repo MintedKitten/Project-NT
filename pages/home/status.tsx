@@ -401,7 +401,7 @@ export const getServerSideProps: GetServerSideProps<{
       const arresult = await cres.toArray();
       const result = arresult.map((result) => {
         return compileStatus(result);
-      });
+      }).reverse();
       retOb = { props: { presult: result } };
     }
   } catch (err) {
