@@ -227,9 +227,13 @@ const AlertPage: NextPage<
       hideable: false,
       width: 125,
       valueOptions: [DeadlineName[0], DeadlineName[2], DeadlineName[3]],
+      valueGetter: (params) => {
+        const { value } = params;
+        return DeadlineName[value];
+      },
       renderCell: (params) => {
         const { value } = params;
-        return getAlertElement(value);
+        return getAlertElement(DeadlineName.indexOf(value));
       },
     },
     {
@@ -399,9 +403,11 @@ export const getServerSideProps: GetServerSideProps<{
     const cres = await ProjectWithInProgressStage(conn, {});
     if (cres) {
       const arresult = await cres.toArray();
-      const result = arresult.map((result) => {
-        return compileStatus(result);
-      }).reverse();
+      const result = arresult
+        .map((result) => {
+          return compileStatus(result);
+        })
+        .reverse();
       retOb = { props: { presult: result } };
     }
   } catch (err) {
