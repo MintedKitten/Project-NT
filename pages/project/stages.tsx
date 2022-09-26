@@ -437,7 +437,8 @@ const ProjectStagesPage: NextPage<
       );
     } else {
       return (
-        <>
+        <Box sx={{ display: "flex" }}>
+          <Box sx={{ flexGrow: 1 }} />
           <Typography sx={{ mr: 1 }}>Stage status:</Typography>
           <Typography sx={{ color: "Green", mr: 1 }}>
             Complete {formatDateDDMMYY(stages[step].completeDate)}
@@ -452,7 +453,7 @@ const ProjectStagesPage: NextPage<
           >
             Mark as In Progress
           </Button>
-        </>
+        </Box>
       );
     }
   };
