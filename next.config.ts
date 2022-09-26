@@ -17,7 +17,6 @@ const start: (
     dbName:
       process.env.NODE_ENV !== "production" ? "devProcurement" : "Procurement",
     projectsColl: "Projects",
-    extraColl: "Extra",
     projFilesColl: "ProjFiles",
     equipmentsGroupColl: "EquipmentsGroup",
     equipmentsColl: "Equipments",
