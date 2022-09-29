@@ -8,6 +8,8 @@ Tested on Ubuntu 20.04 and Windows Server 2019
 
 Software is AS-IS
 
+Software Installation not provided
+
 ## How to use
 
 Download or clone this project.
@@ -33,6 +35,6 @@ FILES_DIR
 LOG_DIR
 
 
-For development: run script dev
+For development: run script dev (npm run dev)
 
-For production: run script prod
+For production: run script prod (npm run prod)
