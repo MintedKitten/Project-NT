@@ -267,9 +267,9 @@ const ProjectStagesPage: NextPage<
    * The date and status element
    * @returns
    */
-  const StatusElement = () => {
-    if (stages[step].status === StagesProgress.OnGoing) {
-      return (
+  const StatusElement = (
+    <>
+      {stages[step].status === StagesProgress.OnGoing ? (
         <>
           <Box>
             <Box sx={{ display: "flex" }}>
@@ -300,7 +300,10 @@ const ProjectStagesPage: NextPage<
                 ) : (
                   <>
                     <TextField
-                      sx={{ width: "72px", marginTop: { xs: 1, lg: 0 } }}
+                      sx={{
+                        width: "72px",
+                        marginTop: { xs: 1, lg: 0 },
+                      }}
                       placeholder="00"
                       value={completeDate.getDate()}
                       size="small"
@@ -328,7 +331,10 @@ const ProjectStagesPage: NextPage<
                       type="number"
                     />
                     <TextField
-                      sx={{ width: "72px", marginTop: { xs: 1, lg: 0 } }}
+                      sx={{
+                        width: "72px",
+                        marginTop: { xs: 1, lg: 0 },
+                      }}
                       placeholder="00"
                       value={completeDate.getMonth() + 1}
                       size="small"
@@ -355,7 +361,10 @@ const ProjectStagesPage: NextPage<
                       type="number"
                     />
                     <TextField
-                      sx={{ width: "90px", marginTop: { xs: 1, lg: 0 } }}
+                      sx={{
+                        width: "90px",
+                        marginTop: { xs: 1, lg: 0 },
+                      }}
                       placeholder="0000"
                       value={completeDate.getFullYear() + 543}
                       size="small"
@@ -434,9 +443,7 @@ const ProjectStagesPage: NextPage<
             </Box>
           </Box>
         </>
-      );
-    } else {
-      return (
+      ) : (
         <Box sx={{ display: "flex" }}>
           <Box sx={{ flexGrow: 1 }} />
           <Typography sx={{ mr: 1 }}>Stage status:</Typography>
@@ -454,9 +461,9 @@ const ProjectStagesPage: NextPage<
             Mark as In Progress
           </Button>
         </Box>
-      );
-    }
-  };
+      )}
+    </>
+  );
 
   /**
    * Authentication: Redirect if not authenicated
@@ -547,7 +554,7 @@ const ProjectStagesPage: NextPage<
           <Box sx={{ display: { md: "flex" }, mt: 1, alignItems: "center" }}>
             <TitleButtonElement />
             <Box sx={{ flexGrow: 1 }} />
-            <StatusElement />
+            {StatusElement}
           </Box>
           <Box component="div">
             <Box
