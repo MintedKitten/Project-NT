@@ -43,7 +43,6 @@ export interface fileMetadataInt {
   contentType: string;
   size: number;
   uploadDate: Date;
-  dir?: string;
 }
 
 /**
@@ -608,9 +607,9 @@ export async function equipmentsDeleteMany(
 
 /**
  * Equipments Join Projects
- * @param conn 
- * @param query 
- * @returns 
+ * @param conn
+ * @param query
+ * @returns
  */
 export async function eqJoinProj(conn: MongoClient, query: object) {
   const result = (await getEquipmentsColl(conn)).aggregate([
@@ -636,9 +635,9 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
 
 /**
  * Projects join Stages, filter stages with status OnGoing
- * @param conn 
- * @param query 
- * @returns 
+ * @param conn
+ * @param query
+ * @returns
  */
 export async function projJoinStage(conn: MongoClient, query: object) {
   const result = (await getProjectColl(conn)).aggregate([

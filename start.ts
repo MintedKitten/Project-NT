@@ -84,21 +84,21 @@ async function insoFileMetadata(query: fileMetadataInt): Promise<ObjectId> {
   return id;
 }
 
-async function insoDir2FileMetadata(
-  fmid: ObjectId,
-  query: { dir: string }
-): Promise<ObjectId> {
-  const conn = await getMongoclient();
-  const id = await conn
-    .db(dbName)
-    .collection(filesMetadataColl)
-    .updateOne({ _id: fmid }, { $set: { dir: query.dir } })
-    .then((value) => {
-      return value.upsertedId;
-    });
-  await conn.close();
-  return id;
-}
+// async function insoDir2FileMetadata(
+//   fmid: ObjectId,
+//   query: { dir: string }
+// ): Promise<ObjectId> {
+//   const conn = await getMongoclient();
+//   const id = await conn
+//     .db(dbName)
+//     .collection(filesMetadataColl)
+//     .updateOne({ _id: fmid }, { $set: { dir: query.dir } })
+//     .then((value) => {
+//       return value.upsertedId;
+//     });
+//   await conn.close();
+//   return id;
+// }
 
 // Parse authentication cookie
 // cookieformat as key1=value1; key2=value2; key3=value3
@@ -142,7 +142,9 @@ app
         try {
           const result = await getFileName(new ObjectId(req.params.fmid));
           if (result) {
-            const { filename, dir } = result;
+            const { _id, filename } = result;
+            const dir =
+              fileDir + "/" + sha256(_id?.toHexString() + "") + ".file";
             if (!dir || (dir && !existsSync(dir))) {
               return res.status(404).end("Can't find that file, sorry!");
             }
@@ -230,7 +232,7 @@ app
               }).catch((err) => {
                 throw new Error(err);
               });
-              await insoDir2FileMetadata(fmid, { dir: dir });
+              // await insoDir2FileMetadata(fmid, { dir: dir });
               console.log(`New file uploaded at: ${dir}`);
               console.log(`fmid: ` + fmid.toHexString());
               return res
