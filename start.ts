@@ -145,7 +145,7 @@ app
             const { _id, filename } = result;
             const dir =
               fileDir + "/" + sha256(_id?.toHexString() + "") + ".file";
-            if (!dir || (dir && !existsSync(dir))) {
+            if (!existsSync(dir)) {
               return res.status(404).end("Can't find that file, sorry!");
             }
             console.log(`File downloading: ${filename}\nAt: ${dir}`);
