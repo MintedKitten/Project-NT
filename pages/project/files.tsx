@@ -127,7 +127,7 @@ const ProjectFilesPage: NextPage<
   };
 
   /**
-   * Authentication: Redirect if not authenicated
+   * Authentication: Redirect if not authenticated
    */
   if (status === "unauthenticated") {
     router.push({ pathname: "/api/auth/signin" });
