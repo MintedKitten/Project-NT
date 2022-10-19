@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
               pwdToken: { sub: passwordToken.sub, date: passwordToken.date },
             };
             log(JSON.stringify(toLog));
-            return { id: user._id, name: user.name, admin: user.admin };
+            return { id: user._id, name: user.name };
           }
         }
         const toLog = {
