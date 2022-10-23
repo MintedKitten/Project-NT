@@ -642,11 +642,9 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
 export async function projJoinStage(conn: MongoClient, query: object) {
   const info = await conn.db().admin().serverInfo();
   const version = parseFloat(info.versionArray[0] + "." + info.versionArray[1]);
-  const te1 = parseFloat("4.4.0"),
-    te2 = parseFloat("4.4.2");
-  console.log(version, te1, te2);
-  try {
-    // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
+  // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
+  // Normal Subqueries for MongoDB 4.4
+  if (version > 4.4) {
     const result = (await getProjectColl(conn)).aggregate([
       { $match: query },
       {
@@ -660,9 +658,7 @@ export async function projJoinStage(conn: MongoClient, query: object) {
       },
     ]);
     return result;
-  } catch (err) {
-    // Normal Subqueries for MongoDB 4.4
-    console.log(2);
+  } else {
     const result = (await getProjectColl(conn)).aggregate([
       { $match: query },
       {
