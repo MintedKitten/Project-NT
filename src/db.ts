@@ -664,14 +664,11 @@ export async function projJoinStage(conn: MongoClient, query: object) {
       {
         $lookup: {
           from: `${process.env.stagesColl}`,
-          localField: "_id",
-          foreignField: "projId",
+          pipeline: [
+            { $match: { $expr: { $eg: ["_id", "projId"] } } },
+            { $match: { status: StagesProgress.OnGoing } },
+          ],
           as: "stages_docs",
-        },
-      },
-      {
-        $match: {
-          stages_docs: { $elemMatch: { status: StagesProgress.OnGoing } },
         },
       },
     ]);
