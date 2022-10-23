@@ -666,13 +666,11 @@ export async function projJoinStage(conn: MongoClient, query: object) {
           from: `${process.env.stagesColl}`,
           pipeline: [
             { $match: { $expr: { $eq: ["_id", "projId"] } } },
-            { $match: { status: StagesProgress.OnGoing } },
           ],
           as: "stages_docs",
         },
       },
     ]);
-    console.log(result);
     return result;
   }
 }
