@@ -411,7 +411,7 @@ export const getServerSideProps: GetServerSideProps<{
       retOb = { props: { presult: result } };
     }
   } catch (err) {
-    alert(err);
+    console.log(err);
   }
   await conn.close();
   return retOb;
