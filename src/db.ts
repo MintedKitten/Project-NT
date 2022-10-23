@@ -642,6 +642,8 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
 export async function projJoinStage(conn: MongoClient, query: object) {
   const info = await conn.db().admin().serverInfo();
   console.log(info);
+  const status = await conn.db().admin().serverStatus();
+  console.log(status);
   try {
     // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
     const result = (await getProjectColl(conn)).aggregate([
