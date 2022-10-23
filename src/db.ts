@@ -641,7 +641,8 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
  */
 export async function projJoinStage(conn: MongoClient, query: object) {
   try {
-    // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or more
+    // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
+    console.log(1)
     const result = (await getProjectColl(conn)).aggregate([
       { $match: query },
       {
@@ -657,6 +658,7 @@ export async function projJoinStage(conn: MongoClient, query: object) {
     return result;
   } catch (err) {
     // Normal Subqueries for MongoDB 4.4
+    console.log(2)
     const result = (await getProjectColl(conn)).aggregate([
       { $match: query },
       {
