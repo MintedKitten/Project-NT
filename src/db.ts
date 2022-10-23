@@ -640,19 +640,36 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
  * @returns
  */
 export async function projJoinStage(conn: MongoClient, query: object) {
-  const result = (await getProjectColl(conn)).aggregate([
-    {
-      $match: query,
-    },
-    {
-      $lookup: {
-        from: `${process.env.stagesColl}`,
-        localField: "_id",
-        foreignField: "projId",
-        pipeline: [{ $match: { status: StagesProgress.OnGoing } }],
-        as: "stages_docs",
+  try {
+    // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or more
+    const result = (await getProjectColl(conn)).aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: `${process.env.stagesColl}`,
+          localField: "_id",
+          foreignField: "projId",
+          pipeline: [{ $match: { status: StagesProgress.OnGoing } }],
+          as: "stages_docs",
+        },
       },
-    },
-  ]);
-  return result;
+    ]);
+    return result;
+  } catch (err) {
+    // Normal Subqueries for MongoDB 4.4
+    const result = (await getProjectColl(conn)).aggregate([
+      { $match: query },
+      {
+        $lookup: {
+          from: `${process.env.stagesColl}`,
+          localField: "_id",
+          foreignField: "projId",
+          as: "stages_docs",
+        },
+      },
+      { $match: { stages_docs: { status: StagesProgress.OnGoing } } },
+    ]);
+    console.log(result);
+    return result;
+  }
 }
