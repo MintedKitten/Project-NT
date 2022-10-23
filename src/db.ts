@@ -641,9 +641,7 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
  */
 export async function projJoinStage(conn: MongoClient, query: object) {
   const info = await conn.db().admin().serverInfo();
-  console.log(info);
-  const status = await conn.db().admin().serverStatus();
-  const version = parseFloat(status.versions);
+  const version = parseFloat(info.versionArray[0] + "." + info.versionArray[1]);
   const te1 = parseFloat("4.4.0"),
     te2 = parseFloat("4.4.2");
   console.log(version, te1, te2);
