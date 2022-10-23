@@ -669,9 +669,7 @@ export async function projJoinStage(conn: MongoClient, query: object) {
           as: "stages_docs",
         },
       },
-      { $match: { stages_docs: { status: StagesProgress.OnGoing } } },
     ]);
-    console.log(result);
     return result;
   }
 }
