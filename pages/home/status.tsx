@@ -403,6 +403,7 @@ export const getServerSideProps: GetServerSideProps<{
     const cres = await ProjectWithInProgressStage(conn, {});
     if (cres) {
       const arresult = await cres.toArray();
+      console.log(arresult);
       const result = arresult
         .map((result) => {
           return compileStatus(result);
