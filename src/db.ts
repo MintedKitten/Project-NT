@@ -643,7 +643,10 @@ export async function projJoinStage(conn: MongoClient, query: object) {
   const info = await conn.db().admin().serverInfo();
   console.log(info);
   const status = await conn.db().admin().serverStatus();
-  console.log(status);
+  const version = parseFloat(status.versions);
+  const te1 = parseFloat("4.4.0"),
+    te2 = parseFloat("4.4.2");
+  console.log(version, te1, te2);
   try {
     // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
     const result = (await getProjectColl(conn)).aggregate([
