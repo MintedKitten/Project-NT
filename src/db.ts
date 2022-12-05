@@ -640,8 +640,8 @@ export async function eqJoinProj(conn: MongoClient, query: object) {
  * @returns
  */
 export async function projJoinStage(conn: MongoClient, query: object) {
-  // const info = await conn.db().admin().serverInfo();
-  // const version = parseFloat(info.versionArray[0] + "." + info.versionArray[1]);
+  const info = await conn.db().admin().serverInfo();
+  const version = parseFloat(info.versionArray[0] + "." + info.versionArray[1]);
   // Correlated Subqueries Using Concise Syntax: Only available from MongoDB 5.0 or higher
   // Normal Subqueries for MongoDB 4.4
   // if (version > 4.4) {
